@@ -1,0 +1,2699 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b5c8e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PMN Plotter">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>PMN Plotter</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+:root{--bg:#eef2f6;--card:#fff;--ink:#14212e;--muted:#5d6b7a;--line:#d8e0e8;--brand:#0b5c8e;--brand-ink:#fff;--ok:#1a7f4b;--okbg:#e2f4ea;--warn:#a85a00;--warnbg:#fff1dc;--bad:#b42318;--badbg:#fde8e6;--info:#4a5a6a;--infobg:#e8edf2;--blue:#1d6fb8}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1620;--card:#16222f;--ink:#e6edf4;--muted:#9bacbd;--line:#2a3a4b;--brand:#4aa3df;--brand-ink:#04121d;--ok:#5fd18f;--okbg:#12301f;--warn:#f0b35a;--warnbg:#3a2808;--bad:#ff8f84;--badbg:#401512;--info:#a9b8c7;--infobg:#223140;--blue:#5aa9f0}}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+#app{max-width:480px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;background:var(--bg);position:relative;box-shadow:0 0 0 1px var(--line)}
+.demobar{background:#2b2140;color:#e9e0ff;padding:6px 10px;font-size:12px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.demobar b{letter-spacing:.04em}
+.demobar button{font:inherit;font-size:11.5px;border:1px solid #6f5aa8;background:#3d2f5c;color:#fff;border-radius:6px;padding:4px 7px;cursor:pointer}
+.demobar button:hover{background:#51407a}
+.demobar button.on{background:#b42318;border-color:#ff8f84}
+header.top{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--brand);color:var(--brand-ink)}
+header.top h1{font-size:16px;margin:0;flex:1}
+header.top select{font:inherit;font-size:13px;border-radius:6px;border:0;padding:5px 6px;background:rgba(255,255,255,.2);color:var(--brand-ink)}
+header.top select option{color:#000}
+main{flex:1;overflow:auto;padding:12px 14px 20px;-webkit-overflow-scrolling:touch}
+main.map{padding:0;position:relative;overflow:hidden}
+nav.tabs{display:flex;border-top:1px solid var(--line);background:var(--card);padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{flex:1;border:0;background:none;padding:8px 0 6px;font:inherit;font-size:11.5px;color:var(--muted);cursor:pointer}
+nav.tabs button b{display:block;font-size:17px;line-height:1.1}
+nav.tabs button.on{color:var(--brand);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.card h2{font-size:12.5px;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.card.ok{border-left:4px solid var(--ok)}.card.bad{border-left:4px solid var(--bad);background:var(--badbg)}
+.card.warn{border-left:4px solid var(--warn)}.card.act{border-left:4px solid var(--brand)}
+.big{font-size:17px;font-weight:650}
+.muted{color:var(--muted)}.small{font-size:12.5px}
+.row{display:flex;gap:8px;align-items:center}.row.sp{justify-content:space-between}.wrap{flex-wrap:wrap}
+.btn{font:inherit;font-size:14px;font-weight:600;border:1px solid var(--brand);background:var(--brand);color:var(--brand-ink);border-radius:9px;padding:9px 13px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--brand)}
+.btn.sm{font-size:12.5px;padding:5px 9px}
+.btn.okb{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.badb{background:transparent;border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chip{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--infobg);color:var(--info);white-space:nowrap}
+.chip.ok{background:var(--okbg);color:var(--ok)}.chip.warn{background:var(--warnbg);color:var(--warn)}
+.chip.exp,.chip.bad{background:var(--badbg);color:var(--bad)}.chip.ganti{background:var(--infobg);color:var(--muted);text-decoration:line-through}
+.chip.soon{background:#e4ecff;color:#2d4fa3}.chip.ok2{background:#dff0f8;color:var(--brand)}
+.item{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
+.item .t{font-weight:600;margin:3px 0 5px;font-size:14px}
+.item .no{font-weight:700;color:var(--brand)}
+.notes{margin:6px 0 0;padding-left:18px}.notes li{margin:3px 0}
+.log{font-size:12.5px;color:var(--muted);margin:0;padding:0;list-style:none}.log li{padding:4px 0;border-top:1px solid var(--line)}.log li:first-child{border-top:0}
+.sheet{position:absolute;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column}
+.sheet .bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--card);border-bottom:1px solid var(--line)}
+.sheet .bar b{flex:1}
+.sheet .body{flex:1;overflow:auto;padding:12px 14px 24px}
+.sheet .foot{padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap}
+dl.f{display:grid;grid-template-columns:92px 1fr;gap:4px 10px;margin:8px 0;font-size:14px}dl.f dt{color:var(--muted)}dl.f dd{margin:0}
+table.pts{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+table.pts th{text-align:left;color:var(--muted);font-weight:600;padding:4px 4px}
+table.pts td{padding:5px 4px;border-top:1px solid var(--line);vertical-align:middle}
+table.pts tr.flag td{background:var(--badbg)}
+table.pts tr.edited td{background:var(--warnbg)}
+.empty{text-align:center;color:var(--muted);padding:22px 10px}
+.toast{position:absolute;left:50%;bottom:72px;transform:translateX(-50%);background:#14212e;color:#fff;padding:9px 14px;border-radius:10px;font-size:13.5px;z-index:2000;max-width:90%;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+#map{position:absolute;inset:0}
+.mapbar{position:absolute;top:10px;left:10px;right:56px;z-index:500;display:flex;gap:6px;flex-wrap:wrap}
+.mapbar button{font:inherit;font-size:12.5px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:5px 10px;border-radius:99px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.mapbar button.on{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.editbar{position:absolute;top:0;left:0;right:0;z-index:600;background:var(--warn);color:#fff;padding:8px 12px;font-size:13px}
+.editbar .row{margin-top:6px}
+.editbar button{font:inherit;font-size:12.5px;border:0;background:#fff;color:#14212e;padding:5px 10px;border-radius:99px;cursor:pointer;font-weight:600}
+.editbar button.on{background:#14212e;color:#fff}
+.legend{position:absolute;left:10px;bottom:10px;z-index:500;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:12px}
+.legend i{display:inline-block;width:14px;height:10px;margin-right:6px;border:2px solid var(--blue);background:rgba(29,111,184,.2);vertical-align:-1px}
+.legend i.d{border-color:#e07b00;background:rgba(224,123,0,.2);border-style:dashed}
+.disc{font-size:11.5px;color:var(--muted);margin-top:8px}
+.files{margin:6px 0;padding:0;list-style:none;font-size:13.5px}.files li{padding:5px 8px;background:var(--infobg);border-radius:7px;margin:4px 0;word-break:break-all}
+label.ck{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin:8px 0}
+select.sel,input.in,textarea.in{font:inherit;font-size:14px;padding:6px 8px;border-radius:7px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
+input.in{width:100%}textarea.in{width:100%;min-height:90px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px}
+input.pt{width:104px;padding:4px 6px;font-size:12.5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid2 label{font-size:12px;color:var(--muted);display:block}
+.trail{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:12px;margin:6px 0}
+.trail span.s{background:var(--okbg);color:var(--ok);border-radius:6px;padding:2px 7px;font-weight:600}
+.trail span.m{background:var(--warnbg);color:var(--warn);border-radius:6px;padding:2px 7px;font-weight:600}
+.trail span.a{color:var(--muted)}
+details.d{margin:8px 0}details.d summary{cursor:pointer;font-weight:600;color:var(--brand)}
+.pm{font:13px/1.45 ui-monospace,Menlo,monospace;background:var(--infobg);border-radius:8px;padding:8px 10px;white-space:pre-wrap}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pc .card{margin:0}.pc ul{margin:4px 0 0;padding-left:16px;font-size:13px}.pc li{margin:3px 0}
+.langs{display:flex;gap:4px;margin-right:4px}
+.langs button{font:inherit;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.5);background:transparent;color:var(--brand-ink);border-radius:6px;padding:3px 8px;cursor:pointer}
+.langs button.on{background:#fff;color:var(--brand)}
+.banner{padding:6px 14px;font-size:12.5px}
+.banner.bad{background:var(--badbg);color:var(--bad)}
+.banner.warn{background:var(--warnbg);color:var(--warn)}
+.demobar .hint{opacity:.8;flex-basis:100%;font-size:11px}
+#maptools .legend,#maptools .mapbar,#maptools .editbar{position:absolute}
+
+
+.seen{display:inline-block;font-size:12.5px;font-weight:600;padding:2px 9px;border-radius:99px}
+.seen.yes{background:var(--okbg);color:var(--ok)}.seen.no{background:var(--badbg);color:var(--bad)}
+.pdftext{white-space:pre-wrap;word-break:break-word;font-size:12px;max-height:340px;overflow:auto;background:var(--infobg);padding:8px;border-radius:8px;margin:0}
+#pdfpages canvas{width:100%;height:auto;display:block;margin:0 0 8px;border:1px solid var(--line);border-radius:6px}
+.steps{margin:8px 0 0;padding-left:20px}.steps>li{margin:8px 0;line-height:1.35}.steps .files{margin:4px 0 0}
+.pdfbox{max-height:62vh;overflow:auto;border-radius:6px}
+.step.done{color:var(--muted)}.step.done .files{display:none}.tick{color:var(--ok);font-weight:700}
+.gear{background:transparent;border:1px solid var(--line);color:inherit;border-radius:8px;padding:2px 8px;font-size:16px;line-height:1.4;cursor:pointer}
+
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="demobar" id="demobar"></div>
+  <header class="top">
+    <h1>PMN Plotter</h1>
+    <div id="langs" class="langs"></div>
+    <label class="small"><span id="whoLabel"></span> <select id="who"></select></label>
+    <button id="gear" class="gear" data-act="settings" type="button">⚙</button>
+  </header>
+  <div id="banner"></div>
+  <main id="view"></main>
+  <nav class="tabs" id="tabs"></nav>
+  <div id="sheet"></div>
+  <div id="toast" class="toast" hidden></div>
+</div>
+<input type="file" id="pdfin" accept="application/pdf,.pdf" hidden multiple>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+/* ---- shared/coords.js ---- */
+/* ===== Koordinat: dipakai bersama klien, backend, dan uji ===== */
+
+/**
+ * Teks lintang/bujur -> derajat desimal, atau null bila tidak valid. Menerima "01 23.079", "01°23.079'N", "1.3079", "1.5 S".
+ * Huruf S (lintang) atau W (bujur) membuat nilai negatif; huruf arah di sumbu yang salah (E pada lintang) ditolak.
+ */
+function parseDM(s, isLon) {
+  s = String(s == null ? '' : s).replace(/[º˚]/g, '°').trim();
+  let neg = false;
+  const h = s.match(/\s*([NSEW])\s*$/i);
+  if (h) {
+    const letter = h[1].toUpperCase();
+    if (isLon ? !/[EW]/.test(letter) : !/[NS]/.test(letter)) return null;
+    neg = letter === 'S' || letter === 'W';
+    s = s.slice(0, h.index).trim();
+  }
+  let v = null;
+  if (/^\d{1,3}\.\d+$/.test(s)) v = +s;
+  else {
+    const m = s.match(/(\d{1,3})\D+(\d{1,2}(?:\.\d+)?)/);
+    if (m && +m[2] < 60) v = +m[1] + +m[2] / 60;
+  }
+  if (v == null || isNaN(v)) return null;
+  if (isLon ? v > 180 : v > 90) return null;
+  return neg ? -v : v;
+}
+
+/** Derajat desimal -> "01°23.079'N" (bujur: 3 digit derajat, E/W). */
+function fmtDM(v, isLon) {
+  const hemi = v < 0 ? (isLon ? 'W' : 'S') : (isLon ? 'E' : 'N');
+  v = Math.abs(v);
+  let d = Math.floor(v), m = (v - d) * 60;
+  if (+m.toFixed(3) >= 60) { d++; m = 0; }
+  return `${String(d).padStart(isLon ? 3 : 2, '0')}°${m.toFixed(3).padStart(6, '0')}'${hemi}`;
+}
+
+/** Jarak dua titik {lat, lon} dalam meter (radius bumi 6371000 m). */
+function haversine(a, b) {
+  const R = 6371000, r = Math.PI / 180;
+  const dl = (b.lat - a.lat) * r, dn = (b.lon - a.lon) * r;
+  const x = Math.sin(dl / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dn / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+
+/* ---- shared/pmnparse.js ---- */
+/* ===== Dates ===== */
+const MONS=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const MONRE='(JAN(?:UARY)?|FEB(?:RUARY)?|MAR(?:CH)?|APR(?:IL)?|MAY|JUNE?|JULY?|AUG(?:UST)?|SEPT?(?:EMBER)?|OCT(?:OBER)?|NOV(?:EMBER)?|DEC(?:EMBER)?)';
+const isoOf=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function parseDates(text,refYear){
+  const re=new RegExp('(?<!\\d)(\\d{1,2})\\s*'+MONRE+'(?![A-Z])\\.?(?:\\s*(\\d{4}|\\d{2})(?!\\d))?','gi');
+  const ds=[];let m;
+  while((m=re.exec(text)))ds.push({d:+m[1],mo:MONS.indexOf(m[2].slice(0,3).toUpperCase()),y:m[3]?(m[3].length===2?2000+(+m[3]):+m[3]):null});
+  if(!ds.length)return null;
+  const a=ds[0],b=ds[ds.length-1],warn=[];
+  if(b.y==null)b.y=a.y??refYear??new Date().getFullYear();
+  if(a.y==null)a.y=a.mo>b.mo?b.y-1:b.y;
+  const mk=x=>{const dim=new Date(x.y,x.mo+1,0).getDate();if(x.d>dim){warn.push(`tanggal "${x.d} ${MONS[x.mo]}" tidak ada`);x.d=dim}return new Date(x.y,x.mo,x.d)};
+  const from=mk(a),to=mk(b);
+  if(ds.length===1)warn.push('hanya ada satu tanggal');
+  if(to<from)warn.push('tanggal akhir lebih awal dari tanggal mulai');
+  return {from:ds.length>1?from:null,to,warn,count:ds.length};
+}
+
+/* ===== Coordinates ===== */
+const COORD=/(\d{1,2})\s*°\s*(\d{1,2}[.·ꞏ]\d+)\s*['’′]?\s*([NS])?\s+(\d{2,3})\s*°\s*(\d{1,2}[.·ꞏ]\d+)\s*['’′]?\s*([EW])?/;
+const num=s=>parseFloat(s.replace(/[·ꞏ]/g,'.'));
+/* Baris yang tampak seperti koordinat (dua pasang derajat-menit desimal) walau gagal dibaca. */
+const LOOSE=/\d{1,3}\s*°\s*\d{1,2}\s*[.·ꞏ,]\s*\d+[^\d]{0,12}\d{1,3}\s*°\s*\d{1,2}\s*[.·ꞏ,]\s*\d+/;
+/* Kerusakan OCR umum: derajat hilang atau terbaca o/º, dan huruf l/I/O di dalam angka desimal menit. Dua pasang derajat-menit desimal tiga digit
+   pada satu baris (format MPA) yang tidak terbaca harus dihitung sebagai baris terbuang agar muncul peringatan. */
+const LOOSE2=/\d{1,3}\s*[°oO]?\s*\d{1,2}\s*[.·ꞏ,]\s*\d[0-9lIO]{2}\b.{0,16}?\d{1,3}\s*[°oO]?\s*\d{1,2}\s*[.·ꞏ,]\s*\d[0-9lIO]{2}\b/;
+const GARBLE=/\d{1,2}[.·ꞏ,]\d{0,2}[lIOo]\d/;
+function parseCoords(text){return parseCoordsEx(text).groups}
+/* Mengembalikan {groups, dropped}: dropped = jumlah baris mirip-koordinat yang tidak bisa dibaca. Tidak ada titik yang dibuang diam-diam. */
+function parseCoordsEx(text){
+  text=normDeg(text);
+  let dropped=0;
+  const groups=[];let cur={name:'Area',pts:[]};
+  const radiusCol=/radius/i.test(text);
+  for(const line of text.split(/\r?\n/)){
+    if(GARBLE.test(line)&&LOOSE2.test(line)){dropped++;continue}
+    const m=line.match(COORD);
+    if(!m){if(LOOSE.test(line)||LOOSE2.test(line))dropped++;const h=line.match(/working\s+area\s*([A-Z0-9]{1,3})\b/i);if(h){if(cur.pts.length)groups.push(cur);cur={name:'Area '+h[1].toUpperCase(),pts:[]}}continue}
+    const latD=+m[1],latM=num(m[2]),lonD=+m[4],lonM=num(m[5]);
+    if(latM>=60||lonM>=60){dropped++;continue}
+    let lat=latD+latM/60,lon=lonD+lonM/60;if(m[3]==='S')lat=-lat;if(m[6]==='W')lon=-lon;
+    let label=line.slice(0,m.index).replace(/^(working\s+area\s*[A-Z0-9]{1,3}\b)/i,'').trim()||String(cur.pts.length+1);
+    if(label.length>30)label=label.slice(-30).trim();
+    const tail=line.slice(m.index+m[0].length);
+    const rm=radiusCol&&tail.match(/^\s*(\d{2,4})(?:\s*m)?\b/);
+    if(cur.pts.some(p=>Math.abs(p.lat-lat)<1e-7&&Math.abs(p.lon-lon)<1e-7))continue;
+    cur.pts.push({label,lat,lon,r:rm?+rm[1]:null,
+      latDM:`${String(latD).padStart(2,'0')}°${latM.toFixed(3)}'${m[3]||'N'}`,lonDM:`${String(lonD).padStart(3,'0')}°${lonM.toFixed(3)}'${m[6]||'E'}`});
+  }
+  if(cur.pts.length)groups.push(cur);
+  return {groups,dropped};
+}
+
+/* ===== Whole PMN document ===== */
+/* Simbol derajat alternatif (º U+00BA, ˚ U+02DA) dinormalkan menjadi ° sebelum dibaca. PMN 112 memakai º. */
+const normDeg=t=>t.replace(/[º˚]/g,'°');
+/* Judul cadangan untuk PDF tanpa baris "Applicable to" (mis. pengumuman): baris huruf kapital tepat setelah baris "... Community". */
+function titleFallback(text){
+  const ls=text.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,16);
+  let i=-1;ls.forEach((l,k)=>{if(/Community\s*$/i.test(l))i=k});
+  const t=[];for(let k=i+1;k<ls.length&&/^[^a-z]*[A-Z][^a-z]*$/.test(ls[k])&&!/^\d/.test(ls[k]);k++)t.push(ls[k]);
+  return t.join(' ');
+}
+/** Tanggal terbit: baris tunggal "d Mon yyyy" tepat setelah baris "NO. n OF yyyy". Null bila tidak ada atau tanggalnya tidak ada di kalender. */
+function publishedAfterNo(main){
+  const m=main.match(/NO\.?\s*0*\d{1,3}\s*OF\s*\d{4}[^\n]*\n+\s*([^\n]+)/i);
+  if(!m)return null;
+  const d=m[1].trim().match(new RegExp('^(\\d{1,2})\\s+'+MONRE+'\\s+(\\d{4})$','i'));
+  if(!d)return null;
+  const day=+d[1],mo=MONS.indexOf(d[2].slice(0,3).toUpperCase()),y=+d[3];
+  if(day<1||day>new Date(y,mo+1,0).getDate())return null;
+  return isoOf(new Date(y,mo,day));
+}
+function parsePmnText(text,hint={}){
+  const full=normDeg(text).replace(/ /g,' ');
+  const cut=full.search(/PORT\s*MASTER\s*\n?\s*MARITIME AND PORT AUTHORITY/i);
+  const main=cut>0?full.slice(0,cut):full;
+  const r={warn:[]};
+  if(text.trim().length<80){
+    r.warn.push({code:'no_text'});r.no=hint.no||undefined;r.year=r.no?+r.no.split('/')[1]:null;r.title=(hint.title||'').trim();r.groups=[];r.kind='check';r.published=null;return r;
+  }
+  const no=main.match(/NO\.?\s*0*(\d{1,3})\s*OF\s*(\d{4})/i);
+  if(no){r.no=`${+no[1]}/${no[2]}`}else if(hint.no)r.no=hint.no;
+  r.published=publishedAfterNo(main);
+  if(hint.no&&r.no&&hint.no!==r.no)r.warn.push({code:'number_mismatch',pdf:r.no,list:hint.no});
+  if(!r.no)r.warn.push({code:'no_number'});
+  r.year=+(r.no||'0/0').split('/')[1]||null;
+  // title: lines between the last "... Community" line and "Applicable to"
+  const ls=main.split(/\n/).map(s=>s.trim()).filter(Boolean);
+  const ai=ls.findIndex(l=>/^Applicable\s+to/i.test(l));
+  let title='';
+  if(ai>0){const t=[];for(let k=ai-1;k>=0&&!/Community\s*$|^\d{1,2}\s+\w+\s+\d{4}$|^NO\.?\s*\d/i.test(ls[k]);k--)t.unshift(ls[k]);title=t.join(' ')}
+  r.title=(hint.title||title||titleFallback(main)||'').replace(/\s+/g,' ').trim();
+  // validity
+  const di=main.search(/with\s+effect\s+from|take\s+effect\s+on|effect\s+on|commence\s+on|commence\b/i);
+  if(di>=0){const dt=parseDates(main.slice(di,di+170),r.year);
+    if(dt){r.from=isoOf(dt.from||dt.to);r.to=isoOf(dt.to);dt.warn.filter(w=>!/satu tanggal/.test(w)).forEach(w=>{if(/lebih awal/.test(w))r.warn.push({code:'dates_reversed'});else{const q=w.match(/"([^"]+)"/);r.warn.push({code:'date_not_exist',text:q?q[1]:w})}})}}
+  const sup=main.match(/(?:supersedes|revision\s+of)\s+Port\s+Marine\s+(?:Notice\s+)?No\.?\s*0*(\d+)\s+of\s+(\d{4})/i);
+  if(sup)r.supersedes=`${+sup[1]}/${sup[2]}`;
+  const vhf=main.match(/VHF\s+Channel\s*(\d+)\s*\(([^)]+)\)/i);if(vhf)r.vhf=`VHF ${vhf[1]} ${vhf[2].replace(/\s+/g,' ')}`;
+  const wh=main.match(/Working\s*Hours?\s*:?\s*([^\n]{3,80})/i);if(wh)r.hours=wh[1].replace(/^:\s*/,'').replace(/\.$/,'').trim();
+  const rad=main.match(/radius\s+of\s+(\d{2,4})\s*-?\s*m|(\d{2,4})\s*-?\s*m(?:etres?|eters?)?\s+radius|safe\s+working\s+zone\s+of\s+(\d{2,4})\s*m/i);
+  if(rad)r.radius=+(rad[1]||rad[2]||rad[3]);
+  // geometry
+  const pc=parseCoordsEx(main);r.groups=pc.groups;
+  const npts=r.groups.reduce((a,g)=>a+g.pts.length,0);
+  const mentionsCoords=/co-?ordinates|latitude|chartlet/i.test(main);
+  const otherFmt=/\d{1,3}\s*°\s*\d{1,2}\s*['’′]\s*\d{1,2}(?:\.\d+)?\s*["”″]/.test(main)||/\d{1,3}\.\d{3,}\s*°\s*[NSEW]?/.test(main);
+  if(!npts){
+    if(otherFmt){r.kind='check';r.warn.push({code:'unsupported_format'})}
+    else{r.kind=mentionsCoords?'check':'advisory';if(r.kind==='check')r.warn.push({code:'coords_unreadable'})}
+  }
+  else{
+    r.kind='plot';
+    const bounded=/bounded\s+by|working\s+area|within\s+the\s+area|demarcated/i.test(main);
+    r.groups.forEach(g=>{g.type=g.pts.every(p=>p.r)?'circles':(g.pts.length>=3&&bounded?'area':'points')});
+  }
+  if(pc.dropped>0)r.warn.push({code:'dropped_lines',n:pc.dropped});
+  if(!r.no)r.kind='check';
+  return r;
+}
+
+/* ---- shared/rules.js ---- */
+/* ===== Aturan PMN: murni (tanpa API Google/browser), dipakai klien, backend, dan uji ===== */
+
+/** Tanggal ISO (YYYY-MM-DD) di Asia/Singapore (UTC+8, tanpa DST) untuk sebuah instan. */
+function sgtToday(now) {
+  return new Date(now.getTime() + 8 * 3600e3).toISOString().slice(0, 10);
+}
+
+/**
+ * Status waktu sebuah PMN. work = {kind, from, to} atau null (belum dibaca).
+ * Mengembalikan {code, days?}; days hanya untuk 'ending_soon' (hari dari today ke to).
+ */
+function timeStatus(work, supersededBy, today) {
+  if (supersededBy) return { code: 'superseded' };
+  if (!work) return { code: 'unread' };
+  if (work.kind === 'advisory') return { code: 'info' };
+  if (!work.from || !work.to) return { code: 'dates_unknown' };
+  if (today < work.from) return { code: 'upcoming' };
+  if (today > work.to) return { code: 'expired' };
+  const days = Math.round((Date.parse(work.to) - Date.parse(today)) / 864e5);
+  return days <= 14 ? { code: 'ending_soon', days } : { code: 'active' };
+}
+
+/* ----- Nomor PMN, urutan, penggantian ----- */
+const numOf = no => +no.split('/')[0];
+const yearOf = no => +no.split('/')[1];
+
+/** Urut tahun menurun, lalu nomor menurun. Tidak mengubah array asal. */
+function sortDesc(nos) {
+  return nos.slice().sort((a, b) => yearOf(b) - yearOf(a) || numOf(b) - numOf(a));
+}
+
+/**
+ * Peta penggantian {nomorLama: nomorBaru} dari daftar {no, supersedes}.
+ * Bila dua PMN menggantikan nomor yang sama, yang bernomor lebih besar menang; rantai tidak digabung.
+ */
+function supersedeMap(list) {
+  const map = {};
+  for (const p of list) {
+    if (!p.supersedes || p.supersedes === p.no) continue;
+    const cur = map[p.supersedes];
+    if (!cur || yearOf(p.no) > yearOf(cur) || (yearOf(p.no) === yearOf(cur) && numOf(p.no) > numOf(cur))) map[p.supersedes] = p.no;
+  }
+  return map;
+}
+
+/** Nomor yang hilang di antara nomor terkecil dan terbesar per tahun, terurut naik tahun lalu nomor. */
+function findGaps(nos) {
+  const byYear = {};
+  for (const no of nos) (byYear[yearOf(no)] = byYear[yearOf(no)] || new Set()).add(numOf(no));
+  const out = [];
+  for (const y of Object.keys(byYear).map(Number).sort((a, b) => a - b)) {
+    const set = byYear[y], nums = [...set];
+    const lo = Math.min(...nums), hi = Math.max(...nums);
+    for (let n = lo + 1; n < hi; n++) if (!set.has(n)) out.push(`${n}/${y}`);
+  }
+  return out;
+}
+
+/* ----- Masalah yang harus diperiksa officer (butuh haversine dari shared/coords.js di lingkup global) ----- */
+const WATERS = { latMin: 1.0, latMax: 1.6, lonMin: 103.4, lonMax: 104.3 };
+const FAR_POINT_M = 5000;
+
+/**
+ * Daftar masalah pada sebuah PMN. work = {kind, from, to, groups}; parsedGroups = bacaan asli (opsional, untuk shape_doubt).
+ * Kode: no_coords (block), outside_waters, far_point, dates_reversed, shape_doubt.
+ */
+function issues(work, parsedGroups) {
+  const out = [];
+  const groups = work.groups || [];
+  const total = groups.reduce((n, g) => n + g.pts.length, 0);
+  if ((work.kind === 'plot' || work.kind === 'check') && !total) out.push({ code: 'no_coords', block: true });
+  groups.forEach((g, gi) => {
+    g.pts.forEach((q, pi) => {
+      if (q.lat < WATERS.latMin || q.lat > WATERS.latMax || q.lon < WATERS.lonMin || q.lon > WATERS.lonMax) {
+        out.push({ code: 'outside_waters', gi, pi, label: q.label });
+      }
+      if (g.pts.length >= 3) {
+        let nearest = Infinity;
+        g.pts.forEach((o, oi) => { if (oi !== pi) nearest = Math.min(nearest, haversine(q, o)); });
+        if (nearest > FAR_POINT_M) out.push({ code: 'far_point', gi, pi, label: q.label, km: Math.round(nearest / 1000) });
+      }
+    });
+    const orig = parsedGroups && parsedGroups[gi];
+    const unchanged = !parsedGroups || (orig && orig.type === 'area');
+    if (g.type === 'area' && unchanged && g.pts.length && g.pts.every(q => /[A-Za-z]{3,}/.test(q.label))) {
+      out.push({ code: 'shape_doubt', gi });
+    }
+  });
+  if (work.from && work.to && work.from > work.to) out.push({ code: 'dates_reversed' });
+  return out;
+}
+
+/* ----- Nama file ekspor dan catatan serah terima (netral, tidak diterjemahkan) ----- */
+function exportNames(isoDate, topNo) {
+  return {
+    xml: `UserChart_${isoDate}_s.d.${topNo}.xml`,
+    zip: `PMN-PDF_${isoDate}.zip`,
+    xlsx: `PMN-RECORD_${isoDate}_s.d.${topNo}.xlsx`,
+  };
+}
+
+const EN_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** "Last update PMN 135/2026 - 12 Oct 14:20 - Mualim I" (waktu Singapura, bulan singkatan Inggris). */
+
+/* ---- shared/record.js ---- */
+/* ===== Bentuk record PMN yang dipakai klien dan server ===== */
+/* Fungsi murni tanpa API Google atau DOM. Dipakai app/model.js dan backend/pipeline.js. Bergantung pada tidak ada fungsi shared lain. */
+
+const clone = o => JSON.parse(JSON.stringify(o));
+
+function blankRecord(rss, src) {
+  return { status: 'menunggu', rss, src, parsed: null, work: null, changes: [], ack: false, ver: 0 };
+}
+
+/** Hasil parsePmnText -> bentuk Parsed yang disimpan. */
+function toParsed(result, fallbackTitle) {
+  return {
+    title: result.title || fallbackTitle || '',
+    kind: result.kind,
+    published: result.published || null,
+    from: result.from || null,
+    to: result.to || null,
+    hours: result.hours || null,
+    vhf: result.vhf || null,
+    radius: result.radius || null,
+    supersedes: result.supersedes || null,
+    groups: clone(result.groups || []),
+    warn: clone(result.warn || []),
+  };
+}
+
+/** Menerapkan bacaan ke record: draf, bacaan asli (parsed) dan nilai kerja (work) terpisah. reader: 'ocr' bila dibaca server. */
+function applyReading(r, result, who, reader) {
+  r.parsed = toParsed(result, r.rss && r.rss.title);
+  if (reader) r.parsed.reader = reader;
+  r.work = clone(r.parsed);
+  r.status = 'draf';
+  r.readBy = who;
+  r.ack = false;
+  r.changes = [];
+  return r;
+}
+
+/* ---- app/i18n/index.js ---- */
+/* ===== Mesin terjemah: t, tn, fmtDate, setLang, getLang ===== */
+
+const MONTHS = {
+  id: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+};
+
+/**
+ * catalogs = {id: {...}, en: {...}}; lang = 'id' | 'en'.
+ * Kunci yang tidak ada di bahasa aktif jatuh ke bahasa Indonesia, lalu ke kuncinya sendiri; selalu dicatat di `missing`.
+ */
+function createI18n(catalogs, lang) {
+  let cur = catalogs[lang] ? lang : 'id';
+  const missing = [];
+  const fill = (s, params) => s.replace(/\{(\w+)\}/g, (m, k) => (params && params[k] != null ? String(params[k]) : m));
+  function t(key, params) {
+    let s = catalogs[cur][key];
+    if (s == null) {
+      if (!missing.includes(key)) missing.push(key);
+      s = cur !== 'id' && catalogs.id ? catalogs.id[key] : null; // jatuh ke bahasa Indonesia, lalu ke kunci
+      if (s == null) return key;
+    }
+    return fill(s, params);
+  }
+  function tn(key, n, params) {
+    return t(key + (n === 1 ? '.one' : '.other'), Object.assign({ n }, params));
+  }
+  function fmtDate(iso) {
+    const [y, m, d] = iso.slice(0, 10).split('-');
+    return `${+d} ${MONTHS[cur][+m - 1]} ${y}`;
+  }
+  function setLang(l) { if (catalogs[l]) cur = l; }
+  function getLang() { return cur; }
+  return { t, tn, fmtDate, setLang, getLang, missing };
+}
+
+/* ---- app/i18n/id.js ---- */
+/* Katalog teks antarmuka: Indonesia. Kunci harus identik dengan katalog bahasa lain (diuji di tests/i18n.test.js). */
+const ID = {
+  "time.superseded": "Digantikan",
+  "time.unread": "Belum dibaca",
+  "time.info": "Informasi",
+  "time.dates_unknown": "Tanggal perlu dicek",
+  "time.upcoming": "Belum berlaku",
+  "time.active": "Aktif",
+  "time.ending_soon.one": "Segera berakhir ({n} hari)",
+  "time.ending_soon.other": "Segera berakhir ({n} hari)",
+  "time.expired": "Berakhir",
+  "work.menunggu": "Menunggu dibaca",
+  "work.draf": "Draf: perlu dicek",
+  "work.disetujui": "Disetujui",
+  "work.diekspor": "Diekspor",
+  "work.terpasang": "Terpasang di ECDIS",
+  "issue.no_coords": "Koordinat tidak terbaca dari PDF. Isi manual (tempel teks, ketik titik, atau ketuk peta), atau tandai \"tanpa koordinat\".",
+  "issue.outside_waters": "Titik {label} berada di luar perairan Singapura.",
+  "issue.far_point": "Titik {label} berjarak sekitar {km} km dari titik lain. Kemungkinan salah ketik di PDF MPA.",
+  "issue.dates_reversed": "Tanggal mulai lebih besar dari tanggal selesai.",
+  "issue.shape_doubt": "Titik bernama (mis. pelampung/penanda). Apakah ini benar sebuah area? Pertimbangkan bentuk \"Titik\".",
+  "warn.no_text": "PDF tidak berisi teks yang bisa dibaca (mungkin hasil pindai).",
+  "warn.no_number": "Nomor PMN tidak ditemukan di PDF.",
+  "warn.number_mismatch": "Nomor di PDF ({pdf}) beda dengan daftar MPA ({list}).",
+  "warn.coords_unreadable": "PMN menyebut koordinat/chartlet tapi koordinat tidak terbaca.",
+  "warn.unsupported_format": "Koordinat tampak memakai format lain (detik atau derajat desimal). Isi manual.",
+  "warn.dropped_lines": "{n} baris koordinat tidak bisa dibaca dan dilewati.",
+  "warn.date_not_exist": "Tanggal \"{text}\" tidak ada.",
+  "warn.dates_reversed": "Tanggal akhir lebih awal dari tanggal mulai.",
+  "disclaimer.map": "Peta hanya ilustrasi, bukan untuk navigasi. User chart adalah informasi tambahan, bukan koreksi resmi ENC.",
+  "lang.id": "Indonesia",
+  "lang.en": "English",
+  "nav.home": "Beranda",
+  "nav.map": "Peta",
+  "nav.list": "PMN",
+  "nav.export": "Ekspor",
+  "nav.add": "Tambah PMN",
+  "common.close": "Tutup",
+  "common.save": "Simpan",
+  "common.cancel": "Batal",
+  "common.change": "Ubah",
+  "common.delete": "Hapus",
+  "common.restore": "Kembalikan",
+  "common.officer": "Officer",
+  "common.language": "Bahasa",
+  "common.yes": "Ya",
+  "common.no": "Tidak",
+  "log.check_found": "Cek MPA: {n} PMN baru diunduh ({list})",
+  "log.check_none": "Cek MPA: tidak ada PMN baru",
+  "log.check_failed": "Cek MPA GAGAL: {reason}",
+  "log.read": "Membaca PDF PMN {no} dan menyimpan draf",
+  "log.read_again": "Baca ulang PMN {no} (kembali ke bacaan asli)",
+  "log.add_pdf": "Menambah PMN {no} dari berkas {file}",
+  "log.edit_point": "Mengubah titik {label} PMN {no}",
+  "log.delete_point": "Menghapus titik {label} PMN {no}",
+  "log.add_point": "Menambah titik {label} PMN {no}",
+  "log.set_shape": "Mengubah bentuk PMN {no} menjadi {type}",
+  "log.edit_data": "Mengubah data PMN {no}",
+  "log.no_coords": "Menandai PMN {no} tanpa koordinat",
+  "log.paste_coords": "Menempel {n} titik ke PMN {no}",
+  "log.approve": "Menyetujui PMN {no}",
+  "log.approve_corrected": "Menyetujui PMN {no} (dengan koreksi manual)",
+  "log.unapprove": "Membatalkan persetujuan PMN {no}",
+  "log.export": "Membuat paket ekspor ({n} PMN, sampai {top})",
+  "log.installed": "Konfirmasi: PMN sampai {no} sudah terpasang di ECDIS",
+  "change.point_set": "Titik {label} diubah",
+  "change.point_add": "Titik {label} ditambah",
+  "change.point_del": "Titik {label} dihapus",
+  "change.point_restore": "Titik {label} dikembalikan ke nilai asli",
+  "change.shape": "Bentuk",
+  "change.coords_paste": "Koordinat ditempel",
+  "change.no_coords": "Ditandai tanpa koordinat",
+  "change.data": "Data: {field}",
+  "field.title": "Keterangan",
+  "field.from": "Mulai",
+  "field.to": "Selesai",
+  "field.hours": "Jam kerja",
+  "field.vhf": "Komunikasi",
+  "field.radius": "Radius",
+  "shape.area": "Area",
+  "shape.points": "Titik",
+  "shape.circles": "Lingkaran",
+  "err.err_mpa_blocked": "MPA menolak permintaan server (403/429).",
+  "err.err_mpa_down": "MPA tidak bisa dihubungi.",
+  "err.no_pdf": "PDF belum tersedia di server.",
+  "err.conflict": "Data diubah officer lain. Tampilan sudah dimuat ulang.",
+  "err.offline": "Tidak tersambung. Perubahan akan dikirim saat tersambung.",
+  "err.pdf_js_load": "Pembaca PDF gagal dimuat. Cek internet.",
+  "err.locked": "PMN ini sudah diekspor dan tidak bisa diubah.",
+  "err.ack_required": "Centang dulu: hal bertanda sudah Anda periksa.",
+  "err.blocked_no_coords": "Koordinat belum ada. Isi dulu, atau tandai tanpa koordinat.",
+  "err.no_change": "Tidak ada yang berubah.",
+  "err.none": "Tidak ada koordinat yang terbaca dari teks itu.",
+  "err.exists": "PMN {no} sudah ada ({status}).",
+  "err.no_number": "Nomor PMN tidak terbaca dari PDF.",
+  "err.unknown": "PMN tidak dikenal.",
+  "err.no_work": "PMN ini belum dibaca.",
+  "err.bad_index": "Titik atau kelompok tidak ditemukan.",
+  "err.has_points": "PMN ini sudah punya titik.",
+  "err.not_draft": "Hanya draf yang bisa disetujui.",
+  "err.not_approved": "PMN ini belum disetujui.",
+  "err.nothing": "Tidak ada yang bisa diproses.",
+  "common.today": "hari ini",
+  "common.corrected": "koreksi manual",
+  "list.published": "Terbit {date}",
+  "list.manual": "Ditambah manual",
+  "list.valid": "berlaku {from} – {to}",
+  "list.history_note.one": "{n} PMN lama hanya ada sebagai riwayat dari Excel ({list}).",
+  "list.history_note.other": "{n} PMN lama hanya ada sebagai riwayat dari Excel ({list}).",
+  "home.check_note": "Server mengecek MPA tiap hari sekitar jam 12:00",
+  "home.last_ok": "Terakhir berhasil: {when}",
+  "home.never": "Belum pernah berhasil",
+  "home.stale": "Sudah lebih dari 24 jam. MPA mungkin memblokir atau sedang bermasalah. PMN baru bisa ditambah manual dari berkas PDF.",
+  "home.check_now": "Cek sekarang",
+  "home.handover": "Last update",
+  "home.installed_up_to": "PMN {no}",
+  "home.no_handover": "Belum ada PMN yang tercatat terpasang di ECDIS",
+  "home.export_waiting": "Paket ekspor sampai PMN {no} dibuat oleh {by} tetapi belum dikonfirmasi terpasang.",
+  "home.reading": "Membaca PDF {no}…",
+  "home.reading_hint": "HP ini membaca PDF lalu menyimpan draf ke server.",
+  "home.pending.one": "{n} PMN baru menunggu dibaca",
+  "home.pending.other": "{n} PMN baru menunggu dibaca",
+  "home.pending_list": "{list}: PDF sudah diunduh server.",
+  "home.read_all": "Baca & plot di peta",
+  "home.drafts.one": "{n} draf perlu Anda periksa",
+  "home.drafts.other": "{n} draf perlu Anda periksa",
+  "home.drafts_hint": "Sudah digambar di peta (garis putus-putus).",
+  "home.ready.one": "{n} PMN disetujui, siap diekspor",
+  "home.ready.other": "{n} PMN disetujui, siap diekspor",
+  "home.go_export": "Ke halaman Ekspor",
+  "home.all_clear": "Semua sudah terkini ✓",
+  "home.all_clear_hint": "Tidak ada PMN yang menunggu.",
+  "detail.bar": "PMN {no}",
+  "detail.trail_rss": "RSS terbaca ✓",
+  "detail.trail_page": "Halaman PMN ✓",
+  "detail.trail_pdf": "PDF diunduh ✓",
+  "detail.trail_read_by": "Dibaca oleh {who}",
+  "detail.trail_unread": "Belum dibaca",
+  "detail.trail_manual": "Ditambah manual",
+  "detail.trail_pdf_read": "PDF dibaca ({file})",
+  "detail.trail_draft": "Draf",
+  "detail.stub_note": "PMN lama ini hanya ada sebagai riwayat dari Excel, tanpa isi PDF.",
+  "detail.superseded_by": "Sudah digantikan oleh PMN {no}. Tidak digambar di peta.",
+  "detail.waiting_note": "PDF sudah diunduh server, tetapi belum dibaca. Tekan tombol di bawah supaya HP ini membaca PDF dan menggambarnya di peta.",
+  "detail.issues_title": "Perlu diperiksa terhadap PDF/chartlet asli:",
+  "detail.warn_title": "Catatan dari pembacaan PDF:",
+  "detail.published": "Terbit",
+  "detail.period": "Periode",
+  "detail.period_value": "{from} sampai {to}",
+  "detail.period_none": "tidak terbaca / tidak ada",
+  "detail.read_by": "Dibaca oleh",
+  "detail.approved_by": "Disetujui oleh",
+  "detail.edit_data": "Ubah data (tanggal, jam, keterangan…)",
+  "detail.edit_data_title": "Ubah data PMN",
+  "detail.supersedes": "Menggantikan PMN {old}. Objek lama itu harus dihapus dari ECDIS saat ekspor.",
+  "detail.shape": "Bentuk",
+  "detail.points.one": "{n} titik",
+  "detail.points.other": "{n} titik",
+  "detail.col_lat": "Lintang",
+  "detail.col_lon": "Bujur",
+  "detail.orig": "asli: {value}",
+  "detail.added_point": "titik tambahan",
+  "detail.restore_title": "Kembalikan ke nilai asli",
+  "detail.manual_title": "Isi koordinat manual:",
+  "detail.paste_title": "1. Tempel teks koordinat dari PDF (satu titik per baris):",
+  "detail.paste_button": "Baca teks",
+  "detail.paste_sample": "Isi contoh",
+  "detail.add_title": "＋ Tambah titik (ketik)",
+  "detail.add_lat": "Lintang (contoh 01 23.079)",
+  "detail.add_lon": "Bujur (contoh 103 58.140)",
+  "detail.add_label": "Nama titik (boleh kosong)",
+  "detail.add_button": "Tambah",
+  "detail.edit_map": "Seret / tambah titik di peta",
+  "detail.no_coord": "Tandai tanpa koordinat",
+  "detail.advisory_note": "PMN ini berupa pengumuman tanpa koordinat. Tidak ada yang digambar, tetapi PDF-nya tetap masuk arsip dan Excel.",
+  "detail.seen_title": "Acknowledge officer",
+  "detail.seen_hint": "✗ = officer itu belum membuka PMN ini di HP-nya sendiri.",
+  "detail.cross_title": "Bacaan HP berbeda dari bacaan server. Periksa dengan PDF asli:",
+  "cross.coords": "Koordinat",
+  "cross.points": "Jumlah titik",
+  "cross.dates": "Tanggal",
+  "cross.kind": "Jenis PMN",
+  "detail.pdf_show": "Tampilkan PDF asli",
+  "detail.pdf_hide": "Sembunyikan PDF",
+  "detail.pdf_title": "PDF asli dari MPA",
+  "detail.pdf_text_note": "Mode demo: yang tampil teks hasil baca PDF, bukan gambar halaman.",
+  "detail.pdf_loading": "Memuat halaman PDF…",
+  "list.unseen": "Belum Anda buka",
+  "detail.ack": "Saya sudah memeriksa hal bertanda terhadap PDF asli.",
+  "detail.approve_plot": "Sudah benar — setujui plot",
+  "detail.approve_read": "Sudah benar — tandai dibaca",
+  "detail.reread": "Kembalikan ke bacaan asli",
+  "detail.unapprove": "Batalkan persetujuan",
+  "detail.open_mpa": "Buka halaman PMN di situs MPA ↗",
+  "export.sim_note": "Berkas ekspor di versi ini belum dibuat sungguhan. Yang berjalan adalah alur, nama berkas, dan pencatatan serah terima.",
+  "export.ready_title": "Siap diekspor ({n})",
+  "export.empty": "Belum ada PMN yang disetujui. Setujui dulu di tab PMN atau Beranda.",
+  "export.kind_plot": "XML + PDF + Excel",
+  "export.kind_info": "PDF + Excel",
+  "export.remove_title": "Hapus dari ECDIS:",
+  "export.remove_item": "Objek PMN {old} (digantikan PMN {new})",
+  "export.make": "Buat paket ekspor",
+  "export.s1": "Colok flashdisk OTG ke HP, lalu simpan ketiga file ekspor ke flashdisk lewat aplikasi Files.",
+  "export.s2": "Salin file user chart ke ECDIS lalu impor. Hapus objek lama yang diminta.",
+  "export.s3": "Cek di ECDIS: PMN terakhir ({no}) tergambar dengan benar.",
+  "export.s4": "Salin file PDF dan Excel ke komputer kapal untuk arsip. Timpa versi lama.",
+  "export.done": "Selesai ✓",
+  "export.waiting_title": "Panduan memasang ke ECDIS dan komputer",
+  "export.waiting_meta": "Dibuat {when} oleh {by} · sampai PMN {no}",
+  "home.last_update_meta": "tanggal {date} · oleh {by}",
+  "toast.check_added": "{n} PMN baru diunduh server",
+  "toast.check_none": "Tidak ada PMN baru di MPA",
+  "toast.approved": "PMN {no} disetujui",
+  "add.title": "Tambah PMN dari PDF",
+  "add.intro": "Pakai cara ini bila PMN tidak bisa diunduh otomatis dari server MPA.",
+  "add.s1": "Buka PMN di website MPA lewat browser HP, lalu unduh PDF-nya. Berkas tersimpan di aplikasi Files.",
+  "add.s2": "Kembali ke sini, tekan \"Pilih PDF PMN\", lalu pilih berkas tadi (boleh lebih dari satu).",
+  "add.s3": "Aplikasi membaca PDF dan membuka layar detail. Periksa dengan PDF asli, koreksi bila perlu, lalu tekan \"Sudah benar\".",
+  "add.pick": "＋ Pilih PDF PMN",
+  "settings.title": "Pengaturan server",
+  "settings.mode_demo": "Mode demo: data hanya di perangkat ini, tidak tersambung ke server.",
+  "settings.mode_live": "Tersambung ke server",
+  "settings.hint": "Alamat dan kode akses diberikan oleh Master. Keduanya disimpan hanya di perangkat ini.",
+  "settings.url": "Alamat server",
+  "settings.code": "Kode akses",
+  "settings.save": "Simpan dan uji koneksi",
+  "settings.use_demo": "Kembali ke mode demo",
+  "err.bad_settings": "Isi alamat server (https) dan kode akses.",
+  "err.err_auth": "Kode akses ditolak server. Periksa lagi di Pengaturan.",
+  "err.err_busy": "Server sedang mengerjakan tugas lain. Coba lagi sebentar.",
+  "err.err_server": "Server mengalami galat. Coba lagi nanti.",
+  "toast.settings_saved": "Tersambung ke server.",
+  "detail.trail_read_ocr": "Dibaca server (OCR)",
+  "detail.ocr_note": "Dibaca otomatis oleh server dengan OCR. OCR bisa salah, terutama pada tabel koordinat: cocokkan setiap titik dengan PDF asli.",
+  "err.cross_running": "Pemeriksaan silang di HP ini masih berjalan. Tunggu sebentar lalu tekan lagi.",
+  "err.err_mpa_bad_response": "MPA menjawab tidak seperti biasanya (bukan 200).",
+  "err.err_mpa_host": "Alamat di luar mpa.gov.sg ditolak.",
+  "err.err_bad_request": "Permintaan ke server tidak sah.",
+  "err.err_too_big": "Data PMN ini terlalu besar untuk disimpan di server.",
+  "err.err_ocr": "OCR Drive gagal membaca PDF.",
+  "err.err_no_pdf": "Halaman PMN tidak memuat tautan PDF.",
+  "err.err_bad_pdf": "Berkas yang diunduh bukan PDF.",
+  "err.err_unknown_action": "Aksi tidak dikenal oleh server.",
+  "detail.auto_failed": "Pembacaan otomatis di server gagal: {reason} Tekan tombol di bawah supaya HP ini membaca PDF-nya.",
+  "toast.installed": "Tercatat. Kotak Last update di Beranda sudah diperbarui.",
+  "toast.exported": "Paket ekspor dibuat: {n} PMN",
+  "toast.reread": "Dikembalikan ke bacaan asli dari PDF",
+  "toast.pdf_plot": "PMN {no} terbaca: {n} titik",
+  "toast.pdf_kind": "PMN {no} terbaca sebagai {kind}",
+  "toast.kind_check": "perlu dicek (koordinat tak terbaca)",
+  "toast.kind_advisory": "pengumuman",
+  "toast.demo_down": "Simulasi: MPA tidak bisa dihubungi 30 jam",
+  "toast.demo_up": "MPA pulih",
+  "pdf.ask_number": "Nomor PMN tidak terbaca dari {file}. Ketik nomor (contoh 137/2026):",
+  "pdf.confirm_replace": "PMN {no} sudah ada ({status}). Ganti dengan hasil bacaan dari berkas ini? Koreksi manual akan hilang.",
+  "err.bad_coord": "Format tidak dikenali. Contoh: 01 23.079 dan 103 58.140",
+  "err.unexpected": "Terjadi galat tak terduga. Coba lagi.",
+  "demo.confirm_reset": "Kembalikan demo ke kondisi awal?",
+  "toast.logged_in": "Sekarang masuk sebagai {who}",
+  "demo.step1": "① Server cek MPA",
+  "demo.step2": "② PMN koordinat tak terbaca",
+  "demo.step3": "③ MPA bermasalah",
+  "demo.reset": "Reset",
+  "banner.demo": "Mode demo: server tiruan di perangkat ini. Buka halaman ini di 2 tab = 2 HP berbeda.",
+  "banner.offline": "Tidak ada internet. Aplikasi memakai data tersimpan.",
+  "banner.unsent.one": "{n} perubahan belum terkirim ke server",
+  "banner.unsent.other": "{n} perubahan belum terkirim ke server",
+  "banner.no_storage": "Penyimpanan perangkat tidak tersedia (mode privat?). Data hanya tersimpan selama halaman terbuka.",
+  "map.edit_title": "Mengedit PMN {no}: seret titik untuk memindahkan, ketuk titik untuk menghapus.",
+  "map.add": "＋ Tambah titik",
+  "map.add_active": "Ketuk peta untuk menambah titik…",
+  "map.done": "Selesai",
+  "map.filter_active": "Aktif + draf",
+  "map.filter_all": "Semua",
+  "map.legend_approved": "Disetujui / terpasang",
+  "map.legend_draft": "Draf (belum diperiksa)"
+};
+
+/* ---- app/i18n/en.js ---- */
+/* Katalog teks antarmuka: English. Kunci harus identik dengan katalog bahasa lain (diuji di tests/i18n.test.js). */
+const EN = {
+  "time.superseded": "Superseded",
+  "time.unread": "Not read yet",
+  "time.info": "Information",
+  "time.dates_unknown": "Dates need checking",
+  "time.upcoming": "Not yet in force",
+  "time.active": "Active",
+  "time.ending_soon.one": "Ending soon ({n} day)",
+  "time.ending_soon.other": "Ending soon ({n} days)",
+  "time.expired": "Expired",
+  "work.menunggu": "Waiting to be read",
+  "work.draf": "Draft: needs checking",
+  "work.disetujui": "Approved",
+  "work.diekspor": "Exported",
+  "work.terpasang": "Installed on ECDIS",
+  "issue.no_coords": "Coordinates could not be read from the PDF. Enter them manually (paste text, type points, or tap the map), or mark it \"no coordinates\".",
+  "issue.outside_waters": "Point {label} is outside Singapore waters.",
+  "issue.far_point": "Point {label} is about {km} km from the other points. Possibly a typo in the MPA PDF.",
+  "issue.dates_reversed": "The start date is later than the end date.",
+  "issue.shape_doubt": "Named points (e.g. buoys/markers). Is this really an area? Consider the \"Points\" shape.",
+  "warn.no_text": "The PDF has no readable text (possibly a scan).",
+  "warn.no_number": "The PMN number was not found in the PDF.",
+  "warn.number_mismatch": "The number in the PDF ({pdf}) differs from the MPA list ({list}).",
+  "warn.coords_unreadable": "The PMN mentions coordinates/chartlet but none could be read.",
+  "warn.unsupported_format": "Coordinates seem to use another format (seconds or decimal degrees). Enter them manually.",
+  "warn.dropped_lines": "{n} coordinate lines could not be read and were skipped.",
+  "warn.date_not_exist": "The date \"{text}\" does not exist.",
+  "warn.dates_reversed": "The end date is earlier than the start date.",
+  "disclaimer.map": "The map is illustrative only, not for navigation. User charts are supplementary information, not official ENC corrections.",
+  "lang.id": "Indonesia",
+  "lang.en": "English",
+  "nav.home": "Home",
+  "nav.map": "Map",
+  "nav.list": "PMN",
+  "nav.export": "Export",
+  "nav.add": "Add PMN",
+  "common.close": "Close",
+  "common.save": "Save",
+  "common.cancel": "Cancel",
+  "common.change": "Edit",
+  "common.delete": "Delete",
+  "common.restore": "Restore",
+  "common.officer": "Officer",
+  "common.language": "Language",
+  "common.yes": "Yes",
+  "common.no": "No",
+  "log.check_found": "MPA check: {n} new PMN downloaded ({list})",
+  "log.check_none": "MPA check: no new PMN",
+  "log.check_failed": "MPA check FAILED: {reason}",
+  "log.read": "Read the PDF of PMN {no} and saved a draft",
+  "log.read_again": "Re-read PMN {no} (restored the original reading)",
+  "log.add_pdf": "Added PMN {no} from file {file}",
+  "log.edit_point": "Edited point {label} of PMN {no}",
+  "log.delete_point": "Deleted point {label} of PMN {no}",
+  "log.add_point": "Added point {label} to PMN {no}",
+  "log.set_shape": "Changed the shape of PMN {no} to {type}",
+  "log.edit_data": "Edited the data of PMN {no}",
+  "log.no_coords": "Marked PMN {no} as having no coordinates",
+  "log.paste_coords": "Pasted {n} points into PMN {no}",
+  "log.approve": "Approved PMN {no}",
+  "log.approve_corrected": "Approved PMN {no} (with manual corrections)",
+  "log.unapprove": "Withdrew approval of PMN {no}",
+  "log.export": "Created an export package ({n} PMN, up to {top})",
+  "log.installed": "Confirmed: PMN up to {no} installed on ECDIS",
+  "change.point_set": "Point {label} edited",
+  "change.point_add": "Point {label} added",
+  "change.point_del": "Point {label} deleted",
+  "change.point_restore": "Point {label} restored to the original value",
+  "change.shape": "Shape",
+  "change.coords_paste": "Coordinates pasted",
+  "change.no_coords": "Marked as no coordinates",
+  "change.data": "Data: {field}",
+  "field.title": "Description",
+  "field.from": "Start",
+  "field.to": "End",
+  "field.hours": "Working hours",
+  "field.vhf": "Communication",
+  "field.radius": "Radius",
+  "shape.area": "Area",
+  "shape.points": "Points",
+  "shape.circles": "Circles",
+  "err.err_mpa_blocked": "MPA refused the server's request (403/429).",
+  "err.err_mpa_down": "MPA could not be reached.",
+  "err.no_pdf": "The PDF is not on the server yet.",
+  "err.conflict": "Another officer changed this data. The view has been reloaded.",
+  "err.offline": "Offline. Changes will be sent when you are back online.",
+  "err.pdf_js_load": "The PDF reader failed to load. Check your internet.",
+  "err.locked": "This PMN has been exported and can no longer be edited.",
+  "err.ack_required": "Tick first: you have checked the flagged items.",
+  "err.blocked_no_coords": "No coordinates yet. Enter them, or mark it as having none.",
+  "err.no_change": "Nothing changed.",
+  "err.none": "No coordinates could be read from that text.",
+  "err.exists": "PMN {no} already exists ({status}).",
+  "err.no_number": "The PMN number could not be read from the PDF.",
+  "err.unknown": "Unknown PMN.",
+  "err.no_work": "This PMN has not been read yet.",
+  "err.bad_index": "Point or group not found.",
+  "err.has_points": "This PMN already has points.",
+  "err.not_draft": "Only drafts can be approved.",
+  "err.not_approved": "This PMN is not approved.",
+  "err.nothing": "Nothing to process.",
+  "common.today": "today",
+  "common.corrected": "manual correction",
+  "list.published": "Published {date}",
+  "list.manual": "Added manually",
+  "list.valid": "valid {from} – {to}",
+  "list.history_note.one": "{n} older PMN exists only as history from Excel ({list}).",
+  "list.history_note.other": "{n} older PMNs exist only as history from Excel ({list}).",
+  "home.check_note": "The server checks MPA daily around 12:00",
+  "home.last_ok": "Last successful: {when}",
+  "home.never": "Never succeeded",
+  "home.stale": "More than 24 hours ago. MPA may be blocking or having problems. New PMNs can be added manually from a PDF file.",
+  "home.check_now": "Check now",
+  "home.handover": "Last update",
+  "home.installed_up_to": "PMN {no}",
+  "home.no_handover": "No PMN is recorded as installed on ECDIS yet",
+  "home.export_waiting": "The export package up to PMN {no} was made by {by} but is not confirmed as installed yet.",
+  "home.reading": "Reading PDF {no}…",
+  "home.reading_hint": "This phone reads the PDF and saves the draft to the server.",
+  "home.pending.one": "{n} new PMN waiting to be read",
+  "home.pending.other": "{n} new PMNs waiting to be read",
+  "home.pending_list": "{list}: the PDF has been downloaded by the server.",
+  "home.read_all": "Read & plot on the map",
+  "home.drafts.one": "{n} draft needs your check",
+  "home.drafts.other": "{n} drafts need your check",
+  "home.drafts_hint": "Already drawn on the map (dashed lines).",
+  "home.ready.one": "{n} PMN approved, ready to export",
+  "home.ready.other": "{n} PMNs approved, ready to export",
+  "home.go_export": "Go to Export",
+  "home.all_clear": "Everything is up to date ✓",
+  "home.all_clear_hint": "No PMN is waiting.",
+  "detail.bar": "PMN {no}",
+  "detail.trail_rss": "RSS read ✓",
+  "detail.trail_page": "PMN page ✓",
+  "detail.trail_pdf": "PDF downloaded ✓",
+  "detail.trail_read_by": "Read by {who}",
+  "detail.trail_unread": "Not read yet",
+  "detail.trail_manual": "Added manually",
+  "detail.trail_pdf_read": "PDF read ({file})",
+  "detail.trail_draft": "Draft",
+  "detail.stub_note": "This older PMN exists only as history from Excel, without PDF content.",
+  "detail.superseded_by": "Superseded by PMN {no}. Not drawn on the map.",
+  "detail.waiting_note": "The server has downloaded the PDF but it has not been read yet. Press the button below so this phone reads the PDF and draws it on the map.",
+  "detail.issues_title": "Check against the original PDF/chartlet:",
+  "detail.warn_title": "Notes from reading the PDF:",
+  "detail.published": "Published",
+  "detail.period": "Period",
+  "detail.period_value": "{from} to {to}",
+  "detail.period_none": "not read / none",
+  "detail.read_by": "Read by",
+  "detail.approved_by": "Approved by",
+  "detail.edit_data": "Edit data (dates, hours, description…)",
+  "detail.edit_data_title": "Edit PMN data",
+  "detail.supersedes": "Supersedes PMN {old}. That old object must be removed from the ECDIS when exporting.",
+  "detail.shape": "Shape",
+  "detail.points.one": "{n} point",
+  "detail.points.other": "{n} points",
+  "detail.col_lat": "Latitude",
+  "detail.col_lon": "Longitude",
+  "detail.orig": "original: {value}",
+  "detail.added_point": "added point",
+  "detail.restore_title": "Restore the original value",
+  "detail.manual_title": "Enter coordinates manually:",
+  "detail.paste_title": "1. Paste the coordinates text from the PDF (one point per line):",
+  "detail.paste_button": "Read text",
+  "detail.paste_sample": "Fill example",
+  "detail.add_title": "＋ Add a point (type)",
+  "detail.add_lat": "Latitude (e.g. 01 23.079)",
+  "detail.add_lon": "Longitude (e.g. 103 58.140)",
+  "detail.add_label": "Point name (optional)",
+  "detail.add_button": "Add",
+  "detail.edit_map": "Drag / add points on the map",
+  "detail.no_coord": "Mark as no coordinates",
+  "detail.advisory_note": "This PMN is an announcement without coordinates. Nothing is drawn, but its PDF still goes to the archive and Excel.",
+  "detail.seen_title": "Officer acknowledgement",
+  "detail.seen_hint": "✗ = that officer has not opened this PMN on their own phone yet.",
+  "detail.cross_title": "The phone's reading differs from the server reading. Check against the original PDF:",
+  "cross.coords": "Coordinates",
+  "cross.points": "Number of points",
+  "cross.dates": "Dates",
+  "cross.kind": "PMN type",
+  "detail.pdf_show": "Show original PDF",
+  "detail.pdf_hide": "Hide PDF",
+  "detail.pdf_title": "Original PDF from MPA",
+  "detail.pdf_text_note": "Demo mode: showing the text read from the PDF, not the page image.",
+  "detail.pdf_loading": "Loading PDF pages…",
+  "list.unseen": "Not opened by you yet",
+  "detail.ack": "I have checked the flagged items against the original PDF.",
+  "detail.approve_plot": "Correct — approve plot",
+  "detail.approve_read": "Correct — mark as read",
+  "detail.reread": "Restore the original reading",
+  "detail.unapprove": "Withdraw approval",
+  "detail.open_mpa": "Open the PMN page on the MPA site ↗",
+  "export.sim_note": "In this version the export files are not really created yet. The flow, file names, and handover records are working.",
+  "export.ready_title": "Ready to export ({n})",
+  "export.empty": "No PMN has been approved yet. Approve them first in the PMN tab or Home.",
+  "export.kind_plot": "XML + PDF + Excel",
+  "export.kind_info": "PDF + Excel",
+  "export.remove_title": "Remove from ECDIS:",
+  "export.remove_item": "Object of PMN {old} (superseded by PMN {new})",
+  "export.make": "Create export package",
+  "export.s1": "Plug the OTG flash drive into the phone, then save the three export files to the flash drive with the Files app.",
+  "export.s2": "Copy the user chart file to the ECDIS and import it. Remove the old objects listed.",
+  "export.s3": "Check on the ECDIS: the last PMN ({no}) is plotted correctly.",
+  "export.s4": "Copy the PDF and Excel files to the ship computer for the record. Overwrite the old versions.",
+  "export.done": "Done ✓",
+  "export.waiting_title": "Guide: install on ECDIS and computer",
+  "export.waiting_meta": "Made {when} by {by} · up to PMN {no}",
+  "home.last_update_meta": "date {date} · by {by}",
+  "toast.check_added": "{n} new PMN downloaded by the server",
+  "toast.check_none": "No new PMN on MPA",
+  "toast.approved": "PMN {no} approved",
+  "add.title": "Add PMN from PDF",
+  "add.intro": "Use this when a PMN cannot be downloaded automatically from the MPA server.",
+  "add.s1": "Open the PMN on the MPA website in the phone browser and download its PDF. The file is saved in the Files app.",
+  "add.s2": "Come back here, tap \"Choose PMN PDF\", and pick that file (you can pick more than one).",
+  "add.s3": "The app reads the PDF and opens the detail screen. Check it against the original PDF, correct it if needed, then press \"Correct\".",
+  "add.pick": "＋ Choose PMN PDF",
+  "settings.title": "Server settings",
+  "settings.mode_demo": "Demo mode: data stays on this device, not connected to a server.",
+  "settings.mode_live": "Connected to server",
+  "settings.hint": "The address and access code come from the Master. Both are stored on this device only.",
+  "settings.url": "Server address",
+  "settings.code": "Access code",
+  "settings.save": "Save and test connection",
+  "settings.use_demo": "Back to demo mode",
+  "err.bad_settings": "Enter the server address (https) and the access code.",
+  "err.err_auth": "The server rejected the access code. Check it in Settings.",
+  "err.err_busy": "The server is busy with another task. Try again shortly.",
+  "err.err_server": "The server hit an error. Try again later.",
+  "toast.settings_saved": "Connected to the server.",
+  "detail.trail_read_ocr": "Read by the server (OCR)",
+  "detail.ocr_note": "Read automatically by the server with OCR. OCR can be wrong, especially in coordinate tables: check every point against the original PDF.",
+  "err.cross_running": "The cross-check on this phone is still running. Wait a moment, then press again.",
+  "err.err_mpa_bad_response": "MPA answered unexpectedly (not 200).",
+  "err.err_mpa_host": "An address outside mpa.gov.sg was refused.",
+  "err.err_bad_request": "The request to the server is not valid.",
+  "err.err_too_big": "This PMN is too large to store on the server.",
+  "err.err_ocr": "Drive OCR could not read the PDF.",
+  "err.err_no_pdf": "The PMN page has no PDF link.",
+  "err.err_bad_pdf": "The downloaded file is not a PDF.",
+  "err.err_unknown_action": "The server does not know this action.",
+  "detail.auto_failed": "Automatic reading on the server failed: {reason} Press the button below so this phone reads the PDF.",
+  "toast.installed": "Recorded. The Last update box on Home has been updated.",
+  "toast.exported": "Export package created: {n} PMN",
+  "toast.reread": "Restored to the original reading from the PDF",
+  "toast.pdf_plot": "PMN {no} read: {n} points",
+  "toast.pdf_kind": "PMN {no} read as {kind}",
+  "toast.kind_check": "needs checking (coordinates unreadable)",
+  "toast.kind_advisory": "an announcement",
+  "toast.demo_down": "Simulation: MPA unreachable for 30 hours",
+  "toast.demo_up": "MPA is back",
+  "pdf.ask_number": "The PMN number could not be read from {file}. Type the number (e.g. 137/2026):",
+  "pdf.confirm_replace": "PMN {no} already exists ({status}). Replace it with the reading from this file? Manual corrections will be lost.",
+  "err.bad_coord": "Format not recognised. Example: 01 23.079 and 103 58.140",
+  "err.unexpected": "An unexpected error occurred. Please try again.",
+  "demo.confirm_reset": "Reset the demo to its initial state?",
+  "toast.logged_in": "Now signed in as {who}",
+  "demo.step1": "① Server checks MPA",
+  "demo.step2": "② PMN with unreadable coordinates",
+  "demo.step3": "③ MPA problem",
+  "demo.reset": "Reset",
+  "banner.demo": "Demo mode: a simulated server on this device. Open this page in 2 tabs = 2 different phones.",
+  "banner.offline": "No internet. The app is using saved data.",
+  "banner.unsent.one": "{n} change not yet sent to the server",
+  "banner.unsent.other": "{n} changes not yet sent to the server",
+  "banner.no_storage": "Device storage is unavailable (private mode?). Data is kept only while the page is open.",
+  "map.edit_title": "Editing PMN {no}: drag a point to move it, tap a point to delete it.",
+  "map.add": "＋ Add a point",
+  "map.add_active": "Tap the map to add a point…",
+  "map.done": "Done",
+  "map.filter_active": "Active + drafts",
+  "map.filter_all": "All",
+  "map.legend_approved": "Approved / installed",
+  "map.legend_draft": "Draft (not yet checked)"
+};
+
+/* ---- app/storage.js ---- */
+/* ===== Penyimpanan lokal yang aman: localStorage bila bisa, memori bila tidak (mode privat, kuota penuh) ===== */
+
+/** win = window (atau objek mirip). Mengembalikan {getItem, setItem, removeItem, persistent}. Tidak pernah melempar galat. */
+function createStorage(win) {
+  const mem = new Map();
+  let ls = null, persistent = false;
+  try {
+    ls = win.localStorage;
+    if (ls) { ls.getItem('pmn-probe'); persistent = true; }
+  } catch (e) { ls = null; persistent = false; }
+  return {
+    persistent,
+    getItem(k) {
+      if (ls) { try { const v = ls.getItem(k); if (v !== null) return v; } catch (e) { /* jatuh ke memori */ } }
+      return mem.has(k) ? mem.get(k) : null;
+    },
+    setItem(k, v) {
+      v = String(v);
+      mem.set(k, v);
+      if (ls) { try { ls.setItem(k, v); } catch (e) { /* kuota penuh: nilai tetap ada di memori */ } }
+    },
+    removeItem(k) {
+      mem.delete(k);
+      if (ls) { try { ls.removeItem(k); } catch (e) { /* abaikan */ } }
+    },
+  };
+}
+
+/* ---- app/model.js ---- */
+/* ===== Model klien: keadaan S dan semua transisinya ===== */
+/* Fungsi mengubah S di tempat dan mengembalikan {ok} atau {ok:false, code}. Bergantung pada fungsi global dari shared/*
+   (timeStatus, issues, sortDesc, numOf, supersedeMap, parseCoords, fmtDM, exportNames, clone, blankRecord, toParsed, applyReading), seperti di browser. */
+
+const MAX_LOG = 100;
+const LOCKED = ['diekspor', 'terpasang'];
+const EXPORT_STEPS = 4;
+
+function newState() {
+  return { lastCheck: null, lastCheckOk: null, pm: {}, lastExport: null, lastInstalled: null, log: [] };
+}
+
+function addLog(S, who, code, params, at) {
+  S.log.unshift({ at, who, code, params: params || {} });
+  if (S.log.length > MAX_LOG) S.log.length = MAX_LOG;
+}
+
+/* ----- Cek harian ----- */
+function ingestCheck(S, items, now) {
+  const added = [];
+  for (const it of items) {
+    if (S.pm[it.no]) continue;
+    S.pm[it.no] = blankRecord({ title: it.title, published: it.published, link: it.link }, 'server');
+    added.push(it.no);
+  }
+  S.lastCheck = now;
+  S.lastCheckOk = now;
+  if (added.length) addLog(S, 'Server', 'check_found', { n: added.length, nos: added }, now);
+  else addLog(S, 'Server', 'check_none', {}, now);
+  return { added };
+}
+
+function markCheckFailed(S, now, reason) {
+  S.lastCheck = now;
+  addLog(S, 'Server', 'check_failed', { reason }, now);
+}
+
+function staleness(S, now) {
+  if (!S.lastCheckOk) return { stale: true, hours: null };
+  const hours = (Date.parse(now) - Date.parse(S.lastCheckOk)) / 36e5;
+  return { stale: hours > 24, hours };
+}
+
+/* ----- Baca PDF ----- */
+function readResult(S, no, result, who, now) {
+  const r = S.pm[no];
+  if (!r) return { ok: false, code: 'unknown' };
+  if (LOCKED.includes(r.status)) return { ok: false, code: 'locked' };
+  applyReading(r, result, who);
+  addLog(S, who, 'read', { no }, now);
+  return { ok: true };
+}
+
+/** Record PMN lama yang hanya ada di riwayat Excel (dipakai rantai penggantian). Tidak menimpa record yang ada. */
+function addHistoryStub(S, no, title) {
+  if (S.pm[no]) return;
+  const r = blankRecord({ title: title || null, published: null, link: null }, 'server');
+  r.status = 'terpasang';
+  r.stub = true;
+  S.pm[no] = r;
+}
+
+/* ----- Turunan ----- */
+function supersededBy(S, no) {
+  const list = [];
+  for (const k of Object.keys(S.pm)) {
+    const w = S.pm[k].work;
+    if (w && w.supersedes) list.push({ no: k, supersedes: w.supersedes });
+  }
+  return supersedeMap(list)[no] || null;
+}
+
+function timeStatusOf(S, no, today) {
+  const r = S.pm[no];
+  return timeStatus(r.work || null, supersededBy(S, no), today);
+}
+
+function issuesOf(S, no) {
+  const r = S.pm[no];
+  return r && r.work ? issues(r.work, r.parsed && r.parsed.groups) : [];
+}
+
+function nosByStatus(S, status) {
+  return sortDesc(Object.keys(S.pm).filter(n => !S.pm[n].stub && S.pm[n].status === status));
+}
+
+/* ----- Koreksi ----- */
+const SHAPES = ['area', 'points', 'circles'];
+const DATA_FIELDS = ['title', 'from', 'to', 'hours', 'vhf', 'radius'];
+const totalPts = w => (w.groups || []).reduce((n, g) => n + g.pts.length, 0);
+const ptText = q => `${q.latDM} ${q.lonDM}`;
+
+/** Record yang boleh diedit, atau {err}. */
+function editable(S, no) {
+  const r = S.pm[no];
+  if (!r) return { err: { ok: false, code: 'unknown' } };
+  if (!r.work) return { err: { ok: false, code: 'no_work' } };
+  if (LOCKED.includes(r.status)) return { err: { ok: false, code: 'locked' } };
+  return { r };
+}
+
+function pushChange(r, who, now, c) {
+  r.changes.push(Object.assign({ at: now, who }, c));
+  r.ack = false;
+  if (r.status === 'disetujui') r.status = 'draf';
+}
+
+function pointAt(r, gi, pi) {
+  const g = r.work.groups[gi];
+  return g && g.pts[pi] ? { g, q: g.pts[pi] } : null;
+}
+
+function writePoint(q, lat, lon) {
+  q.lat = lat; q.lon = lon;
+  q.latDM = fmtDM(lat, false); q.lonDM = fmtDM(lon, true);
+}
+
+function setPoint(S, no, gi, pi, lat, lon, who, now) {
+  const e = editable(S, no); if (e.err) return e.err;
+  const at = pointAt(e.r, gi, pi); if (!at) return { ok: false, code: 'bad_index' };
+  const q = at.q;
+  if (q.lat === lat && q.lon === lon) return { ok: false, code: 'no_change' };
+  const old = ptText(q);
+  writePoint(q, lat, lon);
+  pushChange(e.r, who, now, { kind: 'point_set', label: q.label, old, nw: ptText(q) });
+  addLog(S, who, 'edit_point', { no, label: q.label }, now);
+  return { ok: true };
+}
+
+function restorePoint(S, no, gi, pi, who, now) {
+  const e = editable(S, no); if (e.err) return e.err;
+  const at = pointAt(e.r, gi, pi); if (!at) return { ok: false, code: 'bad_index' };
+  const pg = e.r.parsed && e.r.parsed.groups[gi];
+  const orig = pg && pg.pts.find(p => p.label === at.q.label);
+  if (!orig) return { ok: false, code: 'bad_index' };
+  if (orig.lat === at.q.lat && orig.lon === at.q.lon) return { ok: false, code: 'no_change' };
+  const old = ptText(at.q);
+  writePoint(at.q, orig.lat, orig.lon);
+  at.q.latDM = orig.latDM; at.q.lonDM = orig.lonDM;
+  pushChange(e.r, who, now, { kind: 'point_restore', label: at.q.label, old, nw: ptText(at.q) });
+  addLog(S, who, 'edit_point', { no, label: at.q.label }, now);
+  return { ok: true };
+}
+
+function deletePoint(S, no, gi, pi, who, now) {
+  const e = editable(S, no); if (e.err) return e.err;
+  const at = pointAt(e.r, gi, pi); if (!at) return { ok: false, code: 'bad_index' };
+  const q = at.g.pts.splice(pi, 1)[0];
+  pushChange(e.r, who, now, { kind: 'point_del', label: q.label, old: ptText(q), nw: '' });
+  addLog(S, who, 'delete_point', { no, label: q.label }, now);
+  return { ok: true };
+}
+
+function addPoint(S, no, lat, lon, label, who, now) {
+  const e = editable(S, no); if (e.err) return e.err;
+  const w = e.r.work;
+  if (!w.groups.length) w.groups.push({ name: 'Area', type: 'points', pts: [] });
+  const g = w.groups[w.groups.length - 1];
+  const lab = label || String(g.pts.length + 1);
+  const q = { label: lab, lat: 0, lon: 0, r: null, latDM: '', lonDM: '' };
+  writePoint(q, lat, lon);
+  g.pts.push(q);
+  if (w.kind === 'check') w.kind = 'plot';
+  if (g.pts.length >= 3 && g.type === 'points' && w.groups.length === 1 && !(e.r.parsed && e.r.parsed.groups.length)) g.type = 'area';
+  pushChange(e.r, who, now, { kind: 'point_add', label: lab, old: '', nw: ptText(q) });
+  addLog(S, who, 'add_point', { no, label: lab }, now);
+  return { ok: true };
+}
+
+function setShape(S, no, gi, type, who, now) {
+  const e = editable(S, no); if (e.err) return e.err;
+  const g = e.r.work.groups[gi];
+  if (!g || !SHAPES.includes(type)) return { ok: false, code: 'bad_index' };
+  if (g.type === type) return { ok: false, code: 'no_change' };
+  const old = g.type;
+  g.type = type;
+  pushChange(e.r, who, now, { kind: 'shape', old, nw: type });
+  addLog(S, who, 'set_shape', { no, type }, now);
+  return { ok: true };
+}
+
+function setData(S, no, patch, who, now) {
+  const e = editable(S, no); if (e.err) return e.err;
+  const w = e.r.work;
+  let changed = 0;
+  for (const f of DATA_FIELDS) {
+    if (!(f in patch)) continue;
+    let nv = patch[f] == null ? '' : String(patch[f]).trim();
+    const old = w[f] == null ? '' : String(w[f]);
+    if (nv === old) continue;
+    w[f] = nv === '' ? null : (f === 'radius' ? Number(nv) : nv);
+    if (f === 'title' && !w[f]) w[f] = '';
+    pushChange(e.r, who, now, { kind: 'data', field: f, old, nw: nv });
+    changed++;
+  }
+  if (!changed) return { ok: false, code: 'no_change' };
+  addLog(S, who, 'edit_data', { no }, now);
+  return { ok: true };
+}
+
+function setNoCoords(S, no, who, now) {
+  const e = editable(S, no); if (e.err) return e.err;
+  const w = e.r.work;
+  if (totalPts(w)) return { ok: false, code: 'has_points' };
+  if (w.kind === 'advisory') return { ok: false, code: 'no_change' };
+  const old = w.kind;
+  w.kind = 'advisory';
+  pushChange(e.r, who, now, { kind: 'no_coords', old, nw: 'advisory' });
+  addLog(S, who, 'no_coords', { no }, now);
+  return { ok: true };
+}
+
+function rereadRestore(S, no, who, now) {
+  const e = editable(S, no); if (e.err) return e.err;
+  const r = e.r;
+  r.work = clone(r.parsed);
+  r.changes = [];
+  r.ack = false;
+  r.status = 'draf';
+  addLog(S, who, 'read_again', { no }, now);
+  return { ok: true };
+}
+
+function setAck(S, no, value) {
+  const r = S.pm[no];
+  if (!r) return { ok: false, code: 'unknown' };
+  r.ack = !!value;
+  return { ok: true };
+}
+
+/* ----- Acknowledge per officer dan pemeriksa silang ----- */
+/** Officer membuka PMN sendiri = acknowledge. Bukan suntingan, jadi boleh pada PMN terkunci. */
+function markSeen(S, no, who, now) {
+  const r = S.pm[no];
+  if (!r) return { ok: false, code: 'unknown' };
+  if (r.stub) return { ok: true, changed: false };
+  r.seen = r.seen || {};
+  if (r.seen[who]) return { ok: true, changed: false };
+  r.seen[who] = now;
+  return { ok: true, changed: true };
+}
+
+/** Beda antara dua bacaan (Parsed): kode 'kind', 'dates', 'points', 'coords'. Kosong = sama. */
+function crossCheck(a, b) {
+  const out = [];
+  if (a.kind !== b.kind) out.push('kind');
+  if ((a.from || null) !== (b.from || null) || (a.to || null) !== (b.to || null)) out.push('dates');
+  const counts = p => (p.groups || []).map(g => g.pts.length).join(',');
+  if (counts(a) !== counts(b)) out.push('points');
+  else {
+    const flat = p => (p.groups || []).flatMap(g => g.pts);
+    const fa = flat(a), fb = flat(b);
+    if (fa.some((q, i) => Math.abs(q.lat - fb[i].lat) > 1e-6 || Math.abs(q.lon - fb[i].lon) > 1e-6)) out.push('coords');
+  }
+  return out;
+}
+
+function setCross(S, no, diffs, now) {
+  const r = S.pm[no];
+  if (!r) return { ok: false, code: 'unknown' };
+  r.cross = { diffs: diffs.slice(), at: now };
+  return { ok: true };
+}
+
+/** Butuh centang "sudah saya periksa": ada isu terdeteksi atau pembaca HP menemukan beda dari bacaan server. */
+function needsAck(S, no) {
+  const r = S.pm[no];
+  return !!r && (issuesOf(S, no).length > 0 || !!(r.cross && r.cross.diffs.length));
+}
+
+/* ----- Setujui ----- */
+function approve(S, no, who, now) {
+  const r = S.pm[no];
+  if (!r) return { ok: false, code: 'unknown' };
+  if (r.status !== 'draf' || !r.work) return { ok: false, code: 'not_draft' };
+  const is = issuesOf(S, no);
+  if (is.some(i => i.block)) return { ok: false, code: 'blocked_no_coords' };
+  if (needsAck(S, no) && !r.ack) return { ok: false, code: 'ack_required' };
+  r.status = 'disetujui';
+  r.approvedBy = who;
+  r.approvedAt = now;
+  addLog(S, who, 'approve', { no, corrected: r.changes.length > 0 }, now);
+  return { ok: true };
+}
+
+function unapprove(S, no, who, now) {
+  const r = S.pm[no];
+  if (!r) return { ok: false, code: 'unknown' };
+  if (r.status !== 'disetujui') return { ok: false, code: 'not_approved' };
+  r.status = 'draf';
+  addLog(S, who, 'unapprove', { no }, now);
+  return { ok: true };
+}
+
+/* ----- Tambah dari berkas PDF dan tempel koordinat ----- */
+/** result = keluaran parsePmnText. opts = {no?, replace?}. */
+function addFromPdf(S, result, fileName, who, now, opts) {
+  opts = opts || {};
+  const no = opts.no || result.no;
+  if (!no) return { ok: false, code: 'no_number' };
+  const old = S.pm[no];
+  let replaced = false;
+  if (old && !old.stub) {
+    if (LOCKED.includes(old.status) || !opts.replace) return { ok: false, code: 'exists', status: old.status };
+    replaced = true;
+  }
+  const parsed = toParsed(result, `PMN ${no}`);
+  const r = blankRecord({ title: parsed.title, published: null, link: null }, 'manual');
+  r.status = 'draf';
+  r.file = fileName;
+  r.parsed = parsed;
+  r.work = clone(parsed);
+  r.readBy = who;
+  r.ver = old ? old.ver : 0;
+  S.pm[no] = r;
+  addLog(S, who, 'add_pdf', { no, file: fileName, kind: result.kind }, now);
+  return { ok: true, no, replaced };
+}
+
+function pasteCoords(S, no, text, who, now) {
+  const e = editable(S, no); if (e.err) return e.err;
+  const gs = parseCoords(text);
+  const n = gs.reduce((a, g) => a + g.pts.length, 0);
+  if (!n) return { ok: false, code: 'none' };
+  const w = e.r.work;
+  for (const g of gs) { g.type = g.pts.length >= 3 ? 'area' : 'points'; w.groups.push(g); }
+  if (w.kind === 'check') w.kind = 'plot';
+  pushChange(e.r, who, now, { kind: 'coords_paste', old: '', nw: String(n) });
+  addLog(S, who, 'paste_coords', { no, n }, now);
+  return { ok: true, n };
+}
+
+/* ----- Ekspor dan serah terima ----- */
+function makeExport(S, who, now, today) {
+  const list = nosByStatus(S, 'disetujui');
+  if (!list.length) return { ok: false, code: 'nothing' };
+  const top = list[0];
+  const removeFromEcdis = [];
+  for (const n of list) {
+    const old = S.pm[n].work && S.pm[n].work.supersedes;
+    if (old && S.pm[old] && ['terpasang', 'diekspor'].includes(S.pm[old].status)) removeFromEcdis.push({ old, new: n });
+  }
+  const exp = { no: top, by: who, at: now, list, files: exportNames(today, numOf(top)), removeFromEcdis, step: 0 };
+  for (const n of list) S.pm[n].status = 'diekspor';
+  S.lastExport = exp;
+  addLog(S, who, 'export', { n: list.length, top }, now);
+  return { ok: true, export: exp };
+}
+
+function confirmInstalled(S, who, now) {
+  const waiting = nosByStatus(S, 'diekspor');
+  if (!waiting.length) return { ok: false, code: 'nothing' };
+  for (const n of waiting) S.pm[n].status = 'terpasang';
+  const no = S.lastExport ? S.lastExport.no : waiting[0];
+  S.lastInstalled = { no, by: who, at: now, list: waiting };
+  addLog(S, who, 'installed', { no }, now);
+  return { ok: true };
+}
+
+/** Satu langkah panduan ekspor selesai (1 simpan ke flashdisk, 2 salin ke ECDIS, 3 cek di ECDIS, 4 salin ke komputer). Langkah ke-4 memasang. */
+function exportStepDone(S, who, now) {
+  if (!S.lastExport || !nosByStatus(S, 'diekspor').length) return { ok: false, code: 'nothing' };
+  const step = (S.lastExport.step || 0) + 1;
+  S.lastExport = Object.assign({}, S.lastExport, { step });
+  if (step < EXPORT_STEPS) return { ok: true, done: false };
+  const r = confirmInstalled(S, who, now);
+  return r.ok ? { ok: true, done: true } : r;
+}
+
+function exportCounts(S) {
+  return { ready: nosByStatus(S, 'disetujui').length, waiting: nosByStatus(S, 'diekspor').length };
+}
+
+/* ---- app/sync.js ---- */
+/* ===== Sinkronisasi klien-server: tarik, dorong per-PMN dengan versi, antrean offline, konflik ===== */
+
+const OUTBOX_KEY = 'pmn-outbox';
+const SYNCED_KEY = 'pmn-synced';
+const META_KEYS = ['lastCheck', 'lastCheckOk', 'lastExport', 'lastInstalled'];
+
+/**
+ * api: antarmuka API (stub atau backend). storage: {getItem, setItem}. now: () => ISO.
+ * push/flush mengembalikan {conflicts:string[], queued|sent, ...}; tidak pernah menimpa diam-diam: konflik mengganti record lokal dengan milik server.
+ */
+function createSync({ api, storage, now }) {
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const strip = r => { const c = clone(r); delete c.ver; return JSON.stringify(c); };
+  const hash = str => { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h * 33) ^ str.charCodeAt(i)) >>> 0; return h.toString(16) + ':' + str.length; };
+  const sig = r => hash(strip(r));
+  // Tanda "sudah terkirim" disimpan bersama cache: setelah muat ulang, record yang sudah sinkron tidak dianggap suntingan lokal.
+  let loaded = {};
+  try { loaded = JSON.parse(storage.getItem(SYNCED_KEY) || '{}') || {}; } catch (e) { loaded = {}; }
+  const synced = {};
+  for (const k of Object.keys(loaded)) if (k !== '__meta') synced[k] = loaded[k];
+  let syncedMeta = typeof loaded.__meta === 'string' ? loaded.__meta : null;
+  const saveSynced = () => { try { storage.setItem(SYNCED_KEY, JSON.stringify(Object.assign({}, synced, { __meta: syncedMeta }))); } catch (e) { /* abaikan */ } };
+  const sentLog = new Set();
+  const logKey = e => `${e.at}|${e.who}|${e.code}|${JSON.stringify(e.params)}`;
+  const metaOf = S => { const m = {}; for (const k of META_KEYS) m[k] = S[k]; return m; };
+  // Semua operasi jaringan berjalan satu per satu: dorongan yang tumpang tindih saling bertabrakan menjadi konflik palsu.
+  let chain = Promise.resolve();
+  const serial = fn => { const p = chain.then(fn); chain = p.catch(() => {}); return p; };
+  const dirty = (S, no) => synced[no] !== sig(S.pm[no]);
+  const loadBox = () => { try { return JSON.parse(storage.getItem(OUTBOX_KEY) || '[]'); } catch (e) { return []; } };
+  const saveBox = b => storage.setItem(OUTBOX_KEY, JSON.stringify(b));
+
+  function queue(entry) {
+    const box = loadBox();
+    entry.queuedAt = now();
+    const same = e => e.type === entry.type && (entry.type === 'meta' || (entry.type === 'pmn' && e.no === entry.no));
+    const i = entry.type === 'log' ? -1 : box.findIndex(same);
+    if (i >= 0) { if (entry.type === 'pmn') entry.baseVer = box[i].baseVer; box[i] = entry; } else box.push(entry);
+    saveBox(box);
+  }
+
+  function resolveConflict(S, no, res, conflicts) {
+    if (res.record) {
+      S.pm[no] = clone(res.record);
+      synced[no] = sig(S.pm[no]);
+      conflicts.push(no);
+    } else if (S.pm[no]) {
+      S.pm[no].ver = 0; // server belum punya record ini: tulis ulang dari nol pada dorongan berikutnya
+    }
+  }
+
+  function doPull(S) {
+    return api.getState().then(st => {
+      // dievaluasi SETELAH jawaban server tiba: suntingan yang dibuat selama menunggu jangan hilang
+      const keep = {};
+      for (const no of Object.keys(S.pm)) if (dirty(S, no)) keep[no] = S.pm[no];
+      const localMetaDirty = syncedMeta !== null && JSON.stringify(metaOf(S)) !== syncedMeta;
+      const localMeta = metaOf(S);
+      const unsent = S.log.filter(l => !sentLog.has(logKey(l)));
+      S.pm = clone(st.pmns);
+      for (const no of Object.keys(S.pm)) synced[no] = sig(S.pm[no]);
+      for (const no of Object.keys(keep)) S.pm[no] = keep[no];
+      S.log = unsent.concat(clone(st.log));
+      for (const k of META_KEYS) S[k] = st.meta[k] == null ? null : st.meta[k];
+      syncedMeta = JSON.stringify(metaOf(S));
+      if (localMetaDirty) for (const k of META_KEYS) S[k] = localMeta[k];
+      for (const l of st.log) sentLog.add(logKey(l));
+      for (const e of loadBox()) {
+        if (e.type === 'pmn') { S.pm[e.no] = clone(e.record); S.pm[e.no].ver = e.baseVer; }
+        else if (e.type === 'meta') Object.assign(S, e.patch);
+        else if (e.type === 'log' && !S.log.some(l => logKey(l) === logKey(e.event))) S.log.unshift(clone(e.event));
+      }
+      return { ok: true };
+    });
+  }
+  const pull = S => serial(() => doPull(S).then(r => { saveSynced(); return r; }));
+
+  async function doPush(S) {
+    let offline = false, queued = 0;
+    const conflicts = [], errors = [];
+    for (const no of Object.keys(S.pm)) {
+      const rec = S.pm[no];
+      const mine = sig(rec); // dijepret SEBELUM kirim: suntingan susulan harus tetap terdeteksi sebagai belum terkirim
+      if (synced[no] === mine) continue;
+      if (!offline) {
+        try {
+          const res = await api.putPmn(no, rec, rec.ver);
+          if (res.ok) { rec.ver = res.ver; synced[no] = mine; continue; }
+          if (res.conflict) { resolveConflict(S, no, res, conflicts); continue; }
+          // galat lain dari server (err_server, err_busy, err_too_big, ...): bukan terkirim; tetap di antrean dan dilaporkan
+          errors.push({ no, code: res.code || 'err_server' });
+          offline = true;
+        } catch (e) { offline = true; }
+      }
+      queue({ type: 'pmn', no, record: clone(rec), baseVer: rec.ver });
+      queued++;
+    }
+    const meta = metaOf(S), ms = JSON.stringify(meta);
+    if (ms !== syncedMeta) {
+      let ok = false;
+      if (!offline) { try { const res = await api.putMeta(meta); ok = !(res && res.ok === false); } catch (e) { offline = true; } }
+      if (ok) syncedMeta = ms; else queue({ type: 'meta', patch: meta });
+    }
+    for (const ev of S.log.filter(l => !sentLog.has(logKey(l))).reverse()) {
+      let ok = false;
+      if (!offline) { try { const res = await api.addLog(ev); ok = !(res && res.ok === false); } catch (e) { offline = true; } }
+      if (!ok) queue({ type: 'log', event: clone(ev) });
+      sentLog.add(logKey(ev));
+    }
+    saveSynced();
+    return errors.length ? { conflicts, queued, errors } : { conflicts, queued };
+  }
+
+  async function doFlush(S) {
+    const box = loadBox();
+    const conflicts = [];
+    let sent = 0;
+    while (box.length) {
+      const e = box[0];
+      try {
+        if (e.type === 'pmn') {
+          const res = await api.putPmn(e.no, e.record, e.baseVer);
+          if (res.ok) { if (S.pm[e.no]) { S.pm[e.no].ver = res.ver; synced[e.no] = sig(S.pm[e.no]); } }
+          else if (res.conflict) {
+            if (res.record && strip(res.record) === strip(e.record)) { S.pm[e.no] = clone(res.record); synced[e.no] = sig(res.record); }
+            else resolveConflict(S, e.no, res, conflicts);
+          } else break; // galat server: biarkan di antrean, jangan dibuang
+        } else if (e.type === 'meta') { const res = await api.putMeta(e.patch); if (res && res.ok === false) break; syncedMeta = JSON.stringify(e.patch); }
+        else if (e.type === 'log') { const res = await api.addLog(e.event); if (res && res.ok === false) break; }
+      } catch (err) { break; }
+      box.shift();
+      saveBox(box);
+      sent++;
+    }
+    saveSynced();
+    return { conflicts, sent, remaining: box.length };
+  }
+
+  const push = S => serial(() => doPush(S));
+  const flush = S => serial(() => doFlush(S));
+  const pending = () => loadBox().length;
+
+  return { pull, push, flush, pending };
+}
+
+/* ---- app/stubapi.js ---- */
+/* ===== API tiruan: server sederhana di dalam penyimpanan, antarmuka sama dengan backend (Rencana 3) ===== */
+
+const STUB_KEY = 'pmn-stub-server';
+
+/**
+ * storage: objek mirip localStorage {getItem, setItem}. opts: {items?: Array<{no,title,published,link}>, texts?: {no: teks PDF}, fail?: string, offline?: boolean}.
+ * getPdf mengembalikan {ok, text} untuk nomor yang punya teks (hanya API tiruan); backend sungguhan mengembalikan {ok, base64}.
+ * Semua metode mengembalikan Promise dan melempar Error('offline') saat offline.
+ */
+function createStubApi(storage, opts) {
+  opts = opts || {};
+  let offline = !!opts.offline;
+  let failCode = opts.fail || null;
+  let dropNext = false;
+  const texts = Object.assign({}, opts.texts || {});
+  let queuedItems = (opts.items || []).slice();
+  const fresh = () => ({
+    pmns: {}, meta: { lastCheck: null, lastCheckOk: null, lastExport: null, lastInstalled: null },
+    log: [], pending: queuedItems.splice(0), pdfs: {},
+  });
+  const load = () => { const r = storage.getItem(STUB_KEY); return r ? JSON.parse(r) : fresh(); };
+  const save = d => storage.setItem(STUB_KEY, JSON.stringify(d));
+  const guard = () => { if (offline) throw new Error('offline'); };
+
+  return {
+    setOffline(v) { offline = !!v; },
+    setFail(code) { failCode = code || null; },
+    dropNextResponse() { dropNext = true; },
+    /** Menambah item yang akan ditemukan pada runCheck berikutnya (dipakai tombol demo). */
+    queueItems(items) { const d = load(); d.pending.push(...items); save(d); },
+    setText(no, text) { texts[no] = text; },
+
+    async getState() {
+      guard();
+      const d = load();
+      return { pmns: d.pmns, meta: d.meta, log: d.log };
+    },
+
+    async putPmn(no, record, baseVer) {
+      guard();
+      const d = load();
+      const cur = d.pmns[no];
+      const sv = cur ? cur.ver : 0;
+      if (baseVer !== sv) return { ok: false, conflict: true, record: cur || null };
+      d.pmns[no] = Object.assign(JSON.parse(JSON.stringify(record)), { ver: sv + 1 });
+      save(d);
+      if (dropNext) { dropNext = false; throw new Error('respons hilang'); }
+      return { ok: true, ver: sv + 1 };
+    },
+
+    async putMeta(patch) {
+      guard();
+      const d = load();
+      Object.assign(d.meta, patch);
+      save(d);
+      return { ok: true };
+    },
+
+    async addLog(event) {
+      guard();
+      const d = load();
+      d.log.unshift(event);
+      if (d.log.length > 100) d.log.length = 100;
+      save(d);
+      return { ok: true };
+    },
+
+    async runCheck() {
+      guard();
+      if (failCode) return { ok: false, code: failCode };
+      const d = load();
+      const items = d.pending.splice(0);
+      const added = items.filter(i => !d.pmns[i.no]);
+      for (const it of added) {
+        d.pmns[it.no] = {
+          status: 'menunggu', rss: { title: it.title, published: it.published, link: it.link }, src: 'server',
+          parsed: null, work: null, changes: [], reason: '', ack: false, ver: 1,
+        };
+      }
+      const at = new Date().toISOString();
+      d.meta.lastCheck = at; d.meta.lastCheckOk = at;
+      d.log.unshift({ at, who: 'Server', code: added.length ? 'check_found' : 'check_none', params: added.length ? { n: added.length, nos: added.map(i => i.no) } : {} });
+      save(d);
+      return { ok: true, added: added.map(i => i.no) };
+    },
+
+    async getPdf(no) {
+      guard();
+      const d = load();
+      if (texts[no] != null) return { ok: true, text: texts[no] };
+      return d.pdfs[no] ? { ok: true, base64: d.pdfs[no] } : { ok: false, code: 'no_pdf' };
+    },
+  };
+}
+
+/* ---- app/httpapi.js ---- */
+/* ===== API sungguhan: POST text/plain ke backend Apps Script. Antarmuka sama dengan app/stubapi.js ===== */
+/* createHttpApi({url, code, officer: string | () => string, fetch}). Jaringan gagal, status bukan 200, atau JSON rusak = Error('offline');
+   kode akses ditolak = Error('err_auth'). Hasil lain dikembalikan apa adanya. Kode tidak pernah masuk URL. */
+
+function createHttpApi({ url, code, officer, fetch }) {
+  async function call(action, args) {
+    let res;
+    try {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action, code, officer: typeof officer === 'function' ? officer() : officer, args }),
+      });
+      if (!r.ok) throw new Error('offline');
+      res = await r.json();
+    } catch (e) { throw new Error('offline'); }
+    if (res && res.ok === false && res.code === 'err_auth') throw new Error('err_auth');
+    return res;
+  }
+  return {
+    getState: () => call('getState', {}),
+    putPmn: (no, record, baseVer) => call('putPmn', { no, record, baseVer }),
+    putMeta: patch => call('putMeta', { patch }),
+    addLog: event => call('addLog', { event }),
+    runCheck: () => call('runCheck', {}),
+    getPdf: no => call('getPdf', { no }),
+  };
+}
+
+/* ---- app/demoseed.js ---- */
+/* ===== Data mode demo (API tiruan): sejarah 129-135 terpasang, 136-138 menunggu, skenario koordinat tak terbaca ===== */
+
+/** Teks PMN (tanpa kontak pihak ketiga); diisi build_v2.py dari tests/fixtures/pmn. Di Node tetap kosong. */
+const DEMO_TEXTS = {"112/2026": "MARITIME AND PORT AUTHORITY OF SINGAPORE\nPORT MARINE NOTICE\nNO. 112 OF 2026\n14 Sep 2026\nShipping Community\nHarbour Craft Community\nPleasure Craft Community\nDEMOLITION OF JETTY AND PART DEMOLITION AND ALTERATION WORKS AT 35\nJURONG PIER ROAD\nApplicable to: Mariners operating in the vicinity of West Jurong Channel\nThis PMN supersedes Port Marine Notice No. 30 of 2026. The working period has been\nextended. There are no changes in the work scope.\nDate : With effect from 14 Sep 2026 to 28 Mar 2027\nLocation : At sea, within the working area bounded by the following coordinates (see\nattached Chartlet):\nPoint Latitude (N) Longitude (E)\n1 01º18.491' 103º42.623'\n2 01º18.413' 103º42.627'\n3 01º18.417' 103º42.685'\n4 01º18.476' 103º42.668'\n5 01º18.506' 103º42.648'\nWorking : 24 hours daily, including Sundays and public holidays.\nHours\nCraft: Harbour Craft License\nName Description\nNo\nHSL CB1180 SR 3013I CRANE BARGE\nHSL WB2120 SR 2823A WORK BARGE\nHSL WB3180 SR 3176C WORK BARGE\nKM 1 ST 0797E TUG BOAT\nKM 20 ST 1284G TUG BOAT\nKM 38 ST 0761D TUG BOAT\nKM 68 ST 0760F TUG BOAT\nST 0689H ST 0689H TUG BOAT\nThese craft will exhibit the appropriate local and international day and\nnight signals.\nDetails : Demolition works will be carried out by working barges.\nCaution : When in the vicinity of the working area, mariners are reminded to:\na) Keep well clear and not to enter the working area;\nb) Maintain a proper lookout;\nc) Proceed at a safe speed and navigate with caution;\nd) Maintain a listening watch on VHF Channel 22 (Jurong\nControl); and communicate with Jurong control for\nassistance, if required.\nPORT MASTER\nMARITIME AND PORT AUTHORITY OF SINGAPORE\nWGS84 SCALE 1 : 5 000\n103°43'\n01°18.55'N 103°43.05'E METRES\nMETRES\nJURONG TERMINAL 700\n700 Causeway\nBBBBB5BBBBBBB\n1° BBBBBBBBBBBB\nBBBBBBBBBBBB 1°\nBBBBBBBBBBBB\n18.5' B1BBBBBBBBBBB 18.5'\nBBBBBBBBBBBB\nBBBBBBBBBBBB\nsssss BBBBBBBBBBBB\nsssssss BBBBBBBB4BBBB\nsssss BBBBBBBBBBBB 600\nsssssssssss sssssssss ssssssssssssss ssssssssssssssssssssssss BBBBBBBBBBBB\n600 sssssssssss sssssssssss ssssssss sssssss\nBBBBBBBBBBBB\nssssssssssssss BBBBBBBBBBBB\nBBBBBBBBBBBB\nBBBBBBBBBBBB\nBBBBBBBBBBBB\nssss BBBBBBBBBBBB Gc Fl.Y.6s\nssssss JP DL-1\nBBBBBBBBBBBB Y\nssss Working Area BBBBBBBBBBBB\nssss BBBBBBBBBBBB\nssssssss\nBBBBBBBBBBBB\nssssssssssssssssssssssssssssssssssssss BBBBBBBBBBBB 500\nBBBBBBBBBBBB\n500 BBBBBBBBBBB3B\nLCT-2\n2 Fl.Y.4s GF LCT-1\nY GFFl.Y.2s\nY\nssssssss\nSINGAPORE Tanjong Kling Basin\nssssss\nssssssss\nssssssssssssssssssss 400\n400\nsssssssssssssssssss\nssss ssssssssss\nsss\nsssssssss\nssssssssss\n300\nsssssssssssssssssssss\n300\nsssssssssssssssssssssssssss\nsssssssssss\nssssssssssss\n200\n200 sssssssssssssssssss\nPulau Damar Laut\nsssssssssssssssssssssssssssssssssss Causeway\nPoints Lat(N) Long(E)\n100\nssssssssss\n100 1 01°18·491' 103°42·623'\nssssssss\nsssssss\nssss 2 01°18·413' 103°42·627'\nsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss\n3 01°18·417' 103°42·685'\n4 01°18·476' 103°42·668'\n0 0\n5 01°18·506' 103°42·648'\nssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss\nNote: 50\nMETRES\nT h i s C h a r t l e t i s f o r i l l u s t r a t i o n o n l y\nMETRES 50 103°42.35'E a n d m u s t n o t b e u s e d f o r n a v i g a t i o n .\n01°18.09'N\n103°43' E\nPrepared by KohCN/Leekk Hydrographic Div. MPA 11 Feb 26 CA023/26 MPA/COMET/2024/045\nHY Code AA1902126\n", "129/2026": "MARITIME AND PORT AUTHORITY OF SINGAPORE\nPORT MARINE NOTICE\nNO. 129 OF 2026\n01 Oct 2026\nShipping Community\nHarbour Craft Community\nPleasure Craft Community\nMARINE SOIL INVESTIGATION WORKS AT JURONG PORT\nApplicable to: Mariners operating in the vicinity of Jurong Port Facility (Pulau Damar\nLaut)\nDate : With effect from 01 Oct 2026 to 31 Oct 2026.\nLocation : At sea, within the working area bounded by the following coordinates (see\nattached chartlet):\n(WGS 84 Datum)\nPoint Latitude (N) Longitude (E)\nSG3 01°17.966’ 103°43.250’\nSG4 01°17.965' 103°43.294’\nSG5 01°17.965' 103°43.311’\nSG6A 01°17.985' 103°43.347’\nSG7 01°17.981' 103°43.367’\nWorking : 24 hours daily, including Sundays and public holidays\nHours\nCraft : NAME OF CRAFT HARBOUR CRAFT DESCRIPTION\nLICENCE NO.\nECHO SC 8998F PASSENGER BOAT\nKM 1 ST 0797E TUG BOAT\nKM 20 ST 1284G TUG BOAT\nKM HOTEL SC 6668D PASSENGER BOAT\nKM SUCCESS SC 4388I PASSENGER BOAT\n(SAFETY BOAT)\nSIPL5 SR 2732D JACK-UP BARGE\nST 0569G ST 0569G TUG BOAT\nST 0689H ST 0689H TUG BOAT\nThese craft will exhibit the appropriate local and international day and night\nsignals.\nDetails : The soil investigation work will be carried out by jack-up barge upon\ncompletion of borehole drilling. Tugboats will be used for shifting the jack-\nup barge between the boreholes. The barge will require a safe working zone\nof 30 meters radius.\nSafety boat will be deployed to warn other craft in the vicinity of the working\narea.\nCaution : When in the vicinity of the working area, mariners are reminded to:\na) Keep well clear and not to enter the working area;\nb) Maintain a proper lookout;\nc) Proceed at a safe speed and navigate with caution;\nd) Maintain a listening watch on VHF Channel 18 (Pasir Panjang\nControl); and communicate with Pasir Panjang Control for\nassistance as required.\nPORT MASTER\nMARITIME AND PORT AUTHORITY OF SINGAPORE\n", "130/2026": "MARITIME AND PORT AUTHORITY OF SINGAPORE\nPORT MARINE NOTICE\nNO. 130 OF 2026\n02 Oct 2026\nShipping Community\nHarbour Craft Community\nPleasure Craft Community\nCONSTRUCTION OF CONTAINMENT BUNDS AT TUAS VIEW EXTENSION\nApplicable to: Mariners operating in the vicinity east of Tuas View Extension and\nTemasek Fairway\nThis PMN supersedes Port Marine Notice No. 52 of 2026. The working period has been\nextended, the list of craft and chartlet have been revised.\nDate : With effect from 02 Oct 2026 to 01 Apr 2027.\nLocation : At Tuas View Extension, within the working area bounded by the\nfollowing co-ordinates (see attached chartlet):\n(WGS 84 Datum)\nPoint Latitude (N) Longitude (E)\n1 01°13.296’ 103°38.477’\n2 01°13.296 103°39.415’\n3 01°13.036' 103°39.512’\n4 01°12.660' 103°38.680’\n5 01°12.752' 103°38.636’\n6 01°12.809' 103°38.717’\nWorking Hours : 24 hours daily including Sundays and Public Holidays.\nCraft : Please refer to ANNEX A for the list of craft for deployment in the\nworking area.\nThese craft will exhibit the appropriate local and international day\nand night signals.\nDetails : Construction of containment bund will involve a series of marine\nconstruction activities, including survey work, submergible sand\nbund construction, submergible intermediate bund construction,\nsubmergible stone revetment construction, management of\ndumping EM/DM (Excavated Material and Dredged Material) and\nmarine soil investigation work such as borehole and seismic\nsurveys.\nDuring the construction, sand will be transferred from the stockpile\narea using hopper barges and tugboats, which will then discharge\nat the sand bund site.\nThe stone revetment will be installed using crane barge, work\nbarge, and flat-top barge, while EM/DM materials will be dumped\nwithin the established containment bund by hopper barges.\nSoil investigation work will be conducted using a jack-up barge.\nTwo tugboats will be deployed to assist the positioning of the jack-\nup barge.\nSafety boats will be deployed to warn other craft in the vicinity of\nthe working area.\nCaution : When in the vicinity of the working area, mariners are\nreminded to:\na) Keep well clear and not to enter the working area;\nb) Maintain a proper lookout;\nc) Proceed at a safe speed and navigate with caution;\nd) Maintain a listening watch on VHF Channel 22 (Jurong\nControl); and\ne) Communicate with Jurong Control on VHF Channel 22\nfor assistance, as required.\nPORT MASTER\nMARITIME AND PORT AUTHORITY OF SINGAPORE\nANNEX A\nCRAFT APPROVED FOR DEPLOYMENT IN THE WORKING AREA\nName Harbor Craft License No. Description\nAB15 05 ST 1669I TUGBOAT\nABADI 5 ST 1444J TUGBOAT\nABADI 8 ST 1219G TUGBOAT\nABADI 9 ST 1235I TUGBOAT\nAOM 1508 SR 3137B WORK BARGE\nAOM 1815 SR 3455Z WORK BARGE\nAOM 1836 SR 3273E WORK BARGE\nAOM 1847 SR 3473H CRANE BARGE\nAOM 1848 SR 3501G WORK BARGE\nAOM 2102 SR 3320J WORK BARGE\nAOM HOPPER 10 SR 3382J HOPPER BARGE\nAOM HOPPER 11 SR 3383I HOPPER BARGE\nAOM HOPPER 13 SR 3436C HOPPER BARGE\nAOM HOPPER 15 SR 3460F HOPPER BARGE\nAOM HOPPER 16 SR 3415J HOPPER BARGE\nAOM HOPPER 21 SR 3515G HOPPER BARGE\nAOM HOPPER 25 SR 3779F HOPPER BARGE\nAOM T1304 ST 1454H TUGBOAT\nASL 28 SR 2699I CRANE BARGE\nASL 1864 SR 4189J CRANE BARGE\nASL ARGANI SR 2661A CRANE BARGE\nASL MAJU SR 2330B MULTICAT\nASL MARS SR 3621H MULTICAT\nASL MERCURY SR 3499A MULTICAT\nAST 1828 SR 4199H CRANE BARGE\nAQUARIUS EXPRESS 12 SP 1443F PASSENGER BOAT\nBINTAN BAY 1502 SR 3865B WORK BARGE\nCAST CONFIDENCE SC 5173C PASSENGER BOAT\nCB100 02 SR 3905E WORK BARGE\nCB80 01 SR 3872E WORK BARGE\nCB80 03 SR 3873C WORK BARGE\nDHI ATLAS SR 4009F WORK BOAT\nDHI EXPLORER II SR 2638G WORK BOAT\nDHI EXPLORER III SR 2474J WORK BOAT\nDHI EXPLORER IV SR 2805C WORK BOAT\nDHI EXPLORER 7 SR 3076G WORK BOAT\nET HARBOUR 11 ST 0936F TUGBOAT\nET HARBOUR 21 ST 1143C TUGBOAT\nET OCEAN 21 ST 1441F TUGBOAT\nFRANCISCO BAY 1801 SR 3842C WORK BARGE\nFUNDY BAY 1504 SC 5057E FLAT TOP BARGE\nGARUDA SEJATI ST 1635D TUGBOAT\nGEOLAB SAMUDRA 10 SR 3825C JACK-UP BARGE\nHARITA 88 SR 3483E DREDGER\nHEISEI 7 SR 3184D DREDGER\nHEISEI 8 SR 3366I DREDGER\nH S HOPPER 34 SR 3432J HOPPER BARGE\nINTAN T1701 ST1226Z TUGBOAT\nKHB 2511 SC 4963A FLAT TOP BARGE\nKHB 2512 SC 4249A FLAT TOP BARGE\nKM 1 ST 0797E TUG BOAT\nKM 20 ST 1284G TUG BOAT\nKM ECHO SC 8998F PASSENGER BOAT\nKM SUCCESS SC 4388I SAFETY / PASSENGER BOAT\nKM UNIFORM SC 8668E PASSENGER BOAT\nKM VICTOR SC 8118G PASSENGER BOAT\nKM ROMEO SC 6000G PASSENGER BOAT\nLINTAS LAUTAN 251 SC 4659D FLAT TOP BARGE\nMANILA BAY 1503 SC 4800G FLAT TOP BARGE\nQSA FORTUNE STAR ST1700H TUGBOAT\nQSA LUCKY STAR ST1699J TUGBOAT\nPENTA 7 SR 4064I SAFETY / PASSENGER BOAT\nPOLITE VIII ST 1415G TUGBOAT\nSAILFISH8 SR 3267J WORK BOAT\nSAMUDRA GL 66 SR 4081I JACK-UP BARGE\nSAMUDRA GL 99 SR 4119Z JACK-UP BARGE\nSEA GOLD 1001 SR 3418E HOPPER BARGE\nS K 6 ST 0569G TUG BOAT\nST 0689H ST 0689H TUG BOAT\nSKY 23 ST 1090I TUG BOAT\nSTL H1 SR 3478I WORK BARGE\nSTL H2 SR 3479G WORK BARGE\nSTL H3 SR 3480J WORK BARGE\nSTL H4 SR 3557B WORK BARGE\nSTL H8 SR 3641B WORK BARGE\nSTL H9 SR 3647A WORK BARGE\nSTL H11 SR 3722B WORK BARGE\nSTL H16 SR 3644G WORK BARGE\nSTL H17 SR 3618H WORK BARGE\nSTL H18 SR 3614E WORK BARGE\nSTL H20 SR 3642J WORK BARGE\nTB750 01 ST 1656G TUGBOAT\nTHETIS99 SR 4119Z JACK-UP BARGE\nYJP SURVEYORS 1 SR 2635B WORK BOAT\nYJP SURVEYORS 2 SR 3770B WORK BOAT\nYJP SURVEYORS 3 SR 3814H WORK BOAT\nYJP SURVEYORS 4 SR 3821J WORK BOAT\nYJP SURVEYORS 7 SR 3809A WORK BOAT\n", "131/2026": "MARITIME AND PORT AUTHORITY OF SINGAPORE\nPORT MARINE NOTICE\nNO. 131 OF 2026\n07 Oct 2026\nShipping Community\nHarbour Craft Community\nPleasure Craft Community\nRECTIFICATION OF FLOATING SEA BARRIER AT SEMBAWANG\nApplicable to: Mariners operating in the vicinity of Sembawang\nDate : With effect from 08 October 2026 to 30 November 2026.\nLocation : At sea within the working area bounded by the following coordinates (see\nattached Chartlet):\n(WGS 84 Datum)\nWorking Area\nPoint Latitude (N) Longitude (E)\nA 1°27.645' 103°50.792'\nB 1°27.645' 103°50.755'\nC 1°27.672' 103°50.755'\nD 1°27.672' 103°50.792'\nWorking : 0800 hours to 1800hrs, including Sundays and public holidays.\nHours\nName of Safety Harbour Craft Description\nCraft: Craft Licence No.\nBarlian 1299 ST 1346J Tugboat\nBarlian T1201 ST 1319C Tugboat\nEng Tou 272 SC 5011G Flat Top Barge\nKhb 1208 SC 5090G Barge\nKokunemaru 18 SR 3016C Crane barge\nOung 15 SR 3541F Work Barge\nOung 16 SR 3335I Work Barge\nWork boat/Safety\nOung WB1 SR 3869E\nboat\nWork boat/Safety\nPresident 11 SR 3977B\nboat\nQsa Purari ST 1277D Tugboat\nWork boat/Safety\nSSE Alexandria SR 2845B\nboat\nSSE Anastasia ST 9199B Tugboat\nSSE Angelina SR 2202J Workboat\nSSE Aurora ST 1651F Tugboat\nSSE Erica ST 1288Z Tugboat\nSSE Evanka ST 1228F Tugboat\nSSE Indiana SR 3998E Crane barge\nSSE Joanne ST 1988D Tugboat/Safety boat\nSSE Lucia ST 0661H Tugboat\nSSE Lucy ST 0650B Tugboat/Safety boat\nSSE Macarena ST 9198D Tugboat\nWorkboat/Safety\nSSE Marella SR 3919E\nBoat\nSSE Marissa SR 2564Z Workboat\nSSE Monalisa ST 1188C Tugboat/Safety boat\nSSE Olivia ST 1174C Tugboat\nTairyu Go SR 3175E Crane Barge\nYakushimaru No 5 ST1405Z Tugboat\nSarah ST 1648F Tugboat\nThese craft will exhibit the appropriate local and international day and night\nsignals.\nDetails : The repair work will be carried out by crane barge assisted by tugboats.\nA safety boat will be in attendance at all times to warn and re-direct craft in\nthe vicinity to keep clear of the working area.\nCaution : When in the vicinity of the working area, mariners are reminded to:\na) Keep well clear and not to enter the working area;\nb) Maintain a proper lookout;\nc) Proceed at a safe speed and navigate with caution;\nd) Maintain a listening watch on VHF Channel 21 (Sembawang\nControl); and communicate with Sembawang Control for\nassistance if required.\nPORT MASTER\nMARITIME AND PORT AUTHORITY OF SINGAPORE\nWGS84 SCALE 1 : 5 000\n103° 51'\n01°27.88'N 103°51.18'E METRES 700\nMETRES\n700\n5Oc(2)Y.6s (sync)\ncG SBW 4\nY\n600\n600\nFl(4)R.15s\nLavis G^\nR 500\n500\n5Oc(2)Y.6s (sync)\nGcSBW 5\nY\nWorking Area\nFloating Barrier 400\n400 BBB\nBBB\nOc(2)Y.6s (sync) BBBBB BBB\nB BBB\nSBW 6 5 3BBBBB BB4B\nB BBB\n5 BBBBB 5BBB\nGc B BBBOc(2)Y.6s(sync)\nY BBBBB BBB\ncG B BBcGBSBW 8\n(sync) Y BBBBBY BBB\nOc(2)Y.6s B BBB\nBBBBB BBB\nSBW 7 B BBB\n2 BBBBB 1BBB 300\nB BBB\nBBB\n300 _ BBB\n_\n_\n_\n5Oc(2)Y.6s(sync)\ncG SBW 9\nY\n200\n5 5Oc(2)Y.6s(sync)\n200 Fl.Y.5s(sync)\ncG GcSBW 10\nSK1\nY Y\n5Fl.Y.5s (sync)\nSEMBAWANG\ncG SK2 100\nY\n100 (SINGAPORE) Lavis Shoal\n1° 1°\n27·5' 27·5'\nPoints Lat(N) Long(E)\n0 1 01°27·645' 103°50·792' 0\n2 01°27·645' 103°50·755'\n50\n3 01°27·672' 103°50·755' Note:\nMETRES\nT h i s C h a r t l e t i s f o r i l l u s t r a t i o n o n l y\n4 01°27·672' 103°50·792'\nMETRES 50 103°50.49'E a n d m u s t n o t b e u s e d f o r n a v i g a t i o n .\n01°27.42'N\n103° 51'E\nPrepared by KohCN/LeeKK Hydrographic Div. MPA 11 Aug 26 CA099/26\nHY Code AA1908026\n", "132/2026": "MARITIME AND PORT AUTHORITY OF SINGAPORE\nPORT MARINE NOTICE\nNO. 132 OF 2026\n08 Oct 2026\nShipping Community\nHarbour Craft Community\nPleasure Craft Community\nFIBRE OPTIC CABLE LAYING OPERATION OFF ST JOHN’S ISLAND\nApplicable to: Mariners operating in the vicinity of St John’s Island off Lazarus Island\nThis PMN supersedes Port Marine Notice No. 38 of 2026. The working period has been\nextended and the chartlet has been revised.\nDate : With effect from 08 Oct 2026 to 31 Mar 2027.\nLocation : At sea, within the working area bounded by the following\nco-ordinates (see attached chartlet):\nPoint Latitude (N) Longitude (E)\n1 01°12·860' 103°51·160'\n2 01°12·936' 103°51·122'\n3 01°13·225' 103°51·107'\n4 01°13·332' 103°51·155'\n5 01°13·217' 103°51·240'\n6 01°13·127' 103°51·167'\n7 01°12·982' 103°51·333'\nWorking : 24 hours daily, including Sundays and Public Holidays.\nHours\nCraft :\nName Harbour Craft Description\nLicence No.\nGALAXEA SR 3049Z WORK BOAT\nHELIOS I SR 3655B WORK BOAT\nHELIOS S1 SR 4086Z WORK BOAT\n/ SAFETY\nBOAT\nThese craft will exhibit the appropriate local and international day and\nnight signals.\nDetails : A 3 km fibre optic cable, 5 mm in diameter, will be laid on the seabed\npaired with an 8 mm sinker polyester-lead rope. Divers will be deployed\nas required to make adjustments to the cable route.\nSafety boat will be in attendance to warn and direct craft in the vicinity to\nkeep clear of the working area.\nCaution : When in the vicinity of the working area, mariners are reminded to:\na) Keep well clear of the working area;\nb) Maintain a proper lookout;\nc) Proceed at a safe speed and navigate with caution;\nd) Maintain a listening watch on VHF Channel 12 (Eastern\nControl); and Communicate with Eastern Control for\nassistance, if required.\nPORT MASTER\nMARITIME AND PORT AUTHORITY OF SINGAPORE\n", "133/2026": "MARITIME AND PORT AUTHORITY OF SINGAPORE\nPORT MARINE NOTICE\nNO.133 OF 2026\n08 Oct 2026\nShipping Community\nHarbour Craft Community\nPleasure Craft Community\nKUSU PILGRIMAGE SEASON 2026\nApplicable to: Mariners operating to and from Marina South Pier (MSP), in the vicinity of East\nKeppel Fairway and Kusu Island (Pulau Tembakul)\n1. The 2026 Kusu Pilgrimage season will commence on 10 Oct 2026 and end on 08 Nov\n2026. During this period, ferries carrying passengers operated by Singapore Island Cruise\n& Ferry Services Pte Ltd (appointed ferry operator) are allowed to ferry passengers to\nKusu Island and berth at the main jetty. The ferries will cross East Keppel Fairway when\nplying between the Marina South Pier (MSP) and Kusu Island (Pulau Tembakul). The\nrecommended routes for these ferries are shown in Appendix 1. Mariners shall keep a\nproper lookout for these ferries and navigate with extra caution when in the vicinity of the\nrecommended routes.\n2. The traffic movement within MSP has been divided in two routes. All ferries and harbour\ncraft shall use the recommended routes as indicated by the chartlet in Appendix 2. The\nwaters within the breakwater MSP are “no wake zone”, harbour craft and ferries operating\nwithin the waters of MSP are reminded to slow down as far as practicable to reduce\ncausing wakes.\n3. Master of ferries, harbour and pleasure craft shall proceed at a safe speed and navigate\nwith caution when approaching MSP and Kusu Island jetties.\n4. The following buoys were laid to aid in the safe navigation of ferries approaching and\nleaving Kusu Jetty. Ferries shall keep within the channel demarcated by the Kusu Buoy\n(Fl (2) R10s) and the yellow polyethylene channel buoys shown in Appendix 3.\n5 Pulau Tembakul (harbour craft jetty) at Kusu is closed for maintenance and no craft\nare allowed to berth at the jetty till further notice. Craft navigating in the vicinity is to\nproceed at safe speed and not cause any excessive wakes.\nWGS 84 Datum\nName Latitude (N) Longitude (E) Purpose Type of Buoy\nKusu Buoy 01° 13.234' 103° 51.692' Port hand buoy Red Can buoy Fl (2)\nR10s\nKusu Marker A 01° 13.521' 103° 51.428' Channel buoy Yellow polyethylene\nbuoy\nKusu Marker B 01° 13.403' 103° 51.435' For mooring of ferries Yellow polyethylene\n(Off Pulau Sakijang) buoy\nCentre (MSCC) Duty Officer at (65) 6325 – 2488 / 2489 for clarification on this\nPort Marine Notice.\nPORT MASTER\nMARITIME AND PORT AUTHORITY OF SINGAPORE\n", "134/2026": "MARITIME AND PORT AUTHORITY OF SINGAPORE\nPORT MARINE NOTICE\nNO. 134 OF 2026\n9 Oct 2026\nShipping Community\nHarbour Craft Community\nPleasure Craft Community\nMAINTENANCE DREDGING WORKS AT TUAS SOUTH STAGING GROUND\nApplicable to: Mariners operating in the vicinity of Tuas South Staging Ground\nDate : With effect from 09 October 2026 to 09 April 2027.\nLocation : At sea, within the working area bounded by the following coordinates (see\nattached chartlet):\n(WGS 84 Datum)\nWorking Area A\nPoint Latitude (N) Longitude (E)\n1 01°17.952’ 103°37.114’\n2 01°17.940’ 103°37.109’\n3 01°17.927’ 103°37.145’\n4 01°17.939’ 103°37.149’\nWorking Area B\nPoint Latitude (N) Longitude (E)\n1 01°17.929’ 103°37.105’\n2 01°17.916’ 103°37.101’\n3 01°17.903’ 103°37.136’\n4 01°17.915’ 103°37.141’\nWorking : 24 hours daily, including Sundays and public holidays.\nHours\nCraft: Name of Craft Harbour Craft Description\nLicence No.\nSTL H17 R 3618H HOPPER BARGE\nSTL H18 SR 3614E HOPPER BARGE\nSTL PT2 ST 1533A TUG BOAT\nThese craft will exhibit the appropriate local and international day and night\nsignals.\nDetails : The maintenance dredging works are intended to remove high spots on the\nseabed caused by excavated material that spills beneath and around the\njetty during barge loading, thereby maintaining sufficient water depth for\nvessels to berth safely.\nThe dredging work will be carried out using an excavator fitted with a grab\nbucket mounted on a working barge.\nCaution : When in the vicinity of the working area, mariners are reminded to:\na) Keep well clear and not enter the working area;\nb) Maintain a proper lookout;\nc) Proceed at a safe speed and navigate with caution;\nd) Maintain a listening watch on VHF Channel 22 (Jurong\nControl); and communicate with Jurong Control for\nassistance if required.\nPORT MASTER\nMARITIME AND PORT AUTHORITY OF SINGAPORE\nWGS84 SCALE 1 : 5 000\n103°37'\n01°18.27'N 103°37.34'E\nFl.Y.6s 5\nNB 1Gc\nY\nIntake & Outfall Pipe\nRamp\nWorks in progress (2026)\nMETRES\nMETRES Fl.Y.4s 5 500\n500 NB 2 cG\nY\nOutfall Pipe\nIntake Pipe\n400\n400 Working Area A\n1° 1°\nPoints Lat(N) Long(E)\n18' 18'\n1 01°17·952' 103°37·114'\nBB\nB BB\nB B\nWorking Area A BBBB BB 2 01°17·940' 103°37·109'\nB B BB BB 300\nB BB BB B\n300 BB1 BBBBB BBBB 3 01°17·927' 103°37·145'\nFl.Y.2s 5 BBBB BBBBBBB\nB B BB B B\nHD TWC 6 cG BBB2BBB BBBBB4B 4 01°17·939' 103°37·149'\nY BBBBBBBBBBBBBBBBBB\nBBBBB B\nB5BBBBBBBBBBBBBB\nBBBBBBBBBBBBB Working Area B\nBBB BBBBBBB3B\nB BBBB\nBB BBB\nB6BBBBBBB8B Points Lat(N) Long(E)\nB BBB 200\nBBB BB\n200 BB BBB\nBB B\nBBBBBBB7 B 5 01°17·929' 103°37·105'\nWorking Area BBBBBBBBB\nBBB\nB\n6 01°17·916' 103°37·101'\n7 01°17·903' 103°37·136'\n8 01°17·915' 103°37·141' 100\n100\n0 0\nb(145)\n50 METRES\n50\nMETRES\nNEA Tuas Marine b(140)\nTransfer Station\nSINGAPORE\n5Fl.Y.10s\nGcDHI-TWC\nCanal\nY\nNote:\nT h i s C h a r t l e t i s f o r i l l u s t r a t i o n o n l y\n103°36.88'E a n d m u s t n o t b e u s e d f o r n a v i g a t i o n .\n01°17.57'N\n103°37' E\nPrepared by KohCN/LeeKK Hydrographic Div. MPA 02 Oct 26 CA125/26 MPA/COMET/2026/045\nHY Code AA1910626\n", "135/2026": "MARITIME AND PORT AUTHORITY OF SINGAPORE\nPORT MARINE NOTICE\nNO. 135 OF 2026\n09 Oct 2026\nShipping Community\nHarbour Craft Community\nPleasure Craft Community\nMARINE STRUCTURE CONSTRUCTION OFF TUAS SOUTH BOULEVARD FOR PIER\nEXTENSION\nApplicable to: Mariners operating in the vicinity off Seatrium Tuas Shipyard\nDate : With effect from 10 Oct 2026 to 09 Apr 2027.\nLocation : At sea, within the working area bounded by the following coordinates (see\nattached chartlet):\n(WGS 84 Datum)\nPoint Latitude (N) Longitude (E)\n1 1°14.798'N 103°36.394'E\n2 1°14.854'N 103°36.394'E\n3 1°14.854'N 103°36.297'E\n4 1°14.732'N 103°36.297'E\n5 1°14.731'N 103°36.394'E\n6 1°14.785'N 103°36.394'E\n7 1°14.786'N 103°36.362'E\n8 1°14.798'N 103°36.362'E\nWorking : 24 hours daily, including Sundays and public holidays.\nHours\nName of Safety Harbour Craft Description\nCraft: Craft Licence No.\nCATERMAS 25 SR 1178I WORK BOAT\nCATERMAS 50 SR 3358H CRANE BARGE\nENG HUP SP 1306E FERRY BOAT\nSUPPORTER\nENG HUP TERRA ST 1696F TUG BOAT\nThese craft will exhibit the appropriate local and international day and night\nsignals.\nDetails : Marine piles installation works, cast in situ cross beam construction, precast\nbeam installation, precast slab installation, cast in situ slab top up and\nancillary facility installation (bollard, fenders) .\nCaution : When in the vicinity of the working area, mariners are reminded to:\na) Keep well clear and not to enter the working area;\nb) Maintain a proper lookout;\nc) Proceed at a safe speed and navigate with caution;\nd) Maintain a listening watch on VHF Channel 22 (Jurong\nControl); and communicate with Jurong Control for\nassistance if required.\nPORT MASTER\nMARITIME AND PORT AUTHORITY OF SINGAPORE\nWGS84 SCALE 1 : 10 000\n103°36'\noqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃo\n01°15.49'N 103°36.80'E\nD o c k 6\nD o c k 5\noqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoq\noqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoq\nBuried\nBuried\nSeatrium\nTuas METRES\nShipyard\nMETRES D o c k 4 1000\n1000\nD o c k 3\nÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂ\n1° ÃoqÂÃoq 1°\n15' ÂÃoqÂÃoqÂ 15'\nÃoq\nÃ oqÂÃoqÂÃoqÂÃÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂ\nqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoq\noqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃB\nWorking Area\nB B D o c k 2\nB B\nÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂ B B\nB\nB B B\nB B\nB B B B\nB 3 B B 2B D o c k 1\nB B B\nB B\nB B B B B 500\nB B\n500 B B B B B\nB\nB B 8 B1 B B\nB\nB B\nB B B B B\nB B\nB B B7 6 B B\nB\nB B B B\nB\nB B B\nB\nB B\nSingapore Port Limits B B B\n4 5\nB B\nB\nÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃ\n0 0\nSINGAPORE\n100\nMETRES\nMETRES 100\nFl.G.2s\nPKHDB-21 G[\nG\nPoints Lat(N) Long(E)\nWorks in progress (2026) 1 01°14·798' 103°36·394'\n2 01°14·854' 103°36·394'\noqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃooqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃo 3 01°14·854' 103°36·297'\noqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ oqÂÃoqÂÃoqÂÃ\n4 01°14·732' 103°36·297'\nBeing reclaimed (2026)\n5 01°14·731' 103°36·394'\n6 01°14·785' 103°36·394'\n7 01°14·786' 103°36·362'\n8 01°14·798' 103°36·362'\nqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂÃoqÂ\nNote:\nT h i s C h a r t l e t i s f o r i l l u s t r a t i o n o n l y\nÃoq\n103°35.88'EÂÃ a n d m u s t n o t b e u s e d f o r n a v i g a t i o n .\n01°14.09'N\n103°36' E\nPrepared by KohCN/LeeKK Hydrographic Div. MPA 05 Oct 26 CA127/26 MPA/COMET/2025/108\nHY Code AA1910826\n", "136/2026": "MARITIME AND PORT AUTHORITY OF SINGAPORE\nPORT MARINE NOTICE\nNO. 136 OF 2026\n14 Oct 2026\nShipping Community\nHarbour Craft Community\nPleasure Craft Community\nOPERATION OF UNMANNED AIRCRAFT OVER SINGAPORE PORT WATERS\n1 Please be informed that the Civil Aviation Authority of Singapore (CAAS) has issued\na notice on the operation of unmanned aircraft over Singapore Port Waters.\n2 For further details, please refer to the CAAS’s notice dated 1 Oct 2026 in Annex A.\nPORT MASTER\nMARITIME AND PORT AUTHORITY OF SINGAPORE\n", "137/2026": "MARITIME AND PORT AUTHORITY OF SINGAPORE\nPORT MARINE NOTICE\nNO. 137 OF 2026\n14 Oct 2026\nShipping Community\nHarbour Craft Community\nPleasure Craft Community\nSEABED DREDGING AT LOYANG OFFSHORE SUPPLY BASE JETTY\nApplicable to: Mariners operating in the vicinity off Loyang Jetty\nDate : With effect from 15 Oct 2026 to 15 Apr 2027.\nLocation : At sea, within the working area bound by the following coordinates (see\nattached chartlet):\n(WGS 84 Datum)\nPoint Latitude (N) Longitude (E)\n1 01°23.184’ 103°57.928’\n2 01°23.235' 103°58.052’\n3 01°23.101' 103°58.099’\n4 01°24.079' 103°34.140’\n5 01°23.065' 103°58.150’\n6 01°22.996' 103°58.046’\n7 01°23.014' 103°58.023’\n8 01°22.990' 103°57.956’\n9 01°23.086' 103°57.921’\nWorking : 24 hours daily, including Sundays and Public Holidays.\nHours\nCraft: Name of Safety Harbour Craft Description\nCraft Licence No.\nE T OCENA 9 ST 1113 A TUGBOAT\nH S HOPPER 31 SC 5092 C HOPPER BARGE\nH S HOPPER 32 SC 5098 B HOPPER BARGE\nThese craft will exhibit the appropriate local and international day and night\nsignals.\nDetails : Clearing of seabed of debris and soils shall be carried out for the\nmaintenance dredging to maintain the seabed depth for vessel to alongside\nthe jetty.\nThe retrieval of this seabed material shall be carried out using Dredging\nVessel.\nCaution : When in the vicinity of the working area, mariners are reminded to:\na) Keep well clear and not enter the working area;\nb) Maintain a proper lookout;\nc) Proceed at a safe speed and navigate with caution;\nd) Maintain a listening watch on VHF Channel 21 (Sembawang\nControl); and communicate with Sembawang Control for\nassistance if required.\nPORT MASTER\nMARITIME AND PORT AUTHORITY OF SINGAPORE\nWGS84 SCALE 1 : 8 000\n103°58'\n01°23.57'N 103°58.60'E\nPoints Lat(N) Long(E)\n: ;\n:; r METRES\n1 01°23·184' 103°57·928' Fairy r:r;\nk k\nr ZGFl(2)R.10s7m4M k k\nMETRES ; ;\n2 01°23·235' 103°58·052' ;: :R 1000\n: r\n1000 7 r;r:Batu\n3 01°23·101' 103°58·099' Puteh\nY\n4 01°23·079' 103°58·140' 7\n5 01°23·065' 103°58·150'\nS E R A N G O O N H A R B O U R r:\n; r k k\nr ; k\n6 01°22·996' 103°58·046' ; k k k\n:;:\n7 01°23·014' 103°58·023' < k k\nk k k\n8 01°22·990' 103°57·956' k k k k\n<\n=\n9 01°23·086' 103°57·921'\n= =\nFairy Point Jetty\nFl(2)Y.10s\nPCGL3\nR Fl(2)Y.8s aG =\nBBBBBBBBBBBBBBBBBBBWorking Area PCGL2 Y Pile\nW\nGa\nFl(2)Y.2s\nG BBBBBBBBBBBBBBBBBBB2 Y 500\nPCGL1 Ga _\n500 Y\nBBBBBBBBBBBBBBBBBBB Ï S. Selarang\n5Fl.Y.4s Á Á ÁÁ ÁÁ Á ÁÁ Á\nBBBBBBBBBBBBBBBBBBB _\n1 cG SOPS-1\nY\nBBBBBBBBBBBBBBBBBBB\nBBBBBBBBBBBBBBBBBBB Police Coast Guard\nLoyang Base _ _\nBBBBBBBBBBBBBBBBBBB\n3\n5Fl(4)Y.10s\nBBBBBBBBBBBBBBBBBBB\nGcSOPS-2\nBBBBBBBBBBBBBBBBBBBY\n4\n9\nBBBBBBBBBBBBBBBBBBB\n5\nBBBBBBBBBBBBBBBBBBBP\nÁ Á Á ÁÁ Á Á ÁÁ Á Á Á\nÁ Á Á Á\n5Fl(4)Y.15s(sync) BBBBBBBBBBBBBBBBBBB\nS I N G A P O R E\nGcPR 3\nY =\nBBBBBBBBBBBBBBBBBBB\n1° Floating Barrier Fl(4)Y.15s(sync) 7 = 1°\n23' 5 = Loyang Jetty 23'\nPR 2 6\nQ Gc 5Fl(4)Y.15s (sync) BBBBBBBBBBBBBBBBBBBZ 8\nPUB-TMWTP GZ Y cG PR 1 Loyang R\n0 Fl.Y.2s2m1M Y Y DirFl(2)WRG.10s10-8M 0\n100\nMETRES\nNote:\nMETRES 100 S. Loyang\nT h i s C h a r t l e t i s f o r i l l u s t r a t i o n o n l y\n103°57.49'E a n d m u s t n o t b e u s e d f o r n a v i g a t i o n .\n01°22.83'N\n103°58' E\nPrepared by KohCN/LeeKK Hydrographic Div. MPA 02 Oct 26 CA126/26 MPA/COMET/2025/096\nHY Code AA1910726\n", "138/2026": "MARITIME AND PORT AUTHORITY OF SINGAPORE\nPORT MARINE NOTICE\nNO. 138 OF 2026\n14 Oct 2026\nShipping Community\nHarbour Craft Community\nPleasure Craft Community\nHAZE ALERT – 24-HOUR PSI >200\n1. On 14 Oct 2026, the National Environment Agency (NEA) of Singapore issued\na haze situation update that the 24-hour Pollutant Standards Index (PSI) was 203\n(Very Unhealthy range) in the West region of Singapore.\n2. Shipping, Harbour Craft and Pleasure Craft communities, shipowners, shipping\nagents, terminal operators and marine service providers are advised to monitor the\nPSI levels through NEA website (www.nea.gov.sg), the haze microsite\n(www.haze.gov.sg) or the myENV mobile app.\n3. Employers are to implement Ministry of Manpower’s (MOM) necessary\nprecautions and measures to ensure the health and safety of their workers at the\nworkplace. Guidelines for employers for protecting their employees from the effects of\nhaze can be found on MOM website (www.mom.gov.sg/haze).\n4. The visibility in the Singapore Strait and port waters could be significantly\nreduced in the event of haze. During periods of restricted visibility, shipmasters are\nadvised to keep a proper lookout and navigate with caution. They are also advised to\ncomply with the International Regulations for Preventing Collisions at Sea and in\nparticular Rule No. 19, Rule No. 20 and Rule 35 concerning conduct of vessels in\nrestricted visibility, exhibition of navigation lights and sound signals in restricted\nvisibility, respectively.\n5. In the interest of safety of navigation and life at sea, the Port Master may restrict\nthe movement of harbour craft and pleasure craft in the port waters during reduced\nvisibility conditions.\nPORT MASTER\nMARITIME AND PORT AUTHORITY OF SINGAPORE\n"};
+
+const DEMO_NOS = { history: ['129/2026', '130/2026', '131/2026', '132/2026', '133/2026', '134/2026', '135/2026'], scenario: '112/2026' };
+const DEMO_PUBLISHED = { '129/2026': '2026-10-01', '130/2026': '2026-10-02', '131/2026': '2026-10-07', '132/2026': '2026-10-08', '133/2026': '2026-10-08', '134/2026': '2026-10-09', '135/2026': '2026-10-09' };
+const DEMO_ITEMS = [
+  { no: '136/2026', title: 'OPERATION OF UNMANNED AIRCRAFT OVER SINGAPORE PORT WATERS', published: '2026-10-14', link: 'https://www.mpa.gov.sg/media-centre/details/port-marine-notice-no-136-of-2026-operation-of-unmanned-aircraft-over-singapore-port-waters' },
+  { no: '137/2026', title: 'SEABED DREDGING AT LOYANG OFFSHORE SUPPLY BASE JETTY', published: '2026-10-14', link: 'https://www.mpa.gov.sg/media-centre/details/port-marine-notice-no-137-of-2026-seabed-dredging-at-loyang-offshore-supply-base-jetty' },
+  { no: '138/2026', title: 'HAZE ADVISORY PSI 200 AND ABOVE', published: '2026-10-14', link: 'https://www.mpa.gov.sg/media-centre/details/port-marine-notice-no-138-of-2026-haze-advisory-psi-200-and-above' },
+];
+const DEMO_SCENARIO_ITEM = { no: '112/2026', title: 'DEMOLITION OF JETTY AND PART DEMOLITION AND ALTERATION WORKS AT 35 JURONG PIER ROAD', published: '2026-09-14', link: null };
+
+/** Mengubah koordinat derajat-menit desimal pada teks menjadi derajat-menit-detik (format yang belum didukung pembaca), untuk skenario. */
+function scenarioText(text) {
+  return text.replace(/(\d{2,3})[°º˚](\d{2})\.(\d+)'/g, (m, d, mi, frac) => `${d}°${mi}'${(parseFloat('0.' + frac) * 60).toFixed(1)}"`);
+}
+
+/** Keadaan awal mode demo: sejarah terpasang sampai 135. texts = {no: teks}. */
+function buildDemoState(texts, now, who) {
+  const S = newState();
+  const at = '2026-10-12T14:20:00+08:00';
+  for (const no of DEMO_NOS.history) {
+    ingestCheck(S, [{ no, title: '', published: DEMO_PUBLISHED[no], link: null }], now);
+    readResult(S, no, parsePmnText(texts[no], { no }), who, now);
+  }
+  setShape(S, '133/2026', 0, 'points', who, now);
+  for (const no of DEMO_NOS.history) {
+    S.pm[no].rss.title = S.pm[no].work.title;
+    S.pm[no].status = 'terpasang';
+    S.pm[no].approvedBy = who;
+    S.pm[no].ack = true;
+  }
+  for (const no of DEMO_NOS.history) { const old = S.pm[no].work.supersedes; if (old) addHistoryStub(S, old); }
+  const list = DEMO_NOS.history.slice().reverse();
+  S.lastExport = { no: '135/2026', by: who, at, list, files: exportNames('2026-10-12', 135), removeFromEcdis: [] };
+  S.lastInstalled = { no: '135/2026', by: who, at, list };
+  S.lastCheck = now; S.lastCheckOk = now;
+  S.log = [{ at, who, code: 'installed', params: { no: '135/2026' } }];
+  return S;
+}
+
+/* ---- app/pdfread.js ---- */
+/* ===== Pembaca PDF: pengelompokan baris (murni, diuji di Node) dan pemuat pdf.js (browser) ===== */
+
+const PDFJS_VERSION = '3.11.174';
+const PDFJS_BASE = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/`;
+
+/**
+ * items = Array<{str, x, y, w}> dari satu halaman. Mengelompokkan item pada baris yang selisih y < 2,5,
+ * mengurutkan y menurun lalu x naik, menyisipkan spasi bila celah x > 1,2, dan membuang baris kosong.
+ */
+function itemsToLines(items) {
+  const rows = [];
+  for (const it of items) {
+    if (!it.str || !it.str.trim()) continue;
+    let row = rows.find(r => Math.abs(r.y - it.y) < 2.5);
+    if (!row) { row = { y: it.y, items: [] }; rows.push(row); }
+    row.items.push(it);
+  }
+  rows.sort((a, b) => b.y - a.y);
+  const lines = [];
+  for (const r of rows) {
+    r.items.sort((a, b) => a.x - b.x);
+    let line = '', end = null;
+    for (const it of r.items) {
+      if (end != null && it.x - end > 1.2 && !/\s$/.test(line)) line += ' ';
+      line += it.str;
+      end = it.x + (it.w || 0);
+    }
+    line = line.replace(/\s+/g, ' ').trim();
+    if (line) lines.push(line);
+  }
+  return lines;
+}
+
+let pdfjsPromise = null;
+function loadPdfjs() {
+  if (pdfjsPromise) return pdfjsPromise;
+  pdfjsPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = PDFJS_BASE + 'pdf.min.js';
+    s.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_BASE + 'pdf.worker.min.js'; resolve(pdfjsLib); };
+    s.onerror = () => { pdfjsPromise = null; reject(new Error('pdf_js_load')); };
+    document.head.appendChild(s);
+  });
+  return pdfjsPromise;
+}
+
+/** Membaca seluruh halaman sebuah berkas PDF menjadi teks (baris dipisah \n). Hanya jalan di browser. */
+async function readPdfFile(file) {
+  const lib = await loadPdfjs();
+  const doc = await lib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+  const out = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const tc = await (await doc.getPage(i)).getTextContent();
+    const items = tc.items.map(it => ({ str: it.str, x: it.transform[4], y: it.transform[5], w: it.width || 0 }));
+    out.push(...itemsToLines(items));
+  }
+  return out.join('\n');
+}
+
+/* ---- app/views/common.js ---- */
+/* ===== Tampilan: pembantu bersama. Fungsi murni yang mengembalikan string HTML; ctx = {S, t, tn, fmtDate, now, today, officer, ...} ===== */
+
+const HTML_ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => HTML_ESC[c]);
+const chip = (kind, text) => `<span class="chip ${kind}">${esc(text)}</span>`;
+
+/** Instan ISO -> {date:'YYYY-MM-DD', hhmm:'HH:MM'} di Asia/Singapore. */
+function sgtParts(iso) {
+  const d = new Date(new Date(iso).getTime() + 8 * 3600e3), p = n => String(n).padStart(2, '0');
+  return { date: d.toISOString().slice(0, 10), hhmm: `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}` };
+}
+
+/** "hari ini 12:00" atau "12 Okt 2026 12:00". */
+function fmtWhen(ctx, iso) {
+  const p = sgtParts(iso);
+  return p.date === ctx.today ? `${ctx.t('common.today')} ${p.hhmm}` : `${ctx.fmtDate(p.date)} ${p.hhmm}`;
+}
+
+const TIME_CHIP = { superseded: 'ganti', unread: 'info', info: 'info', dates_unknown: 'warn', upcoming: 'soon', active: 'ok', ending_soon: 'warn', expired: 'exp' };
+const WORK_CHIP = { menunggu: 'info', draf: 'warn', disetujui: 'ok2', diekspor: 'ok2', terpasang: 'ok' };
+
+function timeChip(ctx, no) {
+  const ts = timeStatusOf(ctx.S, no, ctx.today);
+  return chip(TIME_CHIP[ts.code], ts.code === 'ending_soon' ? ctx.tn('time.ending_soon', ts.days) : ctx.t('time.' + ts.code));
+}
+const workChip = (ctx, status) => chip(WORK_CHIP[status], ctx.t('work.' + status));
+
+/** Hanya tautan http(s) absolut yang boleh menjadi href (menolak javascript:, data:, dan //host). Selain itu string kosong. */
+const safeHttpUrl = u => (/^https?:\/\/[^\s]+$/i.test(String(u == null ? '' : u)) ? String(u) : '');
+const countPts = w => (w && w.groups ? w.groups : []).reduce((n, g) => n + g.pts.length, 0);
+const wantsGeo = w => !!w && (w.kind === 'plot' || w.kind === 'check');
+
+/** Satu baris riwayat/log -> teks pada bahasa aktif. */
+function logText(ctx, e) {
+  const p = Object.assign({}, e.params);
+  let key = 'log.' + e.code;
+  if (e.code === 'approve' && p.corrected) key = 'log.approve_corrected';
+  if (e.code === 'check_found') p.list = (p.nos || []).map(n => n.split('/')[0]).join(', ');
+  if (e.code === 'check_failed') p.reason = ctx.t('err.' + p.reason);
+  if (e.code === 'set_shape') p.type = ctx.t('shape.' + p.type);
+  return ctx.t(key, p);
+}
+
+/** Kartu PMN untuk daftar. */
+function itemHtml(ctx, no) {
+  const r = ctx.S.pm[no], w = r.work;
+  const when = r.rss && r.rss.published ? ctx.t('list.published', { date: ctx.fmtDate(r.rss.published) }) : ctx.t('list.manual');
+  const valid = w && w.from ? ' · ' + ctx.t('list.valid', { from: ctx.fmtDate(w.from), to: ctx.fmtDate(w.to) }) : '';
+  const unseen = ctx.officer && !r.stub && !['diekspor', 'terpasang'].includes(r.status) && !(r.seen && r.seen[ctx.officer]) ? `<div style="margin-top:4px">${chip('bad', ctx.t('list.unseen'))}</div>` : '';
+  const title = w ? w.title : (r.rss && r.rss.title) || '';
+  return `<button class="item" data-act="open" data-no="${esc(no)}"><div class="row sp"><span class="no">PMN ${esc(no)}</span>` +
+    `<span class="row wrap">${r.changes && r.changes.length ? chip('warn', ctx.t('common.corrected')) : ''}${timeChip(ctx, no)}${workChip(ctx, r.status)}</span></div>` +
+    `<div class="t">${esc(title)}</div><div class="small muted">${esc(when)}${esc(valid)}</div>${unseen}</button>`;
+}
+
+/* ---- app/views/home.js ---- */
+/* ===== Tampilan Beranda ===== */
+
+function renderHome(ctx) {
+  const { S, t, tn } = ctx;
+  const st = staleness(S, ctx.now);
+  const pend = nosByStatus(S, 'menunggu'), draf = nosByStatus(S, 'draf'), ready = nosByStatus(S, 'disetujui'), waiting = nosByStatus(S, 'diekspor');
+  let h = '';
+  if (ctx.busy) h += `<div class="card act"><div class="big">${esc(ctx.busy)}</div><div class="small muted">${esc(t('home.reading_hint'))}</div></div>`;
+
+  const when = S.lastCheckOk ? fmtWhen(ctx, S.lastCheckOk) : t('home.never');
+  h += `<div class="card ${st.stale ? 'bad' : 'ok'}"><div class="row sp"><div><div class="small muted">${esc(t('home.check_note'))}</div>` +
+    `<div class="big">${st.stale ? '⚠ ' : '✓ '}${esc(t('home.last_ok', { when }))}</div>` +
+    (st.stale ? `<div class="small" style="margin-top:4px">${esc(t('home.stale'))}</div>` : '') +
+    `</div><button class="btn ghost sm" data-act="check">${esc(t('home.check_now'))}</button></div></div>`;
+
+  h += `<div class="card"><h2>${esc(t('home.handover'))}</h2>`;
+  if (S.lastInstalled) {
+    h += `<div class="big">${esc(t('home.installed_up_to', { no: S.lastInstalled.no }))}</div><div class="small muted">${esc(t('home.last_update_meta', { date: ctx.fmtDate(sgtParts(S.lastInstalled.at).date), by: S.lastInstalled.by }))}</div>`;
+  } else h += `<div class="muted">${esc(t('home.no_handover'))}</div>`;
+  if (waiting.length && S.lastExport) h += `<div class="small" style="margin-top:6px;color:var(--warn)">⏳ ${esc(t('home.export_waiting', { no: S.lastExport.no, by: S.lastExport.by }))}</div>`;
+  h += `</div>`;
+
+  if (ctx.reading) h += `<div class="card act"><div class="big">${esc(t('home.reading', { no: ctx.reading }))}</div></div>`;
+  if (pend.length && !ctx.reading) {
+    h += `<div class="card act"><div class="big">${esc(tn('home.pending', pend.length))}</div>` +
+      `<div class="small muted">${esc(t('home.pending_list', { list: pend.map(n => n.split('/')[0]).join(', ') }))}</div>` +
+      `<div style="margin-top:8px"><button class="btn" data-act="readAll">${esc(t('home.read_all'))}</button></div></div>`;
+  }
+  if (draf.length) {
+    h += `<div class="card warn"><div class="big">${esc(tn('home.drafts', draf.length))}</div><div class="small muted">${esc(t('home.drafts_hint'))}</div>` +
+      draf.map(n => itemHtml(ctx, n)).join('') + `</div>`;
+  }
+  if (ready.length) {
+    h += `<div class="card act"><div class="big">${esc(tn('home.ready', ready.length))}</div>` +
+      `<div style="margin-top:8px"><button class="btn" data-act="tab" data-no="export">${esc(t('home.go_export'))}</button></div></div>`;
+  }
+  if (!pend.length && !draf.length && !ready.length && !waiting.length) {
+    h += `<div class="card"><div class="big">${esc(t('home.all_clear'))}</div><div class="small muted">${esc(t('home.all_clear_hint'))}</div></div>`;
+  }
+  return h;
+}
+
+/* ---- app/views/list.js ---- */
+/* ===== Tampilan Daftar PMN ===== */
+
+function renderList(ctx) {
+  const { S, t, tn } = ctx;
+  const all = sortDesc(Object.keys(S.pm).filter(n => !S.pm[n].stub));
+  const stubs = Object.keys(S.pm).filter(n => S.pm[n].stub).sort((a, b) => numOf(a) - numOf(b));
+  return all.map(n => itemHtml(ctx, n)).join('') +
+    (stubs.length ? `<div class="small muted" style="margin:10px 2px">${esc(tn('list.history_note', stubs.length, { list: stubs.map(n => n.split('/')[0]).join(', ') }))}</div>` : '');
+}
+
+/* ---- app/views/detail.js ---- */
+/* ===== Tampilan detail PMN (lembar penuh) ===== */
+
+const LOCKED_STATUS = ['diekspor', 'terpasang'];
+const detailShapes = ['area', 'points', 'circles'];
+
+function trailHtml(ctx, r) {
+  const { t } = ctx;
+  const s = x => `<span class="s">${esc(x)}</span>`, m = x => `<span class="m">${esc(x)}</span>`, a = '<span class="a">→</span>';
+  if (r.src === 'manual') return `<div class="trail">${m(t('detail.trail_manual'))}${a}${s(t('detail.trail_pdf_read', { file: r.file || '' }))}${a}${s(t('detail.trail_draft'))}</div>`;
+  return `<div class="trail">${s(t('detail.trail_rss'))}${a}${s(t('detail.trail_page'))}${a}${s(t('detail.trail_pdf'))}${a}` +
+    (r.work ? s(r.parsed && r.parsed.reader === 'ocr' ? t('detail.trail_read_ocr') : t('detail.trail_read_by', { who: r.readBy || '—' })) : m(t('detail.trail_unread'))) + '</div>';
+}
+
+function pointRow(ctx, no, r, gi, pi, q, flagged, ui, locked) {
+  const { t } = ctx;
+  const og = r.parsed && r.parsed.groups[gi], o = og && og.pts.find(p => p.label === q.label);
+  const changed = !o || o.lat !== q.lat || o.lon !== q.lon;
+  const editing = !locked && ui.editRow && ui.editRow.gi === gi && ui.editRow.pi === pi;
+  const at = `data-no="${esc(no)}" data-g="${gi}" data-p="${pi}"`;
+  if (editing) {
+    const raw = (v, hemi) => v.replace(/[°']/g, ' ').replace(hemi, '').trim();
+    return `<tr><td>${esc(q.label)}</td><td colspan="2"><input class="in pt" id="e-lat" value="${esc(raw(q.latDM, /[NS]/))}"> <input class="in pt" id="e-lon" value="${esc(raw(q.lonDM, /[EW]/))}"></td>` +
+      `<td><button class="btn sm okb" data-act="savept" ${at}>${esc(t('common.save'))}</button> <button class="btn ghost sm" data-act="cancelpt">${esc(t('common.cancel'))}</button></td></tr>`;
+  }
+  const note = changed ? (o ? `<div class="small muted">${esc(t('detail.orig', { value: `${o.latDM} ${o.lonDM}` }))}</div>` : `<div class="small muted">${esc(t('detail.added_point'))}</div>`) : '';
+  const btns = locked ? '' : `<button class="btn ghost sm" data-act="editpt" ${at}>${flagged ? '⚠ ' : ''}${esc(t('common.change'))}</button> ` +
+    `<button class="btn badb sm" data-act="delpt" ${at} title="${esc(t('common.delete'))}">✕</button>` +
+    (changed && o ? ` <button class="btn ghost sm" data-act="restorept" ${at} title="${esc(t('detail.restore_title'))}">↺</button>` : '');
+  return `<tr class="${flagged ? 'flag' : (changed ? 'edited' : '')}"><td>${esc(q.label)}</td><td>${esc(q.latDM)}</td><td>${esc(q.lonDM)}${note}</td><td style="white-space:nowrap">${btns}</td></tr>`;
+}
+
+function renderDetail(ctx, no, ui) {
+  const { S, t, tn } = ctx;
+  ui = ui || { editRow: null, editData: false };
+  const r = S.pm[no];
+  if (!r) return '';
+  const w = r.work, locked = LOCKED_STATUS.includes(r.status);
+  let b = `<div class="row wrap" style="margin-bottom:6px">${timeChip(ctx, no)}${workChip(ctx, r.status)}${r.changes && r.changes.length ? chip('warn', t('common.corrected')) : ''}</div>`;
+  b += `<div class="big">${esc(w ? w.title : (r.rss && r.rss.title) || '')}</div>` + trailHtml(ctx, r);
+  let foot = '';
+  let pdfHtml = '';
+  if (r.src === 'server' && !r.stub) {
+    const p = ctx.pdf && ctx.pdf.no === no ? ctx.pdf : null;
+    if (!p) pdfHtml = `<div style="margin-bottom:10px"><button class="btn ghost sm" data-act="showpdf" data-no="${esc(no)}">${esc(t('detail.pdf_show'))}</button></div>`;
+    else pdfHtml = `<div class="card"><div class="row sp"><b>${esc(t('detail.pdf_title'))}</b><button class="btn ghost sm" data-act="hidepdf">${esc(t('detail.pdf_hide'))}</button></div>` +
+      (p.text != null ? `<div class="small muted" style="margin:4px 0">${esc(t('detail.pdf_text_note'))}</div><pre class="pdftext">${esc(p.text)}</pre>`
+        : `<div class="pdfbox"><div id="pdfpages" data-b64="${esc(p.base64)}"><div class="small muted">${esc(t('detail.pdf_loading'))}</div></div></div>`) + `</div>`;
+  }
+  b += pdfHtml;
+  const officers = ctx.officers || [];
+  if (officers.length && !r.stub) {
+    b += `<div class="card small"><b>${esc(t('detail.seen_title'))}</b><div class="row wrap" style="margin-top:4px">` +
+      officers.map(o => { const at = r.seen && r.seen[o]; return `<span class="seen ${at ? 'yes' : 'no'}"${at ? ` title="${esc(fmtWhen(ctx, at))}"` : ''}>${at ? '✓' : '✗'} ${esc(o)}</span>`; }).join('') +
+      `</div><div class="muted" style="margin-top:4px">${esc(t('detail.seen_hint'))}</div></div>`;
+  }
+  if (r.cross && r.cross.diffs.length) b += `<div class="card bad small"><b>⚠ ${esc(t('detail.cross_title'))}</b><ul class="notes">${r.cross.diffs.map(d => `<li>${esc(t('cross.' + d))}</li>`).join('')}</ul></div>`;
+
+  if (r.stub) {
+    b += `<div class="card small">${esc(t('detail.stub_note'))}${supersededBy(S, no) ? ' ' + esc(t('detail.superseded_by', { no: supersededBy(S, no) })) : ''}</div>`;
+  } else if (!w) {
+    b += `<div class="card act small">${esc(t('detail.waiting_note'))}</div>`;
+    if (r.lastError) b += `<div class="card warn small">${esc(t('detail.auto_failed', { reason: t('err.' + r.lastError) }))}</div>`;
+    foot = `<button class="btn" data-act="read" data-no="${esc(no)}">${esc(t('home.read_all'))}</button>`;
+  } else {
+    const is = issuesOf(S, no);
+    if (r.status === 'draf' && r.parsed && r.parsed.reader === 'ocr') b += `<div class="card warn small">${esc(t('detail.ocr_note'))}</div>`;
+    const blocked = is.some(i => i.block);
+    if (is.length) b += `<div class="card bad small"><b>⚠ ${esc(t('detail.issues_title'))}</b><ul class="notes">${is.map(i => `<li>${esc(t('issue.' + i.code, i))}</li>`).join('')}</ul></div>`;
+    const warns = ((r.parsed && r.parsed.warn) || []).filter(x => !is.some(i => i.code === x.code));
+    if (warns.length) b += `<div class="card warn small"><b>${esc(t('detail.warn_title'))}</b><ul class="notes">${warns.map(x => `<li>${esc(t('warn.' + x.code, x))}</li>`).join('')}</ul></div>`;
+
+    if (ui.editData && !locked) {
+      b += `<div class="card"><h2>${esc(t('detail.edit_data_title'))}</h2><label class="small muted">${esc(t('field.title'))}</label><input class="in" id="f-title" value="${esc(w.title)}">` +
+        `<div class="grid2" style="margin-top:8px"><div><label>${esc(t('field.from'))}</label><input class="in" type="date" id="f-from" value="${esc(w.from || '')}"></div>` +
+        `<div><label>${esc(t('field.to'))}</label><input class="in" type="date" id="f-to" value="${esc(w.to || '')}"></div>` +
+        `<div><label>${esc(t('field.hours'))}</label><input class="in" id="f-hours" value="${esc(w.hours || '')}"></div>` +
+        `<div><label>${esc(t('field.vhf'))}</label><input class="in" id="f-vhf" value="${esc(w.vhf || '')}"></div>` +
+        `<div><label>${esc(t('field.radius'))} (m)</label><input class="in" id="f-radius" value="${esc(w.radius || '')}"></div></div>` +
+        `<div class="row" style="margin-top:10px"><button class="btn okb sm" data-act="savedata" data-no="${esc(no)}">${esc(t('common.save'))}</button><button class="btn ghost sm" data-act="canceldata">${esc(t('common.cancel'))}</button></div></div>`;
+    } else {
+      b += `<dl class="f"><dt>${esc(t('detail.published'))}</dt><dd>${r.rss && r.rss.published ? esc(ctx.fmtDate(r.rss.published)) : '—'}</dd>` +
+        `<dt>${esc(t('detail.period'))}</dt><dd>${w.from ? esc(t('detail.period_value', { from: ctx.fmtDate(w.from), to: ctx.fmtDate(w.to) })) : `<i>${esc(t('detail.period_none'))}</i>`}</dd>` +
+        (w.hours ? `<dt>${esc(t('field.hours'))}</dt><dd>${esc(w.hours)}</dd>` : '') + (w.vhf ? `<dt>${esc(t('field.vhf'))}</dt><dd>${esc(w.vhf)}</dd>` : '') +
+        (w.radius ? `<dt>${esc(t('field.radius'))}</dt><dd>${esc(w.radius)} m</dd>` : '') +
+        `<dt>${esc(t('detail.read_by'))}</dt><dd>${esc(r.readBy || '—')}</dd>` +
+        (r.approvedBy && r.status !== 'draf' ? `<dt>${esc(t('detail.approved_by'))}</dt><dd>${esc(r.approvedBy)}</dd>` : '') + `</dl>` +
+        (locked ? '' : `<button class="btn ghost sm" data-act="editdata">${esc(t('detail.edit_data'))}</button>`);
+    }
+    if (w.supersedes) b += `<div class="card warn small" style="margin-top:8px">${esc(t('detail.supersedes', { old: w.supersedes }))}</div>`;
+    const sb = supersededBy(S, no);
+    if (sb) b += `<div class="card small" style="margin-top:8px">${esc(t('detail.superseded_by', { no: sb }))}</div>`;
+
+    if (wantsGeo(w) || countPts(w)) {
+      const flagged = (gi, pi) => is.some(i => i.gi === gi && i.pi === pi);
+      if (w.groups.length) {
+        b += `<div class="row wrap" style="margin:10px 0 2px">${esc(t('detail.shape'))}: ` + w.groups.map((g, gi) => locked
+          ? `<b>${esc(t('shape.' + g.type))}</b>`
+          : `<select class="sel" data-act="shape" data-no="${esc(no)}" data-g="${gi}">${detailShapes.map(k => `<option value="${k}" ${g.type === k ? 'selected' : ''}>${esc(t('shape.' + k))}</option>`).join('')}</select>`).join(' ') + `</div>`;
+      }
+      b += w.groups.map((g, gi) => `<div class="small muted" style="margin:8px 0 2px">${esc(t('shape.' + g.type))}${g.name && !/^(area|titik|lingkaran)$/i.test(g.name) ? ' · ' + esc(g.name) : ''} · ${esc(tn('detail.points', g.pts.length))}</div>` +
+        `<table class="pts"><tr><th>#</th><th>${esc(t('detail.col_lat'))}</th><th>${esc(t('detail.col_lon'))}</th><th></th></tr>${g.pts.map((q, pi) => pointRow(ctx, no, r, gi, pi, q, flagged(gi, pi), ui, locked)).join('')}</table>`).join('');
+      if (!locked) {
+        if (!countPts(w)) {
+          b += `<div class="card warn small" style="margin-top:8px"><b>${esc(t('detail.manual_title'))}</b><div style="margin:6px 0">${esc(t('detail.paste_title'))}</div>` +
+            `<textarea class="in" id="paste-txt" placeholder="1 01°18.491' 103°42.623'&#10;2 01°18.413' 103°42.627'"></textarea>` +
+            `<div class="row" style="margin-top:6px"><button class="btn sm" data-act="pastecoords" data-no="${esc(no)}">${esc(t('detail.paste_button'))}</button><button class="btn ghost sm" data-act="samplepaste">${esc(t('detail.paste_sample'))}</button></div></div>`;
+        }
+        b += `<details class="d" ${countPts(w) ? '' : 'open'}><summary>${esc(t('detail.add_title'))}</summary><div class="grid2" style="margin-top:6px">` +
+          `<div><label>${esc(t('detail.add_lat'))}</label><input class="in" id="n-lat"></div><div><label>${esc(t('detail.add_lon'))}</label><input class="in" id="n-lon"></div>` +
+          `<div><label>${esc(t('detail.add_label'))}</label><input class="in" id="n-lab"></div></div><div style="margin-top:6px"><button class="btn sm" data-act="addpt" data-no="${esc(no)}">${esc(t('detail.add_button'))}</button></div></details>`;
+        b += `<div class="row wrap" style="margin-top:8px"><button class="btn ghost sm" data-act="editmap" data-no="${esc(no)}">${esc(t('detail.edit_map'))}</button>` +
+          (!countPts(w) ? `<button class="btn ghost sm" data-act="nocoord" data-no="${esc(no)}">${esc(t('detail.no_coord'))}</button>` : '') + `</div>`;
+      }
+    } else b += `<div class="card small" style="margin-top:8px">${esc(t('detail.advisory_note'))}</div>`;
+
+    if (r.status === 'draf') {
+      if (needsAck(S, no) && !blocked) b += `<label class="ck"><input type="checkbox" data-act="ack" data-no="${esc(no)}" ${r.ack ? 'checked' : ''}> ${esc(t('detail.ack'))}</label>`;
+      foot = `<button class="btn okb" data-act="approve" data-no="${esc(no)}" ${blocked ? 'disabled' : ''}>${esc(wantsGeo(w) ? t('detail.approve_plot') : t('detail.approve_read'))}</button>` +
+        `<button class="btn ghost" data-act="reread" data-no="${esc(no)}">${esc(t('detail.reread'))}</button>`;
+    } else if (r.status === 'disetujui') foot = `<button class="btn ghost" data-act="unapprove" data-no="${esc(no)}">${esc(t('detail.unapprove'))}</button>`;
+    else if (locked) b += `<div class="card small">${esc(t('err.locked'))}</div>`;
+  }
+  if (r.rss && safeHttpUrl(r.rss.link)) b += `<p class="small"><a href="${esc(safeHttpUrl(r.rss.link))}" target="_blank" rel="noopener">${esc(t('detail.open_mpa'))}</a></p>`;
+  b += `<div class="disc">${esc(t('disclaimer.map'))}</div>`;
+  return `<div class="sheet"><div class="bar"><b>${esc(t('detail.bar', { no }))}</b><button class="btn ghost sm" data-act="close">${esc(t('common.close'))}</button></div>` +
+    `<div class="body">${b}</div>${foot ? `<div class="foot">${foot}</div>` : ''}</div>`;
+}
+
+/* ---- app/views/export.js ---- */
+/* ===== Tampilan Ekspor ===== */
+
+function renderExport(ctx) {
+  const { S, t, tn } = ctx;
+  const ready = nosByStatus(S, 'disetujui'), waiting = nosByStatus(S, 'diekspor'), e = S.lastExport;
+  let h = '';
+  if (ctx.exportSimulated !== false) h += `<div class="card warn small">${esc(t('export.sim_note'))}</div>`;
+  h += `<div class="card"><h2>${esc(t('export.ready_title', { n: ready.length }))}</h2>`;
+  if (ready.length) {
+    h += ready.map(n => { const w = S.pm[n].work; return `<div class="row sp" style="padding:4px 0"><span><b>PMN ${esc(n)}</b> <span class="small muted">${esc(w.title.slice(0, 34))}</span></span>` +
+      `<span class="row">${S.pm[n].changes.length ? chip('warn', t('common.corrected')) : ''}${chip(w.kind === 'plot' ? 'ok2' : 'info', t(w.kind === 'plot' ? 'export.kind_plot' : 'export.kind_info'))}</span></div>`; }).join('');
+  } else h += `<div class="empty">${esc(t('export.empty'))}</div>`;
+  const remReady = ready.filter(n => { const o = S.pm[n].work.supersedes; return o && S.pm[o] && ['terpasang', 'diekspor'].includes(S.pm[o].status); });
+  if (remReady.length) {
+    h += `<div class="card bad" style="margin-top:8px"><b>${esc(t('export.remove_title'))}</b><ul class="notes">${remReady.map(n => `<li>${esc(t('export.remove_item', { old: S.pm[n].work.supersedes, new: n }))}</li>`).join('')}</ul></div>`;
+  }
+  h += `<div style="margin-top:10px"><button class="btn" data-act="makeExport" ${ready.length ? '' : 'disabled'}>${esc(t('export.make'))}</button></div></div>`;
+  if (waiting.length && e) {
+    const cur = e.step || 0;
+    const rem = e.removeFromEcdis && e.removeFromEcdis.length ? `<div class="card bad"><b>${esc(t('export.remove_title'))}</b><ul class="notes">${e.removeFromEcdis.map(x => `<li>${esc(t('export.remove_item', { old: x.old, new: x.new }))}</li>`).join('')}</ul></div>` : '';
+    const files = list => `<ul class="files">${list.map(f => `<li>${esc(f)}</li>`).join('')}</ul>`;
+    const steps = [
+      `${esc(t('export.s1'))}${files([e.files.xml, e.files.zip, e.files.xlsx])}`,
+      `${esc(t('export.s2'))}${files([e.files.xml])}${rem}`,
+      esc(t('export.s3', { no: e.no })),
+      `${esc(t('export.s4'))}${files([e.files.zip, e.files.xlsx])}`,
+    ];
+    h += `<div class="card act"><h2>${esc(t('export.waiting_title'))}</h2><div class="small muted">${esc(t('export.waiting_meta', { when: fmtWhen(ctx, e.at), by: e.by, no: e.no }))}</div><ol class="steps">` +
+      steps.slice(0, cur + 1).map((x, i) => i < cur
+        ? `<li class="step done"><span class="tick">✓</span> ${x}</li>`
+        : `<li class="step">${x}<div style="margin-top:8px"><button class="btn okb" data-act="exportstep">${esc(t('export.done'))}</button></div></li>`).join('') + `</ol></div>`;
+  }
+  h += `<div class="disc">${esc(t('disclaimer.map'))}</div>`;
+  return h;
+}
+
+/* ---- app/views/add.js ---- */
+/* ===== Tampilan Tambah PMN dari PDF (cadangan bila server MPA tidak bisa diunduh) ===== */
+
+function renderAdd(ctx) {
+  const { t } = ctx;
+  return `<div class="card"><h2>${esc(t('add.title'))}</h2><div style="margin-bottom:6px">${esc(t('add.intro'))}</div>` +
+    `<ol class="steps"><li>${esc(t('add.s1'))}</li><li>${esc(t('add.s2'))}</li><li>${esc(t('add.s3'))}</li></ol>` +
+    `<div style="margin-top:10px"><button class="btn" data-act="pickpdf">${esc(t('add.pick'))}</button></div></div>`;
+}
+
+/* ---- app/views/settings.js ---- */
+/* ===== Tampilan Pengaturan server (alamat dan kode akses) ===== */
+
+function renderSettings(ctx) {
+  const { t } = ctx;
+  return `<div class="card"><h2>${esc(t('settings.title'))}</h2>` +
+    `<div class="${ctx.live ? 'ok' : ''}" style="margin-bottom:8px"><b>${esc(ctx.live ? t('settings.mode_live') + ': ' + (ctx.serverHost || '') : t('settings.mode_demo'))}</b></div>` +
+    `<div class="small muted" style="margin-bottom:10px">${esc(t('settings.hint'))}</div>` +
+    `<label class="small muted" for="set-url">${esc(t('settings.url'))}</label><input class="in" id="set-url" type="url" autocomplete="off" placeholder="https://…/exec">` +
+    `<label class="small muted" for="set-code" style="display:block;margin-top:8px">${esc(t('settings.code'))}</label><input class="in" id="set-code" type="password" autocomplete="off">` +
+    `<div class="row wrap" style="margin-top:10px"><button class="btn" data-act="savesettings">${esc(t('settings.save'))}</button>` +
+    (ctx.live ? `<button class="btn ghost" data-act="usedemo">${esc(t('settings.use_demo'))}</button>` : '') + `</div></div>`;
+}
+
+/* ---- app/map.js ---- */
+/* ===== Peta: spesifikasi lapisan (murni, diuji di Node) dan pembungkus Leaflet (browser) ===== */
+
+const MAP_BLUE = '#1d6fb8', MAP_ORANGE = '#e07b00';
+
+/**
+ * Daftar lapisan untuk digambar: [{no, gi, kind:'polygon'|'circles'|'markers', latlngs, style:{color,dashArray}, bad:number[], radius?}].
+ * filter 'aktif' menyembunyikan PMN digantikan/berakhir (kecuali draf); stub dan PMN yang belum dibaca dilewati.
+ */
+function layerSpecs(S, filter, today) {
+  const out = [];
+  for (const no of Object.keys(S.pm)) {
+    const r = S.pm[no];
+    if (r.stub || !r.work) continue;
+    const ts = timeStatusOf(S, no, today);
+    if (filter === 'aktif' && r.status !== 'draf' && (ts.code === 'superseded' || ts.code === 'expired')) continue;
+    const draft = r.status === 'draf';
+    const bad = issuesOf(S, no).filter(i => i.pi != null);
+    r.work.groups.forEach((g, gi) => {
+      if (!g.pts.length) return;
+      const latlngs = g.pts.map(q => [q.lat, q.lon]);
+      let kind = 'markers';
+      if (g.type === 'area' && latlngs.length >= 3) kind = 'polygon';
+      else if (g.type === 'circles' || (r.work.radius && g.type !== 'area')) kind = 'circles';
+      const spec = {
+        no, gi, kind, latlngs,
+        style: { color: draft ? MAP_ORANGE : MAP_BLUE, dashArray: draft ? '6 5' : null },
+        bad: bad.filter(i => i.gi === gi).map(i => i.pi),
+      };
+      if (kind === 'circles') spec.radius = r.work.radius || 150;
+      out.push(spec);
+    });
+  }
+  return out;
+}
+
+/** Titik untuk menyesuaikan tampilan peta; titik bertanda masalah tidak ikut. */
+function fitPoints(specs) {
+  const pts = [];
+  for (const s of specs) s.latlngs.forEach((p, i) => { if (!s.bad.includes(i)) pts.push(p); });
+  return pts;
+}
+
+/**
+ * Pembungkus Leaflet. deps = {L, onOpen(no), onMovePoint(no,gi,pi,lat,lon), onDeletePoint(no,gi,pi), onAddPoint(no,lat,lon), t}.
+ * Hanya jalan di browser (diperiksa di Tugas 13). Tombol hapus di popup dipasang lewat popupopen karena Leaflet
+ * menghentikan perambatan klik di dalam popup (delegasi data-act dari document tidak akan sampai).
+ */
+function createMap(el, deps) {
+  const L = deps.L;
+  const map = L.map(el, { zoomControl: false }).setView([1.28, 103.8], 11);
+  L.control.zoom({ position: 'topright' }).addTo(map);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+  const layer = L.layerGroup().addTo(map);
+  let editNo = null, addMode = false, view = null;
+  const esc2 = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const numIcon = (label, bad) => L.divIcon({
+    className: '', iconSize: [26, 26], iconAnchor: [13, 13],
+    html: `<div style="width:26px;height:26px;border-radius:99px;background:${bad ? '#b42318' : MAP_ORANGE};color:#fff;border:2px solid #fff;font:700 11px/22px sans-serif;text-align:center;box-shadow:0 1px 5px rgba(0,0,0,.5)">${esc2(label)}</div>`,
+  });
+
+  map.on('click', e => {
+    if (!editNo || !addMode) return;
+    addMode = false;
+    deps.onAddPoint(editNo, e.latlng.lat, e.latlng.lng);
+  });
+
+  function draw(S, filter, today) {
+    editNo = null; addMode = false; layer.clearLayers();
+    const specs = layerSpecs(S, filter, today);
+    for (const s of specs) {
+      const opt = { color: s.style.color, weight: 2, dashArray: s.style.dashArray, fillOpacity: 0.18 };
+      let l;
+      if (s.kind === 'polygon') l = L.polygon(s.latlngs, opt);
+      else if (s.kind === 'circles') l = L.featureGroup(s.latlngs.map(p => L.circle(p, Object.assign({}, opt, { radius: s.radius }))));
+      else l = L.featureGroup(s.latlngs.map(p => L.circleMarker(p, Object.assign({}, opt, { radius: 6, fillOpacity: 0.7 }))));
+      l.bindTooltip(`PMN ${esc2(s.no)}`, { sticky: true }).on('click', () => deps.onOpen(s.no)).addTo(layer);
+      for (const pi of s.bad) {
+        L.marker(s.latlngs[pi], { icon: L.divIcon({ className: '', html: `<div style="background:#b42318;color:#fff;border-radius:99px;padding:1px 7px;font:600 12px sans-serif;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.4)">⚠ ${pi + 1}</div>` }) })
+          .on('click', () => deps.onOpen(s.no)).addTo(layer);
+      }
+    }
+    const pts = fitPoints(specs);
+    if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.15));
+    setTimeout(() => map.invalidateSize(), 60);
+  }
+
+  function edit(S, no) {
+    editNo = no; layer.clearLayers();
+    const w = S.pm[no].work;
+    const bad = new Set(issuesOf(S, no).filter(i => i.pi != null).map(i => `${i.gi}:${i.pi}`));
+    const all = [];
+    w.groups.forEach((g, gi) => {
+      const ll = g.pts.map(q => [q.lat, q.lon]);
+      ll.forEach(p => all.push(p));
+      const style = { color: MAP_ORANGE, weight: 2, dashArray: '6 5', fillOpacity: 0.15 };
+      const poly = g.type === 'area' && ll.length >= 3 ? L.polygon(ll, style).addTo(layer) : L.polyline(ll, { color: MAP_ORANGE, weight: 1, dashArray: '3 6' }).addTo(layer);
+      g.pts.forEach((q, pi) => {
+        const mk = L.marker([q.lat, q.lon], { draggable: true, icon: numIcon(q.label, bad.has(`${gi}:${pi}`)) }).addTo(layer);
+        mk.on('drag', ev => { const c = ev.target.getLatLng(); poly.setLatLngs(g.pts.map((x, i) => (i === pi ? [c.lat, c.lng] : [x.lat, x.lon]))); });
+        mk.on('dragend', ev => { const c = ev.target.getLatLng(); deps.onMovePoint(no, gi, pi, c.lat, c.lng); });
+        mk.bindPopup(`<b>${esc2(q.label)}</b><br>${esc2(q.latDM)} ${esc2(q.lonDM)}<br><button style="margin-top:6px">${esc2(deps.t('common.delete'))}</button>`);
+        mk.on('popupopen', ev => {
+          const b = ev.popup.getElement().querySelector('button');
+          if (b) b.onclick = () => { map.closePopup(); deps.onDeletePoint(no, gi, pi); };
+        });
+      });
+    });
+    if (view) map.setView(view.c, view.z); else if (all.length) map.fitBounds(L.latLngBounds(all).pad(0.2));
+  }
+
+  return {
+    draw, edit,
+    keepView() { view = { c: map.getCenter(), z: map.getZoom() }; },
+    stopEdit() { editNo = null; addMode = false; view = null; },
+    setAddMode(v) { addMode = !!v; },
+    destroy() { map.remove(); },
+    raw: map,
+  };
+}
+
+/* ---- app/controller.js ---- */
+/* ===== Pengendali: menghubungkan tindakan pengguna (data-act) ke model, sinkronisasi, dan tampilan ===== */
+/* Semua ketergantungan (API, DOM, jam, dialog) disuntikkan lewat deps sehingga bisa diuji di Node. */
+
+const CACHE_KEY = 'pmn-cache';
+const NO_RE = /^\d{1,3}\/\d{4}$/;
+const hostOf = u => { const m = String(u || '').match(/^https:\/\/([^/\s]+)/i); return m ? m[1] : ''; };
+const DEFAULT_OFFICERS = ['Master', 'Chief Officer', '2nd Master', 'Ship phone'];
+
+/**
+ * deps = {S, api, sync, storage, i18n, now(), today(), officer(), officers?, live?, makeApi(url, code)?, reload()?, readPdf(file), pdfTextFromBase64(b64),
+ *         ask:{confirm, prompt}, clipboard:{write}, dom:{val(id), set(id,v)}, ui:{render, toast, pickFile}, demo?}
+ */
+function createController(deps) {
+  const { S, api, sync, storage, i18n, ask, dom, ui } = deps;
+  const st = { tab: 'home', detailNo: null, editRow: null, editData: false, mapEdit: null, mapAdd: false, mapFilter: 'aktif', busy: null, reading: null, demoDown: false, pdf: null };
+  const t = (k, p) => i18n.t(k, p);
+  const who = () => deps.officer();
+  const toast = m => ui.toast(m);
+
+  function ctx() {
+    return { S, t: i18n.t, tn: i18n.tn, fmtDate: i18n.fmtDate, now: deps.now(), today: deps.today(), officer: who(), officers: deps.officers || DEFAULT_OFFICERS, live: !!deps.live, serverHost: deps.live ? hostOf(storage.getItem('pmn-server-url')) : '', pdf: st.pdf, busy: st.busy, reading: st.reading, i18n, exportSimulated: true };
+  }
+  const saveCache = () => { try { storage.setItem(CACHE_KEY, JSON.stringify(S)); } catch (e) { /* abaikan */ } };
+  const pending = () => sync.pending();
+
+  /** Simpan lokal, gambar ulang, lalu dorong ke server (tanpa menjatuhkan aplikasi bila gagal). */
+  async function persist() {
+    saveCache(); ui.render();
+    try {
+      const r = await sync.push(S);
+      if (r.conflicts.length) toast(t('err.conflict'));
+      else if (r.errors && r.errors.length) toast(t('err.' + r.errors[0].code));
+    } catch (e) { /* offline: sudah diantrekan oleh sync */ }
+    saveCache(); ui.render();
+  }
+  async function flush() {
+    try { const r = await sync.flush(S); if (r.conflicts.length) toast(t('err.conflict')); } catch (e) { /* tetap di antrean */ }
+    saveCache(); ui.render();
+  }
+  const statusText = st0 => (st0 ? t('work.' + st0) : '');
+  const fail = (res, no) => toast(t('err.' + res.code, { no, status: statusText(res.status) }));
+  async function commit(res, no, okMsg) {
+    if (!res.ok) { fail(res, no); ui.render(); return res; }
+    if (okMsg) toast(okMsg);
+    await persist();
+    return res;
+  }
+  const pt = el => ({ gi: +el.dataset.g, pi: +el.dataset.p });
+
+  async function doCheck() {
+    let r;
+    try { r = await api.runCheck(); } catch (e) { toast(t('err.offline')); return; }
+    if (!r.ok) { markCheckFailed(S, deps.now(), r.code); toast(t('err.' + r.code)); await persist(); return; }
+    try { await sync.pull(S); } catch (e) { toast(t('err.offline')); return; }
+    toast(r.added.length ? t('toast.check_added', { n: r.added.length }) : t('toast.check_none'));
+    saveCache(); ui.render();
+  }
+
+  async function readOne(no, quiet) {
+    st.reading = no; ui.render();
+    try {
+      const res = await api.getPdf(no);
+      if (!res.ok) { toast(t('err.' + res.code)); return; }
+      const text = res.text != null ? res.text : await deps.pdfTextFromBase64(res.base64);
+      const r = readResult(S, no, parsePmnText(text, { no }), who(), deps.now());
+      if (!r.ok) fail(r, no);
+    } catch (e) { toast(t('err.pdf_js_load')); } finally { st.reading = null; }
+    if (!quiet) await persist();
+  }
+
+  /** Pemeriksa silang: HP membaca PDF sendiri dengan pdf.js dan membandingkannya dengan bacaan server. Gagal = diam. */
+  const crossBusy = {};
+  async function crossRead(no) {
+    const r = S.pm[no];
+    if (!r || r.stub || !r.parsed) return;
+    crossBusy[no] = Date.now();
+    try {
+      const res = await api.getPdf(no);
+      if (!res.ok) return;
+      const text = res.text != null ? res.text : await deps.pdfTextFromBase64(res.base64);
+      const diffs = crossCheck(r.parsed, toParsed(parsePmnText(text, { no })));
+      if (r.cross && r.cross.diffs.join() === diffs.join()) return;
+      setCross(S, no, diffs, deps.now());
+      await persist();
+    } catch (e) { /* tanpa pemeriksa silang aplikasi tetap jalan */ }
+    finally { delete crossBusy[no]; }
+  }
+
+  /** Berpindah antara demo dan server: cache dan antrean lokal milik mode lama dibuang supaya tidak terkirim ke mode baru. */
+  const resetLocal = () => { storage.removeItem(CACHE_KEY); storage.removeItem('pmn-outbox'); storage.removeItem('pmn-synced'); };
+
+  const ACT = {
+    tab(no) { st.tab = no; st.detailNo = null; st.mapEdit = null; st.mapAdd = false; ui.render(); },
+    open(no) {
+      st.detailNo = no; st.editRow = null; st.editData = false; st.pdf = null;
+      const m = markSeen(S, no, who(), deps.now());
+      ui.render();
+      if (m.changed) persist();
+      crossRead(no);
+      ACT.showpdf(no, null, true);
+    },
+    close() { st.detailNo = null; st.pdf = null; ui.render(); },
+    async showpdf(no, el, quiet) {
+      let res;
+      try { res = await api.getPdf(no); } catch (e) { if (!quiet) toast(t('err.offline')); return; }
+      if (st.detailNo !== no && quiet) return;
+      if (!res.ok) { if (!quiet) toast(t('err.' + res.code)); st.pdf = null; ui.render(); return; }
+      st.pdf = res.text != null ? { no, text: res.text } : { no, base64: res.base64 };
+      ui.render();
+    },
+    hidepdf() { st.pdf = null; ui.render(); },
+    check() { return doCheck(); },
+    async readAll() {
+      for (const no of nosByStatus(S, 'menunggu').reverse()) await readOne(no, true);
+      await persist();
+    },
+    read(no) { return readOne(no, false); },
+    pickpdf() { ui.pickFile(); },
+    settings() { st.tab = 'settings'; st.detailNo = null; st.mapEdit = null; st.mapAdd = false; ui.render(); },
+    async savesettings() {
+      const url = String(dom.val('set-url') || '').trim(), code = String(dom.val('set-code') || '').trim();
+      if (!/^(https:\/\/|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/)[^\s]+$/i.test(url) || !code) { toast(t('err.bad_settings')); return; }
+      try { await deps.makeApi(url, code).getState(); }
+      catch (e) { toast(e && e.message === 'err_auth' ? t('err.err_auth') : t('err.offline')); return; }
+      resetLocal();
+      storage.setItem('pmn-server-url', url); storage.setItem('pmn-server-code', code);
+      toast(t('toast.settings_saved'));
+      deps.reload();
+    },
+    usedemo() { resetLocal(); storage.removeItem('pmn-server-url'); storage.removeItem('pmn-server-code'); deps.reload(); },
+    editpt(no, el) { st.editRow = Object.assign({ no }, pt(el)); ui.render(); },
+    cancelpt() { st.editRow = null; ui.render(); },
+    savept(no, el) {
+      const la = parseDM(dom.val('e-lat'), false), lo = parseDM(dom.val('e-lon'), true);
+      if (la == null || lo == null) { toast(t('err.bad_coord')); return; }
+      const p = pt(el);
+      st.editRow = null;
+      return commit(setPoint(S, no, p.gi, p.pi, la, lo, who(), deps.now()), no);
+    },
+    restorept(no, el) { const p = pt(el); return commit(restorePoint(S, no, p.gi, p.pi, who(), deps.now()), no); },
+    delpt(no, el) { const p = pt(el); return commit(deletePoint(S, no, p.gi, p.pi, who(), deps.now()), no); },
+    addpt(no) {
+      const la = parseDM(dom.val('n-lat'), false), lo = parseDM(dom.val('n-lon'), true);
+      if (la == null || lo == null) { toast(t('err.bad_coord')); return; }
+      const r = addPoint(S, no, la, lo, String(dom.val('n-lab') || '').trim(), who(), deps.now());
+      if (r.ok) { dom.set('n-lat', ''); dom.set('n-lon', ''); dom.set('n-lab', ''); }
+      return commit(r, no);
+    },
+    pastecoords(no) { return commit(pasteCoords(S, no, dom.val('paste-txt'), who(), deps.now()), no); },
+    samplepaste() { dom.set('paste-txt', "1 01°18.491' 103°42.623'\n2 01°18.413' 103°42.627'\n3 01°18.417' 103°42.685'\n4 01°18.476' 103°42.668'"); },
+    nocoord(no) { return commit(setNoCoords(S, no, who(), deps.now()), no); },
+    editdata() { st.editData = true; ui.render(); },
+    canceldata() { st.editData = false; ui.render(); },
+    savedata(no) {
+      const patch = {};
+      for (const f of ['title', 'from', 'to', 'hours', 'vhf', 'radius']) patch[f] = dom.val('f-' + f);
+      st.editData = false;
+      return commit(setData(S, no, patch, who(), deps.now()), no);
+    },
+    shape(no, el) { return commit(setShape(S, no, +el.dataset.g, el.value, who(), deps.now()), no); },
+    ack(no, el) { setAck(S, no, !!el.checked); saveCache(); },
+    async approve(no) {
+      if (crossBusy[no] && Date.now() - crossBusy[no] < 20000) { toast(t('err.cross_running')); return; }
+      const r = approve(S, no, who(), deps.now());
+      if (r.ok) { st.detailNo = null; st.pdf = null; }
+      return commit(r, no, r.ok ? t('toast.approved', { no }) : null);
+    },
+    unapprove(no) { return commit(unapprove(S, no, who(), deps.now()), no); },
+    reread(no) { return commit(rereadRestore(S, no, who(), deps.now()), no, t('toast.reread')); },
+    editmap(no) { st.detailNo = null; st.mapEdit = no; st.mapAdd = false; st.tab = 'map'; ui.render(); },
+    mapdone() { st.mapEdit = null; st.mapAdd = false; ui.render(); },
+    mapadd() { st.mapAdd = !st.mapAdd; ui.render(); },
+    mapfilter(no) { st.mapFilter = no; ui.render(); },
+    makeExport() {
+      const r = makeExport(S, who(), deps.now(), deps.today());
+      return commit(r, null, r.ok ? t('toast.exported', { n: r.export.list.length }) : null);
+    },
+    exportstep() {
+      const r = exportStepDone(S, who(), deps.now());
+      return commit(r, null, r.ok && r.done ? t('toast.installed') : null);
+    },
+    /* tombol demo (hanya bila deps.demo ada) */
+    async demo1() { const d = deps.demo; if (!d) return; d.api.queueItems(d.items); await doCheck(); },
+    async demo2() {
+      const d = deps.demo; if (!d) return;
+      const no = d.scenarioItem.no;
+      d.api.queueItems([d.scenarioItem]);
+      d.api.setText(no, d.scenarioText(d.texts[no]));
+      await doCheck();
+    },
+    async demo3() {
+      const d = deps.demo; if (!d) return;
+      st.demoDown = !st.demoDown;
+      d.api.setFail(st.demoDown ? 'err_mpa_blocked' : null);
+      if (st.demoDown) {
+        const ago = new Date(Date.parse(deps.now()) - 30 * 36e5).toISOString();
+        S.lastCheckOk = ago; S.lastCheck = deps.now();
+        addLog(S, 'Server', 'check_failed', { reason: 'err_mpa_blocked' }, deps.now());
+        toast(t('toast.demo_down'));
+        await persist();
+      } else { toast(t('toast.demo_up')); await doCheck(); }
+    },
+    async demoreset() {
+      const d = deps.demo; if (!d) return;
+      if (!ask.confirm(t('demo.confirm_reset'))) return;
+      st.detailNo = null; st.mapEdit = null; st.tab = 'home'; st.demoDown = false;
+      await d.reset();
+      await sync.pull(S);
+      saveCache(); ui.render();
+    },
+  };
+
+  async function act(name, no, el) {
+    const f = ACT[name];
+    if (!f) return;
+    try { await f(no, el || { dataset: {} }); } catch (e) {
+      toast(t('err.unexpected'));
+      if (typeof console !== 'undefined') console.error(e);
+    }
+  }
+
+  /** Berkas PDF yang dipilih officer: dibaca, diurai, ditambahkan sebagai draf. */
+  async function addFiles(files) {
+    for (const f of files) {
+      let text;
+      try { text = await deps.readPdf(f); } catch (e) { toast(t('err.pdf_js_load')); continue; }
+      const result = parsePmnText(text, {});
+      const opts = {};
+      if (!result.no) {
+        const n = ask.prompt(t('pdf.ask_number', { file: f.name }));
+        if (!n || !NO_RE.test(String(n).trim())) { toast(t('err.no_number')); continue; }
+        opts.no = String(n).trim();
+      }
+      let r = addFromPdf(S, result, f.name, who(), deps.now(), opts);
+      if (!r.ok && r.code === 'exists') {
+        const no = opts.no || result.no;
+        if (r.status !== 'diekspor' && r.status !== 'terpasang' && ask.confirm(t('pdf.confirm_replace', { no, status: statusText(r.status) }))) {
+          r = addFromPdf(S, result, f.name, who(), deps.now(), Object.assign({ replace: true }, opts));
+        } else if (r.status === 'diekspor' || r.status === 'terpasang') { fail(r, no); continue; } else continue;
+      }
+      if (!r.ok) { fail(r); continue; }
+      const w = S.pm[r.no].work;
+      toast(w.kind === 'plot' ? t('toast.pdf_plot', { no: r.no, n: countPoints(w) }) : t('toast.pdf_kind', { no: r.no, kind: t('toast.kind_' + w.kind) }));
+      st.detailNo = r.no;
+      await persist();
+    }
+  }
+  const countPoints = w => w.groups.reduce((n, g) => n + g.pts.length, 0);
+
+  async function movePoint(no, gi, pi, lat, lon) { return commit(setPoint(S, no, gi, pi, lat, lon, who(), deps.now()), no); }
+  async function addPointAt(no, lat, lon) { st.mapAdd = false; return commit(addPoint(S, no, lat, lon, '', who(), deps.now()), no); }
+  function setLang(l) { i18n.setLang(l); if (i18n.getLang() === l) storage.setItem('pmn-lang', l); ui.render(); }
+
+  return { act, st, ctx, pending, flush, persist, addFiles, movePoint, addPointAt, setLang, deps };
+}
+
+/* ---- app/main.js ---- */
+/* ===== Perangkaian aplikasi di browser: penyimpanan, bahasa, officer, render, peristiwa ===== */
+
+const TABS = [['home', '⌂', 'nav.home'], ['map', '◎', 'nav.map'], ['list', '☰', 'nav.list'], ['export', '⇪', 'nav.export'], ['add', '＋', 'nav.add']];
+
+function startApp(win, doc) {
+  const storage = createStorage(win);
+  const $ = id => doc.getElementById(id);
+  const nowIso = () => new Date().toISOString();
+  const deviceLang = () => { const l = String((win.navigator && win.navigator.language) || ''); return /^en/i.test(l) ? 'en' : 'id'; };
+  const i18n = createI18n({ id: ID, en: EN }, storage.getItem('pmn-lang') || deviceLang());
+  const officer = () => storage.getItem('pmn-officer') || DEFAULT_OFFICERS[0];
+
+  /* mode demo = API tiruan yang tersimpan di perangkat; backend sungguhan datang di Rencana 3 */
+  /* mode server: alamat dan kode dari Pengaturan; tanpa keduanya aplikasi berjalan di mode demo */
+  const serverUrl = storage.getItem('pmn-server-url'), serverCode = storage.getItem('pmn-server-code');
+  const live = !!(serverUrl && serverCode);
+  const makeApi = (url, code) => createHttpApi({ url, code, officer, fetch: win.fetch.bind(win) });
+  const stubTexts = {};
+  for (const it of DEMO_ITEMS) if (DEMO_TEXTS[it.no]) stubTexts[it.no] = DEMO_TEXTS[it.no];
+  const api = live ? makeApi(serverUrl, serverCode) : createStubApi(storage, { texts: stubTexts });
+  /* demo lokal: bila ada berkas contoh-pdf/ di samping index.html, PDF asli dipakai (halaman tergambar); selain itu teks */
+  const stubGetPdf = api.getPdf;
+  if (!live) api.getPdf = async no => {
+    if (/^https?:/.test(win.location.protocol)) {
+      try {
+        const r = await win.fetch('contoh-pdf/PMN-' + String(no).replace('/', '-') + '.pdf');
+        if (r.ok) {
+          const bytes = new Uint8Array(await r.arrayBuffer());
+          let bin = ''; for (let i = 0; i < bytes.length; i += 8192) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+          return { ok: true, base64: win.btoa(bin) };
+        }
+      } catch (e) { /* tanpa berkas contoh: pakai teks */ }
+    }
+    return stubGetPdf(no);
+  };
+  const memStore = (() => { const m = new Map(); return { getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k) }; })();
+  async function seedDemo() {
+    if (!DEMO_TEXTS[DEMO_NOS.history[0]]) return;
+    const S0 = buildDemoState(DEMO_TEXTS, nowIso(), officer());
+    await createSync({ api, storage: memStore, now: nowIso }).push(S0);
+  }
+  const demo = live ? null : {
+    api, items: DEMO_ITEMS, scenarioItem: DEMO_SCENARIO_ITEM, texts: DEMO_TEXTS, scenarioText,
+    async reset() { for (const k of ['pmn-stub-server', 'pmn-cache', 'pmn-outbox']) storage.removeItem(k); await seedDemo(); },
+  };
+
+  let S = newState();
+  try { const c = storage.getItem('pmn-cache'); if (c) S = Object.assign(newState(), JSON.parse(c)); } catch (e) { /* cache rusak: mulai kosong */ }
+  const sync = createSync({ api, storage, now: nowIso });
+  const fileIn = $('pdfin');
+  const toastEl = $('toast');
+  let toastTimer = null;
+  let mapInst = null, lastTab = null, settingsKey = null;
+
+  const ctrl = createController({
+    S, api, sync, storage, i18n, now: nowIso, today: () => sgtToday(new Date()), officer,
+    readPdf: readPdfFile,
+    pdfTextFromBase64: async b64 => { const bin = win.atob(b64), bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i); return readPdfFile(new Blob([bytes])); },
+    ask: { confirm: m => win.confirm(m), prompt: m => win.prompt(m) },
+    clipboard: { write: text => (win.navigator.clipboard ? win.navigator.clipboard.writeText(text) : Promise.reject(new Error('no clipboard'))) },
+    dom: { val: id => { const e = $(id); return e ? e.value : ''; }, set: (id, v) => { const e = $(id); if (e) e.value = v; } },
+    ui: { render, toast, pickFile: () => fileIn.click() },
+    demo, live, makeApi, reload: () => win.location.reload(),
+  });
+
+  function toast(m) { toastEl.textContent = m; toastEl.hidden = false; win.clearTimeout(toastTimer); toastTimer = win.setTimeout(() => { toastEl.hidden = true; }, 3200); }
+
+  function mapDeps() {
+    return {
+      L: win.L, t: i18n.t,
+      onOpen: no => ctrl.act('open', no),
+      onMovePoint: (no, gi, pi, lat, lon) => { if (mapInst) mapInst.keepView(); ctrl.movePoint(no, gi, pi, lat, lon); },
+      onDeletePoint: (no, gi, pi) => { if (mapInst) mapInst.keepView(); ctrl.act('delpt', no, { dataset: { g: String(gi), p: String(pi) } }); },
+      onAddPoint: (no, lat, lon) => { if (mapInst) mapInst.keepView(); ctrl.addPointAt(no, lat, lon); },
+    };
+  }
+
+  function chrome() {
+    const c = ctrl.ctx(), t = i18n.t;
+    $('demobar').style.display = live ? 'none' : '';
+    if (!live) $('demobar').innerHTML = `<b>DEMO</b><button data-act="demo1">${esc(t('demo.step1'))}</button><button data-act="demo2">${esc(t('demo.step2'))}</button>` +
+      `<button data-act="demo3" class="${ctrl.st.demoDown ? 'on' : ''}">${esc(t('demo.step3'))}</button><button data-act="demoreset">${esc(t('demo.reset'))}</button><span class="hint">${esc(t('banner.demo'))}</span>`;
+    $('gear').title = t('settings.title');
+    $('langs').innerHTML = ['id', 'en'].map(l => `<button data-act="lang" data-no="${l}" class="${i18n.getLang() === l ? 'on' : ''}">${l.toUpperCase()}</button>`).join('');
+    $('who').innerHTML = DEFAULT_OFFICERS.map(o => `<option${o === officer() ? ' selected' : ''}>${esc(o)}</option>`).join('');
+    $('whoLabel').textContent = t('common.officer');
+    const unsent = ctrl.pending();
+    $('banner').innerHTML = (win.navigator.onLine === false ? `<div class="banner bad">${esc(t('banner.offline'))}</div>` : '') +
+      (unsent ? `<div class="banner warn">${esc(i18n.tn('banner.unsent', unsent))}</div>` : '') +
+      (storage.persistent ? '' : `<div class="banner warn">${esc(t('banner.no_storage'))}</div>`);
+    $('tabs').innerHTML = TABS.map(([k, icon, key]) => `<button data-act="tab" data-no="${k}" class="${ctrl.st.tab === k ? 'on' : ''}"><b>${icon}</b>${esc(t(key))}${k === 'home' && (nosByStatus(S, 'menunggu').length + nosByStatus(S, 'draf').length) ? ' •' : ''}</button>`).join('');
+    return c;
+  }
+
+  function mapTools() {
+    const st = ctrl.st, t = i18n.t;
+    if (st.mapEdit) {
+      return `<div class="editbar"><b>${esc(t('map.edit_title', { no: st.mapEdit }))}</b><div class="row"><button class="${st.mapAdd ? 'on' : ''}" data-act="mapadd">${esc(st.mapAdd ? t('map.add_active') : t('map.add'))}</button><button data-act="mapdone">${esc(t('map.done'))}</button></div></div>`;
+    }
+    return `<div class="mapbar"><button class="${st.mapFilter === 'aktif' ? 'on' : ''}" data-act="mapfilter" data-no="aktif">${esc(t('map.filter_active'))}</button><button class="${st.mapFilter === 'semua' ? 'on' : ''}" data-act="mapfilter" data-no="semua">${esc(t('map.filter_all'))}</button></div>` +
+      `<div class="legend"><div><i></i>${esc(t('map.legend_approved'))}</div><div><i class="d"></i>${esc(t('map.legend_draft'))}</div><div class="muted" style="margin-top:2px">${esc(t('disclaimer.map'))}</div></div>`;
+  }
+
+  /* halaman PDF asli di layar detail: digambar sekali per berkas lalu dipasang ulang saat tampilan digambar ulang */
+  const pdfCache = { key: null, nodes: [], busy: false };
+  async function drawPdf(key) {
+    pdfCache.busy = true;
+    try {
+      const lib = await loadPdfjs();
+      const bin = win.atob(key), bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const pdf = await lib.getDocument({ data: bytes }).promise;
+      const first = $('pdfpages'); if (first && first.dataset.b64 === key) first.textContent = '';
+      for (let n = 1; n <= pdf.numPages; n++) {
+        const page = await pdf.getPage(n), vp = page.getViewport({ scale: 1.6 });
+        const cv = doc.createElement('canvas'); cv.width = vp.width; cv.height = vp.height;
+        await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+        pdfCache.nodes.push(cv);
+        const el = $('pdfpages'); if (el && el.dataset.b64 === key) el.appendChild(cv);
+      }
+    } catch (e) {
+      const el = $('pdfpages'); if (el) el.textContent = i18n.t('err.pdf_js_load');
+      pdfCache.key = null;
+    } finally { pdfCache.busy = false; }
+  }
+  function mountPdf() {
+    const el = $('pdfpages'); if (!el) return;
+    const key = el.dataset.b64;
+    if (pdfCache.key === key) { if (pdfCache.nodes.length) { el.textContent = ''; pdfCache.nodes.forEach(n => el.appendChild(n)); } return; }
+    pdfCache.key = key; pdfCache.nodes = [];
+    if (!pdfCache.busy) drawPdf(key);
+  }
+
+  function render() {
+    const c = chrome(), st = ctrl.st, v = $('view');
+    if (st.tab === 'map') {
+      if (lastTab !== 'map' || !mapInst) {
+        if (mapInst) { mapInst.destroy(); mapInst = null; }
+        v.className = 'map'; v.innerHTML = '<div id="map"></div><div id="maptools"></div>';
+        mapInst = createMap($('map'), mapDeps());
+      }
+      $('maptools').innerHTML = mapTools();
+      mapInst.setAddMode(st.mapAdd);
+      if (st.mapEdit && S.pm[st.mapEdit] && S.pm[st.mapEdit].work) mapInst.edit(S, st.mapEdit);
+      else { mapInst.stopEdit(); mapInst.draw(S, st.mapFilter, c.today); }
+    } else {
+      if (mapInst) { mapInst.destroy(); mapInst = null; }
+      v.className = '';
+      const skey = i18n.getLang() + ':' + live;
+      if (!(st.tab === 'settings' && lastTab === 'settings' && settingsKey === skey)) v.innerHTML = ({ home: renderHome, list: renderList, export: renderExport, add: renderAdd, settings: renderSettings })[st.tab](c);
+      settingsKey = skey;
+    }
+    lastTab = st.tab;
+    const sheet = $('sheet');
+    const keep = sheet.querySelector('.body') ? sheet.querySelector('.body').scrollTop : 0;
+    sheet.innerHTML = st.detailNo ? renderDetail(c, st.detailNo, { editRow: st.editRow && st.editRow.no === st.detailNo ? st.editRow : null, editData: st.editData }) : '';
+    const nb = sheet.querySelector('.body'); if (nb) nb.scrollTop = keep;
+    mountPdf();
+  }
+
+  doc.addEventListener('click', e => {
+    const el = e.target.closest('[data-act]');
+    if (!el || ['SELECT', 'INPUT', 'TEXTAREA'].includes(el.tagName)) return;
+    if (el.dataset.act === 'lang') { ctrl.setLang(el.dataset.no); return; }
+    ctrl.act(el.dataset.act, el.dataset.no, el);
+  });
+  doc.addEventListener('change', e => {
+    const el = e.target;
+    if (el.matches && (el.matches('select[data-act]') || el.matches('input[data-act="ack"]'))) ctrl.act(el.dataset.act, el.dataset.no, el);
+  });
+  fileIn.addEventListener('change', async e => { const files = [...e.target.files]; e.target.value = ''; await ctrl.addFiles(files); });
+  $('who').addEventListener('change', e => { storage.setItem('pmn-officer', e.target.value); toast(i18n.t('toast.logged_in', { who: e.target.value })); });
+
+  async function refresh() {
+    try { await sync.flush(S); await sync.pull(S); } catch (e) { if (e && e.message === 'err_auth') toast(i18n.t('err.err_auth')); /* selain itu offline: tetap memakai cache */ }
+    try { storage.setItem('pmn-cache', JSON.stringify(S)); } catch (e) { /* abaikan */ }
+    render();
+  }
+  win.addEventListener('online', refresh);
+  win.addEventListener('offline', render);
+  win.addEventListener('storage', e => { if (e.key === 'pmn-stub-server') refresh(); });
+  doc.addEventListener('visibilitychange', () => { if (!doc.hidden) refresh(); });
+
+  (async function boot() {
+    render();
+    if (!live && !storage.getItem('pmn-stub-server')) await seedDemo();
+    await refresh();
+    if (win.navigator.serviceWorker && /^https?:/.test(win.location.protocol)) { try { win.navigator.serviceWorker.register('sw.js').catch(() => { /* tanpa service worker aplikasi tetap jalan */ }); } catch (e) { /* abaikan */ } }
+  })();
+
+  return { ctrl, render, refresh, S };
+}
+
+if (typeof window !== 'undefined' && typeof document !== 'undefined' && document.getElementById && document.getElementById('app')) startApp(window, document);
+
+</script>
+</body>
+</html>
