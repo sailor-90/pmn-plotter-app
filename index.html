@@ -733,9 +733,9 @@ const ID = {
   "export.remove_item": "Objek PMN {old} (digantikan PMN {new})",
   "export.make": "Buat paket ekspor",
   "export.s1": "Colok flashdisk OTG ke HP, lalu simpan ketiga file ekspor ke flashdisk lewat aplikasi Files.",
-  "export.s2": "Salin file user chart ke ECDIS lalu impor. Hapus objek lama yang diminta.",
+  "export.s2": "Salin file user chart ke ECDIS lalu impor sebagai user chart BARU (nama bertanggal). Jangan menimpa user chart yang sudah ada. Hapus objek lama yang diminta secara manual.",
   "export.s3": "Cek di ECDIS: PMN terakhir ({no}) tergambar dengan benar.",
-  "export.s4": "Salin file PDF dan Excel ke komputer kapal untuk arsip. Timpa versi lama.",
+  "export.s4": "Salin file PDF dan Excel ke komputer kapal. Timpa PMN RECORD lama hanya bila berkas di komputer tidak diubah setelah salinan HP dibuat.",
   "export.done": "Selesai ✓",
   "export.waiting_title": "Panduan memasang ke ECDIS dan komputer",
   "export.waiting_meta": "Dibuat {when} oleh {by} · sampai PMN {no}",
@@ -743,7 +743,21 @@ const ID = {
   "export.all_done": "Semua PMN yang disetujui sudah diekspor.",
   "export.last_title": "Ekspor terakhir",
   "export.last_meta": "Dibuat {when} oleh {by} · {n} PMN",
-  "export.save_hint": "Simpan berkas lewat lembar Bagikan: pilih Simpan ke Berkas, lalu pilih flashdisk Anda. Ekspor ulang tidak mengubah status PMN maupun Beranda; tombolnya boleh ditekan kapan saja.",
+  "export.save_hint": "Simpan berkas lewat Bagikan/Simpan ke Berkas lalu pilih flashdisk, atau cek folder Unduhan bila berkas langsung terunduh (Android). Ekspor ulang tidak mengubah status PMN maupun Beranda; tombolnya boleh ditekan kapan saja. Mengimpor XML yang sama dua kali menggandakan objek di ECDIS.",
+  "export.ready_files": "Berkas siap: {files}",
+  "export.share": "Bagikan",
+  "export.cancel_ready": "Batal",
+  "export.save_xml": "Simpan XML",
+  "export.save_zip": "Siapkan ZIP PDF",
+  "export.save_xlsx": "Siapkan Excel",
+  "export.save_all": "Siapkan semua",
+  "export.pick_excel": "Pilih berkas baru",
+  "export.chart_name": "Nama user chart",
+  "export.chart_ver": "Versi XML",
+  "export.master": "Salinan di HP: {name}, diperbarui {date}",
+  "export.master_none": "Berkas PMN RECORD: belum dipilih",
+  "export.master_hint": "Pilih sekali berkas PMN RECORD.xlsx kapal dari Files atau flashdisk. Salinannya disimpan di HP ini dan diperbarui setiap kali Excel disimpan.",
+  "export.saving": "Membuat berkas…",
   "home.last_update_meta": "tanggal {date} · oleh {by}",
   "toast.check_added": "{n} PMN baru diunduh server",
   "toast.check_none": "Tidak ada PMN baru di MPA",
@@ -795,6 +809,27 @@ const ID = {
   "toast.installed": "Tercatat. Kotak Last update di Beranda sudah diperbarui.",
   "toast.exported": "Paket ekspor dibuat: {n} PMN",
   "toast.reexported": "Ekspor ulang: {n} PMN. Status PMN tidak berubah.",
+  "toast.shared": "Berkas dibagikan: {files}.",
+  "toast.save_downloaded": "Berkas diunduh ke folder Unduhan: {files}.",
+  "toast.share_cancelled": "Tidak jadi dibagikan. Tekan Bagikan lagi bila perlu.",
+  "toast.ready": "Berkas siap: {files}. Tekan Bagikan.",
+  "toast.pdf_offline": "{n} PDF gagal diunduh (tidak tersambung atau terlalu lama).",
+  "toast.pdf_auth": "{n} PDF ditolak server (kode akses).",
+  "toast.pdf_missing": "{n} PDF belum ada di server.",
+  "toast.save_excel_in_copy": "Baris PMN paket ini sudah ada di salinan PMN RECORD di HP; berkas dibagikan apa adanya.",
+  "err.no_objects": "Tidak ada yang bisa digambar di ECDIS (mis. hanya pengumuman), jadi XML tidak dibuat.",
+  "err.excel_bad": "Berkas ini bukan PMN RECORD yang bisa dibaca (tidak ada sheet atau baris PMN). Pilih berkas PMN RECORD.xlsx kapal.",
+  "err.master_store": "Salinan PMN RECORD tidak bisa disimpan di HP ini.",
+  "err.browser_old": "Browser terlalu lama untuk membuat berkas Excel/ZIP. Perbarui iOS/Chrome lalu coba lagi.",
+  "export.confirm_master": "Apakah berkas PMN RECORD di komputer kapal sudah diubah sejak {date}? OK = pilih berkas dari flashdisk, Batal = pakai salinan di HP.",
+  "toast.save_failed": "Berkas gagal dibuat atau disimpan. Coba lagi.",
+  "toast.save_no_export": "Belum ada paket ekspor. Tekan Buat paket ekspor dulu.",
+  "toast.save_no_pdfs": "Tidak ada PDF yang tersedia untuk ZIP.",
+  "toast.save_excel_cancelled": "Berkas PMN RECORD belum dipilih, jadi Excel tidak dibuat.",
+  "toast.save_excel_failed": "Excel gagal dibuat: berkas PMN RECORD tidak terbaca.",
+  "toast.save_excel_nothing_new": "Semua PMN paket ini sudah ada di PMN RECORD; tidak ada baris baru.",
+  "toast.excel_pick_cancelled": "Tidak ada berkas PMN RECORD yang dipilih.",
+  "toast.excel_picked": "Berkas PMN RECORD dipilih: {name}",
   "toast.reread": "Dikembalikan ke bacaan asli dari PDF",
   "toast.pdf_plot": "PMN {no} terbaca: {n} titik",
   "toast.pdf_kind": "PMN {no} terbaca sebagai {kind}",
@@ -1035,9 +1070,9 @@ const EN = {
   "export.remove_item": "Object of PMN {old} (superseded by PMN {new})",
   "export.make": "Create export package",
   "export.s1": "Plug the OTG flash drive into the phone, then save the three export files to the flash drive with the Files app.",
-  "export.s2": "Copy the user chart file to the ECDIS and import it. Remove the old objects listed.",
+  "export.s2": "Copy the user chart file to the ECDIS and import it as a NEW user chart (dated name). Never overwrite the existing user chart. Delete the listed old objects manually.",
   "export.s3": "Check on the ECDIS: the last PMN ({no}) is plotted correctly.",
-  "export.s4": "Copy the PDF and Excel files to the ship computer for the record. Overwrite the old versions.",
+  "export.s4": "Copy the PDF and Excel files to the ship's computer. Overwrite the old PMN RECORD only if the file on the computer was not changed after the phone's copy was made.",
   "export.done": "Done ✓",
   "export.waiting_title": "Guide: install on ECDIS and computer",
   "export.waiting_meta": "Made {when} by {by} · up to PMN {no}",
@@ -1045,7 +1080,21 @@ const EN = {
   "export.all_done": "All approved PMNs have been exported.",
   "export.last_title": "Last export",
   "export.last_meta": "Created {when} by {by} · {n} PMNs",
-  "export.save_hint": "Save the files from the Share sheet: choose Save to Files, then pick your flash drive. Re-export does not change any PMN status or the Home screen; the button can be pressed at any time.",
+  "export.save_hint": "Save the files with Share/Save to Files and pick your flash drive, or check the Downloads folder if the files download directly (Android). Re-export does not change any PMN status or the Home screen; the button can be pressed at any time. Importing the same XML twice duplicates the objects on the ECDIS.",
+  "export.ready_files": "Files ready: {files}",
+  "export.share": "Share",
+  "export.cancel_ready": "Cancel",
+  "export.save_xml": "Save XML",
+  "export.save_zip": "Prepare PDF ZIP",
+  "export.save_xlsx": "Prepare Excel",
+  "export.save_all": "Prepare all",
+  "export.pick_excel": "Choose another file",
+  "export.chart_name": "User chart name",
+  "export.chart_ver": "XML version",
+  "export.master": "Copy on this phone: {name}, updated {date}",
+  "export.master_none": "PMN RECORD file: not chosen yet",
+  "export.master_hint": "Choose the ship's PMN RECORD.xlsx once from Files or the flash drive. A copy is kept on this phone and updated every time Excel is saved.",
+  "export.saving": "Creating files…",
   "home.last_update_meta": "date {date} · by {by}",
   "toast.check_added": "{n} new PMN downloaded by the server",
   "toast.check_none": "No new PMN on MPA",
@@ -1097,6 +1146,27 @@ const EN = {
   "toast.installed": "Recorded. The Last update box on Home has been updated.",
   "toast.exported": "Export package created: {n} PMN",
   "toast.reexported": "Re-export: {n} PMNs. PMN statuses are unchanged.",
+  "toast.shared": "Files shared: {files}.",
+  "toast.save_downloaded": "Files downloaded to the Downloads folder: {files}.",
+  "toast.share_cancelled": "Not shared. Press Share again if needed.",
+  "toast.ready": "Files ready: {files}. Press Share.",
+  "toast.pdf_offline": "{n} PDF(s) could not be downloaded (no connection or too slow).",
+  "toast.pdf_auth": "{n} PDF(s) refused by the server (access code).",
+  "toast.pdf_missing": "{n} PDF(s) not on the server yet.",
+  "toast.save_excel_in_copy": "This package's PMN rows are already in the PMN RECORD copy on this phone; the file is shared as it is.",
+  "err.no_objects": "Nothing to draw on the ECDIS (e.g. only announcements), so no XML was created.",
+  "err.excel_bad": "This file is not a readable PMN RECORD (no PMN sheet or rows). Choose the ship's PMN RECORD.xlsx.",
+  "err.master_store": "The PMN RECORD copy could not be stored on this phone.",
+  "err.browser_old": "This browser is too old to create the Excel/ZIP files. Update iOS/Chrome and try again.",
+  "export.confirm_master": "Has the PMN RECORD file on the ship's computer changed since {date}? OK = choose the file from the flash drive, Cancel = use the copy on this phone.",
+  "toast.save_failed": "The file could not be created or saved. Please try again.",
+  "toast.save_no_export": "There is no export package yet. Press Create export package first.",
+  "toast.save_no_pdfs": "No PDFs are available for the ZIP.",
+  "toast.save_excel_cancelled": "No PMN RECORD file was chosen, so the Excel file was not created.",
+  "toast.save_excel_failed": "Excel could not be created: the PMN RECORD file could not be read.",
+  "toast.save_excel_nothing_new": "All PMNs in this package are already in PMN RECORD; no new rows.",
+  "toast.excel_pick_cancelled": "No PMN RECORD file was chosen.",
+  "toast.excel_picked": "PMN RECORD file chosen: {name}",
   "toast.reread": "Restored to the original reading from the PDF",
   "toast.pdf_plot": "PMN {no} read: {n} points",
   "toast.pdf_kind": "PMN {no} read as {kind}",
@@ -1954,6 +2024,347 @@ async function readPdfFile(file) {
   return out.join('\n');
 }
 
+/* ---- app/zipxlsx.js ---- */
+/* ===== ZIP (baca/tulis) dan XLSX PMN RECORD: salinan src/zipxlsx.js v1 (v1 tidak diubah), memakai (De)CompressionStream bawaan ===== */
+const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRC_T[(c^b[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+async function streamBytes(bytes,stream){const s=new Blob([bytes]).stream().pipeThrough(stream);return new Uint8Array(await new Response(s).arrayBuffer())}
+const inflateRaw=b=>streamBytes(b,new DecompressionStream('deflate-raw'));
+const deflateRaw=b=>streamBytes(b,new CompressionStream('deflate-raw'));
+const TE=new TextEncoder(),TD=new TextDecoder();
+
+async function unzip(buf){
+  const b=new Uint8Array(buf),dv=new DataView(b.buffer,b.byteOffset,b.byteLength);
+  let e=-1;for(let i=b.length-22;i>=Math.max(0,b.length-65557);i--)if(dv.getUint32(i,true)===0x06054b50){e=i;break}
+  if(e<0)throw new Error('Bukan file ZIP/XLSX yang valid.');
+  const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const files=new Map();
+  for(let i=0;i<n;i++){
+    if(dv.getUint32(p,true)!==0x02014b50)throw new Error('Struktur ZIP rusak.');
+    const method=dv.getUint16(p+10,true),csize=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),off=dv.getUint32(p+42,true);
+    const name=TD.decode(b.subarray(p+46,p+46+nl));
+    const lnl=dv.getUint16(off+26,true),lxl=dv.getUint16(off+28,true),start=off+30+lnl+lxl;
+    const raw=b.subarray(start,start+csize);
+    files.set(name,method===0?raw.slice():method===8?await inflateRaw(raw):(()=>{throw new Error('Kompresi ZIP tidak didukung: '+method)})());
+    p+=46+nl+xl+cl;
+  }
+  return files;
+}
+async function zip(files,{compress=true}={}){
+  const parts=[],central=[];let off=0;
+  const d=new Date(),dt=((d.getFullYear()-1980)<<25)|((d.getMonth()+1)<<21)|(d.getDate()<<16)|(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1);
+  for(const [name,data0] of files){
+    const data=typeof data0==='string'?TE.encode(data0):data0;
+    const nm=TE.encode(name),crc=crc32(data);
+    let body=data,method=0;
+    if(compress){const c=await deflateRaw(data);if(c.length<data.length){body=c;method=8}}
+    const lh=new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint16(8,method,true);lh.setUint32(10,dt,true);
+    lh.setUint32(14,crc,true);lh.setUint32(18,body.length,true);lh.setUint32(22,data.length,true);lh.setUint16(26,nm.length,true);
+    parts.push(new Uint8Array(lh.buffer),nm,body);
+    const ch=new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(8,0x0800,true);ch.setUint16(10,method,true);ch.setUint32(12,dt,true);
+    ch.setUint32(16,crc,true);ch.setUint32(20,body.length,true);ch.setUint32(24,data.length,true);ch.setUint16(28,nm.length,true);ch.setUint32(42,off,true);
+    central.push(new Uint8Array(ch.buffer),nm);
+    off+=30+nm.length+body.length;
+  }
+  const cs=central.reduce((a,x)=>a+x.length,0),cnt=files.size??files.length;
+  const eo=new DataView(new ArrayBuffer(22));
+  eo.setUint32(0,0x06054b50,true);eo.setUint16(8,cnt,true);eo.setUint16(10,cnt,true);eo.setUint32(12,cs,true);eo.setUint32(16,off,true);
+  return new Blob([...parts,...central,new Uint8Array(eo.buffer)],{type:'application/zip'});
+}
+
+/* ===== XLSX: PMN RECORD read + update (edits the original file, keeps all formatting) ===== */
+const NS_M='http://schemas.openxmlformats.org/spreadsheetml/2006/main',NS_R='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+const xmlDoc=s=>new DOMParser().parseFromString(s,'application/xml');
+const xmlStr=d=>{let s=new XMLSerializer().serializeToString(d);if(!s.startsWith('<?xml'))s='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+s;return s};
+const serialToIso=n=>{const d=new Date(Date.UTC(1899,11,30)+Math.round(n)*864e5);return d.toISOString().slice(0,10)};
+const isoToSerial=s=>{const [y,m,d]=s.split('-').map(Number);return Math.round((Date.UTC(y,m-1,d)-Date.UTC(1899,11,30))/864e5)};
+const colOf=ref=>ref.replace(/\d+/g,''),colIdx=c=>[...c].reduce((a,ch)=>a*26+ch.charCodeAt(0)-64,0);
+const normNo=s=>{const m=String(s||'').trim().match(/^0*(\d{1,3})\s*\/\s*(\d{4})$/);return m?`${+m[1]}/${m[2]}`:null};
+
+async function xlsxOpen(buf){
+  const files=await unzip(buf);
+  const txt=p=>files.has(p)?TD.decode(files.get(p)):null;
+  const wb=xmlDoc(txt('xl/workbook.xml')),rels=xmlDoc(txt('xl/_rels/workbook.xml.rels'));
+  const relMap={};for(const r of rels.getElementsByTagName('Relationship'))relMap[r.getAttribute('Id')]=r.getAttribute('Target');
+  const sheets=[...wb.getElementsByTagNameNS(NS_M,'sheet')].map((s,i)=>{const t=relMap[s.getAttributeNS(NS_R,'id')];
+    return {name:s.getAttribute('name'),index:i,rid:s.getAttributeNS(NS_R,'id'),path:t.startsWith('/')?t.slice(1):'xl/'+t.replace(/^\.\//,'')}});
+  const ss=[];const sst=txt('xl/sharedStrings.xml');
+  if(sst)for(const si of xmlDoc(sst).getElementsByTagNameNS(NS_M,'si'))ss.push([...si.getElementsByTagNameNS(NS_M,'t')].map(t=>t.textContent).join(''));
+  return {files,sheets,ss,txt};
+}
+function cellVal(c,ss){
+  if(!c)return null;const t=c.getAttribute('t'),v=c.getElementsByTagNameNS(NS_M,'v')[0];
+  if(t==='inlineStr')return [...c.getElementsByTagNameNS(NS_M,'t')].map(x=>x.textContent).join('');
+  if(!v||v.textContent==='')return null;
+  if(t==='s')return ss[+v.textContent]??null;if(t==='str'||t==='e')return v.textContent;
+  return +v.textContent;
+}
+function isRecordSheet(d,ss){for(const row of d.getElementsByTagNameNS(NS_M,'row')){const r=+row.getAttribute('r');if(r>9)break;const c=rowCells(row);if(/PMN/i.test(String(cellVal(c.B,ss)||'')))return true}return false}
+function rowCells(row){const m={};for(const c of row.getElementsByTagNameNS(NS_M,'c'))m[colOf(c.getAttribute('r'))]=c;return m}
+/** Read all PMN rows from every sheet. */
+async function readRecord(buf){
+  const x=await xlsxOpen(buf);const out=[];
+  for(const sh of x.sheets){
+    const s=x.txt(sh.path);if(!s)continue;const d=xmlDoc(s);
+    if(!isRecordSheet(d,x.ss))continue;
+    for(const row of d.getElementsByTagNameNS(NS_M,'row')){
+      const r=+row.getAttribute('r');if(r<10)continue;const c=rowCells(row);
+      const no=normNo(cellVal(c.B,x.ss));if(!no)continue;
+      const dt=v=>typeof v==='number'&&v>20000?serialToIso(v):null;
+      out.push({no,sheet:sh.name,row:r,published:dt(cellVal(c.C,x.ss)),title:String(cellVal(c.F,x.ss)||'').replace(/\s+/g,' ').trim(),from:dt(cellVal(c.G,x.ss)),to:dt(cellVal(c.H,x.ss))});
+    }
+  }
+  return {sheets:x.sheets.map(s=>s.name),rows:out};
+}
+function mkCell(d,ref,s){const c=d.createElementNS(NS_M,'c');c.setAttribute('r',ref);if(s!=null)c.setAttribute('s',s);return c}
+function putCell(d,row,col,s){
+  const ref=col+row.getAttribute('r');let found=null,after=null;
+  for(const c of row.getElementsByTagNameNS(NS_M,'c')){const cc=colOf(c.getAttribute('r'));if(cc===col){found=c;break}if(colIdx(cc)>colIdx(col)){after=c;break}}
+  if(found)return found;const c=mkCell(d,ref,s);row.insertBefore(c,after);return c;
+}
+function clearCell(c){while(c.firstChild)c.removeChild(c.firstChild);c.removeAttribute('t')}
+const hasF=c=>c&&c.getElementsByTagNameNS(NS_M,'f').length>0;
+function setStr(d,c,v){clearCell(c);c.setAttribute('t','inlineStr');const is=d.createElementNS(NS_M,'is'),t=d.createElementNS(NS_M,'t');t.setAttribute('xml:space','preserve');t.textContent=v;is.appendChild(t);c.appendChild(is)}
+function setNum(d,c,v){clearCell(c);const e=d.createElementNS(NS_M,'v');e.textContent=String(v);c.appendChild(e)}
+function setF(d,c,f,str){clearCell(c);if(str)c.setAttribute('t','str');const e=d.createElementNS(NS_M,'f');e.textContent=f;c.appendChild(e)}
+
+/** Append PMN entries to the PMN RECORD workbook. entries: [{no,published,title,from,to}] (ISO dates). Returns {blob,added:[{no,sheet,row}]} */
+async function updateRecord(buf,entries,{dropSheets=['Sheet1']}={}){
+  const x=await xlsxOpen(buf);const files=x.files;
+  let wbX=x.txt('xl/workbook.xml'),relX=x.txt('xl/_rels/workbook.xml.rels'),ctX=x.txt('[Content_Types].xml');
+  const wb=xmlDoc(wbX),rel=xmlDoc(relX),ct=xmlDoc(ctX);
+  const sheetsEl=wb.getElementsByTagNameNS(NS_M,'sheets')[0];
+  // 1) drop unwanted sheets (e.g. Sheet1)
+  for(const name of dropSheets){
+    const el=[...sheetsEl.getElementsByTagNameNS(NS_M,'sheet')].find(s=>s.getAttribute('name')===name);if(!el)continue;
+    const idx=[...sheetsEl.getElementsByTagNameNS(NS_M,'sheet')].indexOf(el),rid=el.getAttributeNS(NS_R,'id');
+    const sh=x.sheets.find(s=>s.rid===rid);sheetsEl.removeChild(el);
+    for(const r of [...rel.getElementsByTagName('Relationship')])if(r.getAttribute('Id')===rid)r.parentNode.removeChild(r);
+    for(const o of [...ct.getElementsByTagName('Override')])if(o.getAttribute('PartName')==='/'+sh.path)o.parentNode.removeChild(o);
+    const relsPath=sh.path.replace(/([^/]+)$/,'_rels/$1.rels');
+    if(files.has(relsPath)){
+      const sr=xmlDoc(TD.decode(files.get(relsPath)));
+      for(const r of sr.getElementsByTagName('Relationship')){const t=r.getAttribute('Target');if(/printerSettings/.test(t)){const p='xl/'+t.replace(/^\.\.\//,'');
+        const usedElsewhere=[...files.keys()].some(k=>k!==relsPath&&k.endsWith('.rels')&&TD.decode(files.get(k)).includes(t.split('/').pop()));if(!usedElsewhere)files.delete(p)}}
+      files.delete(relsPath);
+    }
+    files.delete(sh.path);
+    for(const dn of [...wb.getElementsByTagNameNS(NS_M,'definedName')]){
+      const l=dn.getAttribute('localSheetId');
+      if(l!=null&&+l===idx||dn.textContent.includes(name+'!')||dn.textContent.includes(`'${name}'!`))dn.parentNode.removeChild(dn);
+      else if(l!=null&&+l>idx)dn.setAttribute('localSheetId',+l-1);
+    }
+    x.sheets.splice(x.sheets.indexOf(sh),1);x.sheets.forEach((s,i)=>s.index=i);
+  }
+  const bv=wb.getElementsByTagNameNS(NS_M,'workbookView')[0],nSheets=sheetsEl.getElementsByTagNameNS(NS_M,'sheet').length;
+  if(bv){const a=+(bv.getAttribute('activeTab')||0);if(a>=nSheets)bv.setAttribute('activeTab',nSheets-1)}
+  // calcChain is optional; drop it so Excel rebuilds it, and ask for a full recalculation on open
+  for(const r of [...rel.getElementsByTagName('Relationship')])if(/calcChain/.test(r.getAttribute('Type'))){files.delete('xl/'+r.getAttribute('Target'));r.parentNode.removeChild(r)}
+  for(const o of [...ct.getElementsByTagName('Override')])if(/calcChain/.test(o.getAttribute('PartName')))o.parentNode.removeChild(o);
+  let cp=wb.getElementsByTagNameNS(NS_M,'calcPr')[0];if(!cp){cp=wb.createElementNS(NS_M,'calcPr');wb.documentElement.insertBefore(cp,wb.getElementsByTagNameNS(NS_M,'extLst')[0]||null)}cp.setAttribute('fullCalcOnLoad','1');
+
+  // 2) group entries by year sheet
+  const byYear={};for(const e of entries){const y=e.no.split('/')[1];(byYear[y]=byYear[y]||[]).push(e)}
+  const added=[];
+  for(const year of Object.keys(byYear).sort()){
+    let sh=x.sheets.find(s=>s.name===year);
+    if(!sh)sh=cloneYearSheet(x,wb,rel,ct,files,year);
+    const d=xmlDoc(TD.decode(files.get(sh.path)));
+    const sd=d.getElementsByTagNameNS(NS_M,'sheetData')[0];
+    const rows=[...sd.getElementsByTagNameNS(NS_M,'row')];
+    const rowMap=new Map(rows.map(r=>[+r.getAttribute('r'),r]));
+    let last=9,tmpl=null,lastA=0;
+    for(const r of rows){const n=+r.getAttribute('r');if(n<10)continue;const c=rowCells(r);
+      if(normNo(cellVal(c.B,x.ss))){last=Math.max(last,n);tmpl=r;const a=cellVal(c.A,x.ss);if(typeof a==='number')lastA=Math.max(lastA,a)}}
+    let tStyle={};if(tmpl){const c=rowCells(tmpl);for(const k of 'ABCDEFGHI')tStyle[k]=c[k]?.getAttribute('s')??null}else if(sh.tStyle)tStyle=sh.tStyle;
+    const list=byYear[year].sort((a,b)=>+a.no.split('/')[0]-+b.no.split('/')[0]);
+    let r=last;
+    for(const e of list){
+      r++;let row=rowMap.get(r);
+      if(!row){row=d.createElementNS(NS_M,'row');row.setAttribute('r',r);row.setAttribute('spans','1:9');
+        const nxt=rows.find(x=>+x.getAttribute('r')>r)||null;sd.insertBefore(row,nxt);rowMap.set(r,row);rows.push(row);rows.sort((a,b)=>a.getAttribute('r')-b.getAttribute('r'))}
+      const get=col=>{const c=putCell(d,row,col,tStyle[col]);if(!c.getAttribute('s')&&tStyle[col]!=null)c.setAttribute('s',tStyle[col]);return c};
+      const cA=get('A');const aVal=cellVal(cA,x.ss);if(aVal==null||aVal===''){lastA++;setNum(d,cA,lastA)}else lastA=typeof aVal==='number'?aVal:lastA+1;
+      setStr(d,get('B'),e.no);
+      if(e.published)setNum(d,get('C'),isoToSerial(e.published));
+      for(const col of ['D','E']){const c=get(col);if(!hasF(c))setF(d,c,`C${r}`)}
+      setStr(d,get('F'),e.title.toUpperCase());
+      const g=get('G'),h=get('H');
+      if(e.from)setNum(d,g,isoToSerial(e.from));else clearCell(g);
+      if(e.to)setNum(d,h,isoToSerial(e.to));else clearCell(h);
+      const i=get('I');if(!hasF(i))setF(d,i,`IF(H${r}="","",IF(H${r}<TODAY(),"CANCEL",""))`,true);
+      const lines=Math.max(1,Math.ceil(e.title.length/72));if(lines>1)row.setAttribute('ht',String(12.75*lines));
+      added.push({no:e.no,sheet:year,row:r});
+    }
+    const dim=d.getElementsByTagNameNS(NS_M,'dimension')[0];
+    if(dim){const m=dim.getAttribute('ref').match(/^([A-Z]+\d+):([A-Z]+)(\d+)$/);if(m&&+m[3]<r)dim.setAttribute('ref',`${m[1]}:${m[2]}${r}`)}
+    files.set(sh.path,TE.encode(xmlStr(d)));
+  }
+  files.set('xl/workbook.xml',TE.encode(xmlStr(wb)));files.set('xl/_rels/workbook.xml.rels',TE.encode(xmlStr(rel)));files.set('[Content_Types].xml',TE.encode(xmlStr(ct)));
+  const blob=await zip(files);
+  return {blob:new Blob([blob],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),added};
+}
+/** New year: copy the latest year sheet's header (rows 1-9) and column layout into a fresh sheet. */
+function cloneYearSheet(x,wb,rel,ct,files,year){
+  const src=[...x.sheets].filter(s=>/^\d{4}$/.test(s.name)).sort((a,b)=>a.name-b.name).pop()||x.sheets[x.sheets.length-1];
+  const d=xmlDoc(TD.decode(files.get(src.path)));
+  const sd=d.getElementsByTagNameNS(NS_M,'sheetData')[0];
+  const tStyle={};for(const r of sd.getElementsByTagNameNS(NS_M,'row')){if(+r.getAttribute('r')<10)continue;const c=rowCells(r);if(normNo(cellVal(c.B,x.ss)))for(const k of 'ABCDEFGHI')tStyle[k]=c[k]?.getAttribute('s')??null}
+  for(const r of [...sd.getElementsByTagNameNS(NS_M,'row')])if(+r.getAttribute('r')>=10)sd.removeChild(r);
+  for(const tg of ['drawing','legacyDrawing','conditionalFormatting','hyperlinks'])for(const e of [...d.getElementsByTagNameNS(NS_M,tg)])e.parentNode.removeChild(e);
+  for(const e of [...d.getElementsByTagNameNS(NS_M,'pageSetup')])e.removeAttributeNS(NS_R,'id');
+  for(const e of [...d.getElementsByTagNameNS(NS_M,'sheetView')])e.removeAttribute('tabSelected');
+  for(const e of [...d.getElementsByTagNameNS(NS_M,'sortState')])e.parentNode.removeChild(e);
+  let n=1;while(files.has(`xl/worksheets/sheet${n}.xml`))n++;
+  const path=`xl/worksheets/sheet${n}.xml`;files.set(path,TE.encode(xmlStr(d)));
+  let rid=1;const ids=new Set([...rel.getElementsByTagName('Relationship')].map(r=>r.getAttribute('Id')));while(ids.has('rId'+rid))rid++;
+  const r=rel.createElementNS('http://schemas.openxmlformats.org/package/2006/relationships','Relationship');
+  r.setAttribute('Id','rId'+rid);r.setAttribute('Type',NS_R+'/worksheet');r.setAttribute('Target',`worksheets/sheet${n}.xml`);rel.documentElement.appendChild(r);
+  const o=ct.createElementNS('http://schemas.openxmlformats.org/package/2006/content-types','Override');
+  o.setAttribute('PartName','/'+path);o.setAttribute('ContentType','application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml');ct.documentElement.appendChild(o);
+  const sheetsEl=wb.getElementsByTagNameNS(NS_M,'sheets')[0];
+  const maxId=Math.max(...[...sheetsEl.getElementsByTagNameNS(NS_M,'sheet')].map(s=>+s.getAttribute('sheetId')));
+  const s=wb.createElementNS(NS_M,'sheet');s.setAttribute('name',year);s.setAttribute('sheetId',maxId+1);s.setAttributeNS(NS_R,'r:id','rId'+rid);sheetsEl.appendChild(s);
+  const sh={name:year,index:x.sheets.length,rid:'rId'+rid,path,tStyle};x.sheets.push(sh);return sh;
+}
+
+/* ---- app/exportfiles.js ---- */
+/* ===== Berkas ekspor: user chart ECDIS (XML Furuno), daftar PDF untuk ZIP, baris Excel PMN RECORD ===== */
+/* Fungsi murni tanpa DOM. Aturan objek persis v1 (src/app.js: newObjects, extrasFor, objXml, buildXml).
+   Bergantung pada global baseNo, ecdisName, sortDesc (shared/rules.js). Nama tingkat atas berawalan ex supaya tidak bentrok di bundel. */
+
+const EX_MON = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+const EX_VERSIONS = ['1.0', '1.1', '1.2'];
+const EX_CHART_NAME = 'Singapore PMN';
+const EX_GROUP_COMMENT = { areas: 'userchart area', labels: 'userchart label', circles: 'userchart circle' };
+const EX_CTRL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\uFFFE\uFFFF]/g;
+const EX_FOLD = [[/[\u2018\u2019\u201A\u201B\u2032\u00B4\u0060]/g, "'"], [/[\u201C\u201D\u201E\u201F\u2033]/g, '"'], [/[\u2010-\u2015\u2212]/g, '-'], [/[\u00B0\u00BA\u02DA]/g, ' '], [/[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g, ' ']];
+
+/** "2026-03-05" -> "05 MAR 2026"; kosong -> "-". */
+const exDateU = iso => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || '');
+  return m ? `${m[3]} ${EX_MON[+m[2] - 1]} ${m[1]}` : '-';
+};
+/** Escape nilai atribut XML; baris baru menjadi &#10; (seperti ECDIS). */
+const exEsc = s => String(s == null ? '' : s).replace(EX_CTRL, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\r?\n/g, '&#10;');
+/** Teks untuk ECDIS: hanya ASCII (user chart kapal tidak memuat huruf lain). Tanda kutip, pisah, derajat, spasi khusus dipetakan; huruf beraksen tanpa aksen; sisanya dibuang. */
+function exAscii(s) {
+  let out = String(s == null ? '' : s).replace(EX_CTRL, '');
+  for (const [re, to] of EX_FOLD) out = out.replace(re, to);
+  return out.normalize('NFKD').replace(/[^\x09\x0A\x0D\x20-\x7E]/g, '');
+}
+/** Radius (m) yang sah: angka > 0, selain itu null. */
+const exRadius = v => (typeof v === 'number' && isFinite(v) && v > 0 ? v : null);
+/** Nama berkas aman untuk Windows/Android/iOS. */
+const exSafeName = s => String(s || '').replace(EX_CTRL, '').replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim();
+
+/** Nomor (bagian) yang diekspor, urut menurun, hanya yang punya nilai kerja. */
+const exNos = (S, nos) => sortDesc((nos || []).filter(n => S.pm[n] && S.pm[n].work));
+const exTitle = r => (r.work && r.work.title) || (r.rss && r.rss.title) || '';
+
+function exDesc(no, w) {
+  return [`PMN ${baseNo(no)}`, '', `FROM ${exDateU(w.from)} TO ${exDateU(w.to)}`, '', (w.title || '').toUpperCase(),
+    [w.hours, w.vhf].filter(Boolean).join(' - ').toUpperCase()].join('\n').trim();
+}
+
+/** Objek user chart untuk satu PMN (bagian): area (>=3 titik), label per titik (tipe points atau <3 titik), circle per titik (tipe circles). */
+function exObjects(no, w) {
+  if (!w || w.kind !== 'plot') return [];
+  const desc = exAscii(exDesc(no, w)), name = ecdisName(no);
+  const type = [['checkDanger', '1'], ['displayRadar', '1'], ['hasNotes', '0'], ['notesType', '0']], disp = [['S52colorcode', 'CHRED'], ['lineWidth', '2'], ['density', '25']];
+  const groups = (w.groups || []).filter(g => g.pts && g.pts.length), multi = groups.length > 1, out = [];
+  groups.forEach((g, gi) => {
+    const tail = String(g.name || '').replace(/^Area\s*/i, '').trim();
+    const gs = multi ? ' ' + (tail || String.fromCharCode(65 + gi)) : '';
+    if (g.type === 'circles') g.pts.forEach(x => out.push({ kind: 'circle', group: 'circles', attrs: [['name', `${name}-${x.label}`], ['description', desc]], verts: [[x.lat, x.lon]],
+      extras: [{ tag: 'attribute', attrs: [['range', ((exRadius(x.r) || exRadius(w.radius) || 100) / 1852).toFixed(6)]] }, { tag: 'type', attrs: type }, { tag: 'display', attrs: disp }] }));
+    else if (g.type === 'points' || g.pts.length < 3) g.pts.forEach(x => out.push({ kind: 'label', group: 'labels', attrs: [['name', `${name} ${x.label}`], ['description', desc]], verts: [[x.lat, x.lon]],
+      extras: [{ tag: 'attribute', attrs: [['labelStyle', '3'], ['labelText', x.label]] }, { tag: 'type', attrs: [['checkDanger', '1'], ['displayRadar', '1']] }, { tag: 'display', attrs: [['S52colorcode', 'CHRED']] }] }));
+    else out.push({ kind: 'area', group: 'areas', attrs: [['name', name + gs], ['description', desc]], verts: g.pts.map(x => [x.lat, x.lon]), extras: [{ tag: 'type', attrs: type }, { tag: 'display', attrs: disp }] });
+  });
+  // nama dan teks label juga hanya ASCII
+  out.forEach(o => { o.attrs = o.attrs.map(([k, v]) => [k, exAscii(v)]); o.extras.forEach(e => { e.attrs = e.attrs.map(([k, v]) => [k, k === 'labelText' ? exAscii(v) : v]); }); });
+  return out;
+}
+
+/** Elemen tambahan per versi: 1.0 tanpa display dan labelStyle 1; 1.1 dengan display; 1.2 ditambah linkedDocument="". */
+function exExtras(o, ver) {
+  let ex = o.extras.map(e => ({ tag: e.tag, attrs: e.attrs.map(a => a.slice()) }));
+  const get = t => ex.find(e => e.tag === t);
+  if (ver !== '1.2') {
+    ex.forEach(e => { if (e.tag === 'attribute') e.attrs = e.attrs.filter(a => a[0] !== 'linkedDocument'); });
+    ex = ex.filter(e => !(e.tag === 'attribute' && !e.attrs.length));
+  }
+  if (ver === '1.0') { ex = ex.filter(e => e.tag !== 'display'); ex.forEach(e => e.attrs.forEach(a => { if (a[0] === 'labelStyle') a[1] = '1'; })); }
+  else if (!get('display')) ex.push({ tag: 'display', attrs: o.kind === 'label' ? [['S52colorcode', 'CHRED']] : [['S52colorcode', 'CHRED'], ['lineWidth', '2'], ['density', '25']] });
+  if (ver === '1.2') {
+    let at = get('attribute');
+    if (!at) { at = { tag: 'attribute', attrs: [] }; ex.push(at); }
+    if (!at.attrs.some(a => a[0] === 'linkedDocument')) at.attrs.push(['linkedDocument', '']);
+  }
+  const order = ['attribute', 'type', 'display'], rk = t => { const i = order.indexOf(t); return i < 0 ? 9 : i; };
+  return ex.sort((a, b) => rk(a.tag) - rk(b.tag));
+}
+
+function exObjXml(o, ver) {
+  const at = a => a.map(([k, v]) => ` ${k}="${exEsc(v)}"`).join('');
+  let s = `    <${o.kind}${at(o.attrs)}>\n      <position>\n`;
+  o.verts.forEach((v, i) => { s += `        <vertex id="${i + 1}" latitude="${v[0].toFixed(6)}" longitude="${v[1].toFixed(6)}"/>\n`; });
+  s += '      </position>\n';
+  exExtras(o, ver).forEach(e => { s += `      <${e.tag}${at(e.attrs)}/>\n`; });
+  return s + `    </${o.kind}>\n`;
+}
+
+/** User chart berisi hanya objek PMN dari `nos` (bukan menimpa seluruh chart kapal). opts: {name='Singapore PMN', ver='1.2'}. */
+function exUserChartXml(S, nos, opts) {
+  opts = opts || {};
+  const ver = EX_VERSIONS.includes(opts.ver) ? opts.ver : '1.2';
+  const name = exAscii(String(opts.name || '')).trim() || EX_CHART_NAME;
+  const objs = exNos(S, nos).flatMap(n => exObjects(n, S.pm[n].work));
+  let s = `<?xml version="1.0" encoding="UTF-8"?>\n<!--userchart node-->\n<userchart name="${exEsc(name)}" description="" version="${ver}">\n`;
+  for (const g of ['areas', 'labels', 'circles']) {
+    const os = objs.filter(o => o.group === g);
+    if (os.length) s += `  <!--${EX_GROUP_COMMENT[g]}-->\n  <${g}>\n` + os.map(o => exObjXml(o, ver)).join('') + `  </${g}>\n`;
+  }
+  return s + '</userchart>\n';
+}
+
+/** Jumlah objek yang akan ditulis ke XML (0 = tidak ada yang tergambar, mis. hanya pengumuman). */
+const exObjectCount = (S, nos) => exNos(S, nos).reduce((n, k) => n + exObjects(k, S.pm[k].work).length, 0);
+
+/** Bagian pertama (urut) per nomor induk: [{no: induk, r}]. */
+function exByBase(S, nos) {
+  const out = [], seen = new Set();
+  for (const n of exNos(S, nos)) {
+    const b = baseNo(n);
+    if (!seen.has(b)) { seen.add(b); out.push({ no: b, r: S.pm[n], parts: exNos(S, nos).filter(k => baseNo(k) === b) }); }
+  }
+  return out;
+}
+
+/** Isi ZIP: satu PDF per nomor induk (bagian -a/-b berbagi satu PDF). [{no, name: "PMN 137-2026 Judul.pdf"}] */
+function exPdfEntries(S, nos) {
+  return exByBase(S, nos).map(({ no, r }) => {
+    const [n, y] = no.split('/');
+    return { no, name: exSafeName(`PMN ${String(n).padStart(3, '0')}-${y} ${exTitle(r)}`).slice(0, 110) + '.pdf' };
+  });
+}
+
+/** Baris baru PMN RECORD (untuk updateRecord): satu per nomor induk; tanggal kosong null; pengumuman tanpa tanggal akhir tanpa tanggal (seperti v1). */
+function exExcelEntries(S, nos) {
+  return exByBase(S, nos).map(({ no, r, parts }) => {
+    const ws = parts.map(k => S.pm[k].work), w = r.work;
+    const froms = ws.map(x => x.from).filter(Boolean).sort(), tos = ws.map(x => x.to).filter(Boolean).sort();
+    const from = froms[0] || null, to = tos.length ? tos[tos.length - 1] : null;
+    const none = w.kind === 'advisory' && !to;
+    return { no, published: w.published || (r.rss && r.rss.published) || null, title: exTitle(r), from: none ? null : from, to: none ? null : to };
+  });
+}
+
+/** Nama chart untuk ditampilkan dan dipakai di XML: tanpa karakter kendali, paling panjang 60, kosong -> bawaan. */
+const exChartName = s => String(s == null ? '' : s).replace(EX_CTRL, '').replace(/\s+/g, ' ').trim().slice(0, 60) || EX_CHART_NAME;
+
 /* ---- app/views/common.js ---- */
 /* ===== Tampilan: pembantu bersama. Fungsi murni yang mengembalikan string HTML; ctx = {S, t, tn, fmtDate, now, today, officer, ...} ===== */
 
@@ -2222,11 +2633,39 @@ function renderDetail(ctx, no, ui) {
 /* ---- app/views/export.js ---- */
 /* ===== Tampilan Ekspor ===== */
 
+const EXPORT_VERS = ['1.0', '1.1', '1.2'];
+
+/** Tombol simpan berkas sungguhan (hanya bila ctx.filesReady): nama dan versi user chart, empat tombol Simpan, status master PMN RECORD. */
+function saveBox(ctx) {
+  if (!ctx.filesReady) return '';
+  const { t } = ctx, busy = ctx.saving ? ' disabled' : '';
+  const ver = EXPORT_VERS.includes(ctx.chartVer) ? ctx.chartVer : '1.2';
+  const btn = (act, key, cls) => `<button class="btn sm${cls || ''}" data-act="${act}"${busy}>${esc(t(key))}</button>`;
+  const m = ctx.master && ctx.master.name;
+  const r = ctx.ready;
+  const ready = r ? `<div class="card ok" style="margin:8px 0"><b>${esc(t('export.ready_files', { files: r.names.join(', ') }))}</b>` +
+    (r.notes && r.notes.length ? `<ul class="notes">${r.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : '') +
+    `<div class="row" style="gap:8px;margin-top:8px"><button class="btn okb" data-act="shareReady">${esc(t('export.share'))}</button>` +
+    `<button class="btn ghost" data-act="cancelReady">${esc(t('export.cancel_ready'))}</button></div></div>` : '';
+  return `<div class="savebox" style="margin-top:8px">${ready}` +
+    `<div class="row" style="gap:8px;flex-wrap:wrap;align-items:flex-end">` +
+    `<label class="small" style="flex:1 1 160px">${esc(t('export.chart_name'))}<input class="in" data-act="setChartName" value="${esc(ctx.chartName || 'Singapore PMN')}" maxlength="60"></label>` +
+    `<label class="small">${esc(t('export.chart_ver'))}<br><select class="sel" data-act="setChartVer">${EXPORT_VERS.map(v => `<option value="${v}"${v === ver ? ' selected' : ''}>${v}</option>`).join('')}</select></label></div>` +
+    `<div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px">${btn('saveXml', 'export.save_xml')}${btn('saveZip', 'export.save_zip')}${btn('saveXlsx', 'export.save_xlsx')}${btn('saveAll', 'export.save_all', ' okb')}</div>` +
+    (ctx.saving ? `<div class="small muted" style="margin-top:4px">${esc(t('export.saving'))}</div>` : '') +
+    `<div class="row small" style="gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center"><span>${esc(m ? t('export.master', { name: m, date: ctx.master.savedAt ? fmtWhen(ctx, ctx.master.savedAt) : '–' }) : t('export.master_none'))}</span>` +
+    `<button class="btn sm ghost" data-act="pickExcel"${busy}>${esc(t('export.pick_excel'))}</button></div>` +
+    `<div class="small muted">${esc(t('export.master_hint'))}</div></div>`;
+}
+
+/** Nama Excel yang sungguh dibagikan: nama berkas PMN RECORD kapal bila sudah dipilih, selain itu nama paket. */
+const xlsxName = (ctx, e) => (ctx.filesReady && ctx.master && ctx.master.name) || e.files.xlsx;
+
 function renderExport(ctx) {
   const { S, t, tn } = ctx;
   const ready = nosByStatus(S, 'disetujui'), waiting = nosByStatus(S, 'diekspor'), e = S.lastExport, mode = exportMode(S);
   let h = '';
-  if (ctx.exportSimulated !== false) h += `<div class="card warn small">${esc(t('export.sim_note'))}</div>`;
+  if (!ctx.filesReady) h += `<div class="card warn small">${esc(t('export.sim_note'))}</div>`;
   h += `<div class="card"><h2>${esc(t('export.ready_title', { n: ready.length }))}</h2>`;
   if (ready.length) {
     h += ready.map(n => { const w = S.pm[n].work; return `<div class="row sp" style="padding:4px 0"><span><b>PMN ${esc(n)}</b> <span class="small muted">${esc(w.title.slice(0, 34))}</span></span>` +
@@ -2242,12 +2681,13 @@ function renderExport(ctx) {
   if (waiting.length && e) {
     const cur = e.step || 0;
     const rem = e.removeFromEcdis && e.removeFromEcdis.length ? `<div class="card bad"><b>${esc(t('export.remove_title'))}</b><ul class="notes">${e.removeFromEcdis.map(x => `<li>${esc(t('export.remove_item', { old: x.old, new: x.new }))}</li>`).join('')}</ul></div>` : '';
+    const xn = xlsxName(ctx, e);
     const files = list => `<ul class="files">${list.map(f => `<li>${esc(f)}</li>`).join('')}</ul>`;
     const steps = [
-      `${esc(t('export.s1'))}${files([e.files.xml, e.files.zip, e.files.xlsx])}`,
+      `${esc(t('export.s1'))}${files([e.files.xml, e.files.zip, xn])}${saveBox(ctx)}`,
       `${esc(t('export.s2'))}${files([e.files.xml])}${rem}`,
       esc(t('export.s3', { no: e.no })),
-      `${esc(t('export.s4'))}${files([e.files.zip, e.files.xlsx])}`,
+      `${esc(t('export.s4'))}${files([e.files.zip, xn])}`,
     ];
     h += `<div class="card act"><h2>${esc(t('export.waiting_title'))}</h2><div class="small muted">${esc(t('export.waiting_meta', { when: fmtWhen(ctx, e.at), by: e.by, no: e.no }))}</div><ol class="steps">` +
       steps.slice(0, cur + 1).map((x, i) => i < cur
@@ -2255,10 +2695,10 @@ function renderExport(ctx) {
         : `<li class="step">${x}<div style="margin-top:8px"><button class="btn okb" data-act="exportstep">${esc(t('export.done'))}</button></div></li>`).join('') + `</ol></div>`;
   }
   if (e && e.files && !waiting.length) {
-    const fl = [e.files.xml, e.files.zip, e.files.xlsx];
+    const fl = [e.files.xml, e.files.zip, xlsxName(ctx, e)];
     const rem = e.removeFromEcdis && e.removeFromEcdis.length ? `<div class="card bad"><b>${esc(t('export.remove_title'))}</b><ul class="notes">${e.removeFromEcdis.map(x => `<li>${esc(t('export.remove_item', { old: x.old, new: x.new }))}</li>`).join('')}</ul></div>` : '';
     h += `<div class="card act"><h2>${esc(t('export.last_title'))}</h2><div class="small muted">${esc(t('export.last_meta', { when: fmtWhen(ctx, e.at), by: e.by, n: e.list.length }))}</div>` +
-      `<ul class="files">${fl.map(f => `<li>${esc(f)}</li>`).join('')}</ul>${rem}<p class="small">${esc(t('export.save_hint'))}</p></div>`;
+      `<ul class="files">${fl.map(f => `<li>${esc(f)}</li>`).join('')}</ul>${rem}<p class="small">${esc(t('export.save_hint'))}</p>${saveBox(ctx)}</div>`;
   }
   h += `<div class="disc">${esc(t('disclaimer.map'))}</div>`;
   return h;
@@ -2420,17 +2860,24 @@ const DEFAULT_OFFICERS = ['Master', 'Chief Officer', '2nd Master', 'Ship phone']
 
 /**
  * deps = {S, api, sync, storage, i18n, now(), today(), officer(), officers?, live?, makeApi(url, code)?, reload()?, readPdf(file), pdfTextFromBase64(b64),
- *         ask:{confirm, prompt}, clipboard:{write}, dom:{val(id), set(id,v)}, ui:{render, toast, pickFile}, demo?}
+ *         ask:{confirm, prompt}, clipboard:{write}, dom:{val(id), set(id,v)}, ui:{render, toast, pickFile}, demo?,
+ *         files?: {share([{name, blob}]) -> {ok, downloaded?, cancelled?}, getMaster() -> {buf, name, savedAt}|null, setMaster(buf, name, savedAt) -> {ok},
+ *                  pickExcel() -> {buf, name}|null}, pdfTimeoutMs? (bawaan 20000),
+ *         xlsx?: {updateRecord, readRecord} (bawaan: fungsi global app/zipxlsx.js)}
+ * Tanpa deps.files tombol Simpan tidak tampil (ctx.filesReady false).
  */
 function createController(deps) {
   const { S, api, sync, storage, i18n, ask, dom, ui } = deps;
-  const st = { tab: 'home', detailNo: null, editRow: null, editData: false, mapEdit: null, mapAdd: false, mapFilter: 'aktif', busy: null, reading: null, demoDown: false, pdf: null };
+  const st = { tab: 'home', detailNo: null, editRow: null, editData: false, mapEdit: null, mapAdd: false, mapFilter: 'aktif', busy: null, reading: null, demoDown: false, pdf: null,
+    chartName: '', chartVer: '1.2', master: undefined, saving: null, ready: null };
   const t = (k, p) => i18n.t(k, p);
   const who = () => deps.officer();
   const toast = m => ui.toast(m);
 
   function ctx() {
-    return { S, t: i18n.t, tn: i18n.tn, fmtDate: i18n.fmtDate, now: deps.now(), today: deps.today(), officer: who(), officers: deps.officers || DEFAULT_OFFICERS, live: !!deps.live, serverHost: deps.live ? hostOf(storage.getItem('pmn-server-url')) : '', pdf: st.pdf, busy: st.busy, reading: st.reading, i18n, exportSimulated: true };
+    return { S, t: i18n.t, tn: i18n.tn, fmtDate: i18n.fmtDate, now: deps.now(), today: deps.today(), officer: who(), officers: deps.officers || DEFAULT_OFFICERS, live: !!deps.live, serverHost: deps.live ? hostOf(storage.getItem('pmn-server-url')) : '', pdf: st.pdf, busy: st.busy, reading: st.reading, i18n,
+      filesReady: !!deps.files, chartName: chartNameOf(), chartVer: st.chartVer, master: st.master, saving: st.saving,
+      ready: st.ready ? { kind: st.ready.kind, names: st.ready.names, notes: st.ready.notes } : null };
   }
   const saveCache = () => { try { storage.setItem(CACHE_KEY, JSON.stringify(S)); } catch (e) { /* abaikan */ } };
   const pending = () => sync.pending();
@@ -2498,11 +2945,184 @@ function createController(deps) {
     finally { delete crossBusy[no]; }
   }
 
+  /* ----- Berkas ekspor sungguhan (XML, ZIP PDF, Excel) dari paket terakhir. Tidak pernah mengubah S. -----
+     iPhone hanya membuka lembar Bagikan bila share() dipanggil langsung dari sentuhan, tanpa menunggu apa pun. Karena itu:
+     XML (dibuat seketika) dibagikan dalam satu sentuhan; ZIP, Excel, dan "semua" dua langkah: Siapkan (berkas disimpan di st.ready),
+     lalu Bagikan (shareReady memanggil share tanpa await sebelumnya). */
+  const files = deps.files;
+  const xl = () => deps.xlsx || { updateRecord, readRecord };
+  const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  const PDF_TIMEOUT = deps.pdfTimeoutMs || 20000;
+  const VERS = ['1.0', '1.1', '1.2'];
+  const hasStreams = () => typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined';
+  const b64bytes = b64 => { const bin = atob(b64), out = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out; };
+  const exportDate = e => { const m = /\d{4}-\d{2}-\d{2}/.exec((e && e.files && e.files.xml) || ''); return m ? m[0] : deps.today(); };
+  const defaultChartName = () => 'Singapore PMN ' + exportDate(S.lastExport);
+  const chartNameOf = () => st.chartName || defaultChartName();
+  const dateOf = iso => (iso ? i18n.fmtDate(sgtToday(new Date(iso))) : '–');
+  st.chartName = storage.getItem('pmn-chart-name') || '';
+  st.chartVer = VERS.includes(storage.getItem('pmn-chart-ver')) ? storage.getItem('pmn-chart-ver') : '1.2';
+
+  async function loadMaster() {
+    if (!files) return;
+    try { const m = await files.getMaster(); st.master = m ? { name: m.name, savedAt: m.savedAt || null } : null; } catch (e) { st.master = null; }
+    ui.render();
+  }
+  function xmlFile(e) {
+    const xml = exUserChartXml(S, e.list, { name: chartNameOf(), ver: st.chartVer });
+    return { name: e.files.xml, blob: new Blob([xml], { type: 'application/xml' }) };
+  }
+
+  /** Satu PDF dari server dengan batas waktu: {res} atau {kind: 'offline' | 'auth'}. */
+  async function fetchPdf(no) {
+    let timer;
+    const late = new Promise(done => { timer = setTimeout(() => done({ kind: 'offline' }), PDF_TIMEOUT); });
+    try {
+      const got = Promise.resolve().then(() => api.getPdf(no)).then(res => ({ res }), err => ({ kind: err && err.message === 'err_auth' ? 'auth' : 'offline' }));
+      return await Promise.race([got, late]);
+    } finally { clearTimeout(timer); }
+  }
+  /** ZIP: paling banyak 3 unduhan sekaligus; yang gagal dihitung per sebab (offline, akses, PDF tidak ada). */
+  async function zipBuild(e) {
+    const list = exPdfEntries(S, e.list), got = new Array(list.length);
+    let next = 0;
+    const worker = async () => { while (next < list.length) { const i = next++; got[i] = await fetchPdf(list[i].no); } };
+    await Promise.all([worker(), worker(), worker()]);
+    const out = new Map(), miss = { offline: 0, auth: 0, missing: 0 };
+    got.forEach((g, i) => {
+      const r = g.res;
+      if (r && r.ok && r.base64) out.set(list[i].name, b64bytes(r.base64));
+      else if (r && r.ok && r.text != null) out.set(list[i].name.replace(/\.pdf$/, '.txt'), new TextEncoder().encode(r.text));
+      else if (g.kind) miss[g.kind]++;
+      else if (r && r.code === 'err_auth') miss.auth++;
+      else miss.missing++;
+    });
+    const notes = ['offline', 'auth', 'missing'].filter(k => miss[k]).map(k => t('toast.pdf_' + k, { n: miss[k] }));
+    if (!out.size) return { files: [], notes: [t('toast.save_no_pdfs')].concat(notes) };
+    return { files: [{ name: e.files.zip, blob: await zip(out, { compress: false }) }], notes };
+  }
+
+  async function pickRaw() { try { return (await files.pickExcel()) || null; } catch (err) { return null; } }
+  /** Workbook PMN RECORD yang sah: terbaca dan punya baris PMN. */
+  async function validate(buf) {
+    if (!hasStreams()) return { ok: false, code: 'browser_old' };
+    let rec;
+    try { rec = await xl().readRecord(buf); } catch (err) { return { ok: false, code: 'excel_bad' }; }
+    return rec && rec.rows && rec.rows.length ? { ok: true, rows: rec.rows } : { ok: false, code: 'excel_bad' };
+  }
+  async function storeMaster(buf, name, savedAt) {
+    let r;
+    try { r = await files.setMaster(buf, name, savedAt); } catch (err) { r = null; }
+    if (!r || !r.ok) return false;
+    st.master = { name, savedAt };
+    return true;
+  }
+  /** Master yang dipakai: salinan di HP (setelah officer menyatakan berkas kapal tidak berubah) atau berkas baru dari flashdisk.
+      Pertanyaan dan pemilih berkas dipanggil sebelum menunggu apa pun bila keadaan master sudah diketahui. */
+  async function chooseMaster() {
+    let m = st.master === null ? null : st.master || (await files.getMaster());
+    if (m && ask.confirm(t('export.confirm_master', { date: dateOf(m.savedAt) }))) m = null;
+    if (m && !m.buf) m = await files.getMaster();
+    if (!m) {
+      const p = await pickRaw();
+      if (!p) return { cancel: true };
+      const v = await validate(p.buf);
+      return v.ok ? { m: p, rows: v.rows, picked: true } : { bad: v.code };
+    }
+    const v = await validate(m.buf);
+    return v.ok ? { m, rows: v.rows, picked: false } : { bad: v.code };
+  }
+  /** Excel: baris PMN paket yang belum ada di master ditambahkan (tanpa membuang sheet), hasilnya menjadi salinan baru di HP. */
+  async function xlsxBuild(e) {
+    if (!hasStreams()) return { files: [], notes: [t('err.browser_old')] };
+    const c = await chooseMaster();
+    if (c.cancel) return { files: [], notes: [t('toast.save_excel_cancelled')] };
+    if (c.bad) return { files: [], notes: [t('err.' + c.bad)] };
+    const have = new Set(c.rows.map(r => r.no));
+    const entries = exExcelEntries(S, e.list).filter(x => !have.has(x.no));
+    let buf = c.m.buf, blob;
+    if (entries.length) { blob = (await xl().updateRecord(c.m.buf, entries, { dropSheets: [] })).blob; buf = await blob.arrayBuffer(); }
+    else blob = new Blob([c.m.buf], { type: XLSX_TYPE });
+    const notes = entries.length ? [] : [t(c.picked ? 'toast.save_excel_nothing_new' : 'toast.save_excel_in_copy')];
+    if (!(await storeMaster(buf, c.m.name, deps.now()))) notes.push(t('err.master_store'));
+    return { files: [{ name: c.m.name, blob }], notes };
+  }
+
+  /** Membagikan sekarang: share dipanggil sinkron (tanpa await sebelumnya). Hasil: dibagikan, diunduh, dibatalkan, atau gagal. */
+  function shareNow(list, notes) {
+    let p;
+    try { p = files.share(list); } catch (err) { p = null; }
+    const report = r => {
+      const names = list.map(f => f.name).join(', ');
+      if (r && r.ok) { toast([t(r.downloaded ? 'toast.save_downloaded' : 'toast.shared', { files: names })].concat(notes || []).join(' ')); return true; }
+      toast(t(r && r.cancelled ? 'toast.share_cancelled' : 'toast.save_failed'));
+      return false;
+    };
+    return Promise.resolve(p).then(report, () => report(null));
+  }
+  function withExport(fn) {
+    if (!files) { toast(t('toast.save_failed')); return; }
+    const e = S.lastExport;
+    if (!e || !e.list || !e.files) { toast(t('toast.save_no_export')); return; }
+    return fn(e);
+  }
+  /** Langkah 1 (Siapkan): membuat berkas lalu menyimpannya di st.ready untuk tombol Bagikan. */
+  const prepare = (kind, build) => withExport(async e => {
+    st.saving = kind; st.ready = null; ui.render();
+    try {
+      const r = await build(e);
+      if (r.files.length) {
+        st.ready = { kind, names: r.files.map(f => f.name), files: r.files, notes: r.notes };
+        toast([t('toast.ready', { files: st.ready.names.join(', ') })].concat(r.notes).join(' '));
+      } else toast(r.notes.join(' ') || t('toast.save_failed'));
+    } catch (err) { toast(t('toast.save_failed')); } finally { st.saving = null; ui.render(); }
+  });
+  const SAVE = {
+    saveXml: () => withExport(e => {
+      if (!exObjectCount(S, e.list)) { toast(t('err.no_objects')); return; }
+      return shareNow([xmlFile(e)]);
+    }),
+    saveZip: () => prepare('zip', zipBuild),
+    saveXlsx: () => prepare('xlsx', xlsxBuild),
+    saveAll: () => prepare('all', async e => {
+      const x = await xlsxBuild(e); // Excel dulu: pertanyaan dan pemilih berkas masih dekat dengan sentuhan
+      const z = await zipBuild(e);
+      const hasXml = exObjectCount(S, e.list) > 0;
+      return { files: (hasXml ? [xmlFile(e)] : []).concat(z.files, x.files), notes: (hasXml ? [] : [t('err.no_objects')]).concat(z.notes, x.notes) };
+    }),
+    shareReady() {
+      const r = st.ready;
+      if (!r || !files) return;
+      return shareNow(r.files, r.notes).then(ok => { if (ok && st.ready === r) st.ready = null; ui.render(); });
+    },
+    cancelReady() { st.ready = null; ui.render(); },
+    async pickExcel() {
+      if (!files) { toast(t('toast.save_failed')); return; }
+      const p = await pickRaw();
+      if (!p) { toast(t('toast.excel_pick_cancelled')); return; }
+      const v = await validate(p.buf);
+      if (!v.ok) { toast(t('err.' + v.code)); return; }
+      if (!(await storeMaster(p.buf, p.name, deps.now()))) { toast(t('err.master_store')); return; }
+      toast(t('toast.excel_picked', { name: p.name }));
+      ui.render();
+    },
+    setChartName(no, el) {
+      const raw = String((el && el.value) || '').trim();
+      st.chartName = raw && exChartName(raw) !== defaultChartName() ? exChartName(raw) : '';
+      if (st.chartName) storage.setItem('pmn-chart-name', st.chartName); else storage.removeItem('pmn-chart-name');
+    },
+    setChartVer(no, el) {
+      st.chartVer = VERS.includes(el && el.value) ? el.value : '1.2';
+      storage.setItem('pmn-chart-ver', st.chartVer);
+      ui.render();
+    },
+  };
+
   /** Berpindah antara demo dan server: cache dan antrean lokal milik mode lama dibuang supaya tidak terkirim ke mode baru. */
   const resetLocal = () => { storage.removeItem(CACHE_KEY); storage.removeItem('pmn-outbox'); storage.removeItem('pmn-synced'); };
 
   const ACT = {
-    tab(no) { st.tab = no; st.detailNo = null; st.mapEdit = null; st.mapAdd = false; ui.render(); },
+    tab(no) { st.tab = no; st.detailNo = null; st.mapEdit = null; st.mapAdd = false; ui.render(); if (no === 'export') loadMaster(); },
     open(no) {
       st.detailNo = no; st.editRow = null; st.editData = false; st.pdf = null;
       const m = markSeen(S, no, who(), deps.now());
@@ -2599,6 +3219,7 @@ function createController(deps) {
       const r = exportStepDone(S, who(), deps.now());
       return commit(r, null, r.ok && r.done ? t('toast.installed') : null);
     },
+    ...SAVE,
     /* tombol demo (hanya bila deps.demo ada) */
     async demo1() { const d = deps.demo; if (!d) return; d.api.queueItems(d.items); await doCheck(); },
     async demo2() {
@@ -2681,6 +3302,80 @@ function createController(deps) {
 
 const TABS = [['home', '⌂', 'nav.home'], ['map', '◎', 'nav.map'], ['list', '☰', 'nav.list'], ['export', '⇪', 'nav.export'], ['add', '＋', 'nav.add']];
 
+/**
+ * Berkas di perangkat untuk ekspor (deps.files pengendali). Tidak pernah melempar ke tampilan.
+ * share: lembar Bagikan bila peramban bisa membagikan berkas, selain itu unduh biasa. Master Excel di IndexedDB (pmn-files/files, kunci excel-master).
+ */
+function createDeviceFiles(win, doc) {
+  const KEY = 'excel-master';
+  const db = () => new Promise((ok, no) => {
+    const rq = win.indexedDB.open('pmn-files', 1);
+    rq.onupgradeneeded = () => rq.result.createObjectStore('files');
+    rq.onsuccess = () => ok(rq.result); rq.onerror = () => no(rq.error);
+  });
+  const tx = async (mode, fn) => {
+    const d = await db();
+    try {
+      return await new Promise((ok, no) => { const t = d.transaction('files', mode), rq = fn(t.objectStore('files')); t.oncomplete = () => ok(rq.result); t.onerror = () => no(t.error); t.onabort = () => no(t.error); });
+    } finally { d.close(); }
+  };
+  function download(list) {
+    for (const f of list) {
+      const url = win.URL.createObjectURL(f.blob), a = doc.createElement('a');
+      a.href = url; a.download = f.name; a.style.display = 'none';
+      doc.body.appendChild(a); a.click(); a.remove();
+      win.setTimeout(() => win.URL.revokeObjectURL(url), 60000);
+    }
+    return { ok: true, downloaded: true };
+  }
+  return {
+    async share(list) {
+      try {
+        const nav = win.navigator, fs = list.map(f => new win.File([f.blob], f.name, { type: f.blob.type || 'application/octet-stream' }));
+        if (nav.share && nav.canShare && nav.canShare({ files: fs })) {
+          try { await nav.share({ files: fs }); return { ok: true }; }
+          catch (e) { if (e && e.name === 'AbortError') return { ok: false, cancelled: true }; /* sentuhan kedaluwarsa dll.: unduh biasa */ }
+        }
+        return download(list);
+      } catch (e) { return { ok: false }; }
+    },
+    async getMaster() {
+      try { const v = await tx('readonly', st => st.get(KEY)); return v && v.buf ? v : null; } catch (e) { return null; }
+    },
+    /** Menyimpan salinan PMN RECORD; {ok:false} bila IndexedDB tidak ada atau penuh. */
+    async setMaster(buf, name, savedAt) {
+      try { await tx('readwrite', st => st.put({ buf, name, savedAt: savedAt || null }, KEY)); return { ok: true }; } catch (e) { return { ok: false }; }
+    },
+    /** Pemilih berkas .xlsx: {buf, name} atau null. Dibatalkan bila jendela kembali fokus tanpa berkas (tidak semua peramban
+        mengirim 'cancel') atau setelah 60 detik, supaya tombol tidak terkunci selamanya. */
+    pickExcel() {
+      return new Promise(done => {
+        let settled = false, inp = null, safety = null;
+        const onFocus = () => win.setTimeout(() => { if (!inp || !inp.files || !inp.files.length) finish(null); }, 800);
+        const finish = v => {
+          if (settled) return; settled = true;
+          try { win.removeEventListener('focus', onFocus); win.clearTimeout(safety); if (inp) inp.remove(); } catch (e) { /* abaikan */ }
+          done(v);
+        };
+        try {
+          inp = doc.createElement('input');
+          inp.type = 'file'; inp.accept = '.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; inp.style.display = 'none';
+          inp.addEventListener('change', async () => {
+            const f = inp.files && inp.files[0];
+            if (!f) { finish(null); return; }
+            try { finish({ buf: await f.arrayBuffer(), name: f.name }); } catch (e) { finish(null); }
+          });
+          inp.addEventListener('cancel', () => finish(null));
+          win.addEventListener('focus', onFocus);
+          safety = win.setTimeout(() => finish(null), 60000);
+          doc.body.appendChild(inp);
+          inp.click();
+        } catch (e) { finish(null); }
+      });
+    },
+  };
+}
+
 function startApp(win, doc) {
   const storage = createStorage(win);
   const $ = id => doc.getElementById(id);
@@ -2740,6 +3435,7 @@ function startApp(win, doc) {
     dom: { val: id => { const e = $(id); return e ? e.value : ''; }, set: (id, v) => { const e = $(id); if (e) e.value = v; } },
     ui: { render, toast, pickFile: () => fileIn.click() },
     demo, live, makeApi, reload: () => win.location.reload(),
+    files: createDeviceFiles(win, doc),
   });
 
   function toast(m) { toastEl.textContent = m; toastEl.hidden = false; win.clearTimeout(toastTimer); toastTimer = win.setTimeout(() => { toastEl.hidden = true; }, 3200); }
@@ -2843,7 +3539,7 @@ function startApp(win, doc) {
   });
   doc.addEventListener('change', e => {
     const el = e.target;
-    if (el.matches && (el.matches('select[data-act]') || el.matches('input[data-act="ack"]'))) ctrl.act(el.dataset.act, el.dataset.no, el);
+    if (el.matches && (el.matches('select[data-act]') || el.matches('input[data-act="ack"]') || el.matches('input[data-act="setChartName"]'))) ctrl.act(el.dataset.act, el.dataset.no, el);
   });
   fileIn.addEventListener('change', async e => { const files = [...e.target.files]; e.target.value = ''; await ctrl.addFiles(files); });
   $('who').addEventListener('change', e => { storage.setItem('pmn-officer', e.target.value); toast(i18n.t('toast.logged_in', { who: e.target.value })); });
