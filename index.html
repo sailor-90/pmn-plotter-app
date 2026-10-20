@@ -328,23 +328,47 @@ function timeStatus(work, supersededBy, today) {
 
 /* ----- Nomor PMN, urutan, penggantian ----- */
 const numOf = no => +no.split('/')[0];
-const yearOf = no => +no.split('/')[1];
+const yearOf = no => parseInt(no.split('/')[1], 10);
 
-/** Urut tahun menurun, lalu nomor menurun. Tidak mengubah array asal. */
+/** Nomor induk tanpa akhiran area: "137/2026-a" -> "137/2026". */
+const baseNo = no => no.replace(/-[a-z]+$/i, '');
+
+/** Akhiran area huruf kecil ("a", "b") atau null bila tidak ada. */
+function suffixOf(no) {
+  const m = /-([a-z]+)$/i.exec(no);
+  return m ? m[1].toLowerCase() : null;
+}
+
+/** Kunci bagian ke-index (mulai 0) dari total bagian: satu bagian tetap nomor induk, lebih dari satu diberi -a, -b, ... */
+function partKey(base, index, total) {
+  return total > 1 ? base + '-' + String.fromCharCode(97 + index) : base;
+}
+
+/** Nama objek di ECDIS: "PMN 137/2026-A". */
+function ecdisName(no) {
+  const sfx = suffixOf(no);
+  return 'PMN ' + baseNo(no) + (sfx ? '-' + sfx.toUpperCase() : '');
+}
+
+/** Urut tahun menurun, nomor menurun, lalu akhiran menaik (tanpa akhiran lebih dulu). Tidak mengubah array asal. */
 function sortDesc(nos) {
-  return nos.slice().sort((a, b) => yearOf(b) - yearOf(a) || numOf(b) - numOf(a));
+  return nos.slice().sort((a, b) =>
+    yearOf(b) - yearOf(a) || numOf(b) - numOf(a) ||
+    (suffixOf(a) || '').localeCompare(suffixOf(b) || ''));
 }
 
 /**
- * Peta penggantian {nomorLama: nomorBaru} dari daftar {no, supersedes}.
+ * Peta penggantian {nomorIndukLama: nomorIndukBaru} dari daftar {no, supersedes}.
  * Bila dua PMN menggantikan nomor yang sama, yang bernomor lebih besar menang; rantai tidak digabung.
+ * Akhiran area diabaikan: "140/2026-a" menggantikan sebagai "140/2026".
  */
 function supersedeMap(list) {
   const map = {};
   for (const p of list) {
-    if (!p.supersedes || p.supersedes === p.no) continue;
+    const base = baseNo(p.no);
+    if (!p.supersedes || p.supersedes === base) continue;
     const cur = map[p.supersedes];
-    if (!cur || yearOf(p.no) > yearOf(cur) || (yearOf(p.no) === yearOf(cur) && numOf(p.no) > numOf(cur))) map[p.supersedes] = p.no;
+    if (!cur || yearOf(base) > yearOf(cur) || (yearOf(base) === yearOf(cur) && numOf(base) > numOf(cur))) map[p.supersedes] = base;
   }
   return map;
 }
@@ -421,7 +445,7 @@ function blankRecord(rss, src) {
 
 /** Hasil parsePmnText -> bentuk Parsed yang disimpan. */
 function toParsed(result, fallbackTitle) {
-  return {
+  const out = {
     title: result.title || fallbackTitle || '',
     kind: result.kind,
     published: result.published || null,
@@ -434,13 +458,22 @@ function toParsed(result, fallbackTitle) {
     groups: clone(result.groups || []),
     warn: clone(result.warn || []),
   };
+  if (result.body != null) out.body = result.body;
+  return out;
+}
+
+/** Nilai kerja awal dari bacaan asli: salinan tanpa body (isi PMN hanya disimpan sekali, di parsed). */
+function workFromParsed(parsed) {
+  const w = clone(parsed);
+  delete w.body;
+  return w;
 }
 
 /** Menerapkan bacaan ke record: draf, bacaan asli (parsed) dan nilai kerja (work) terpisah. reader: 'ocr' bila dibaca server. */
 function applyReading(r, result, who, reader) {
   r.parsed = toParsed(result, r.rss && r.rss.title);
   if (reader) r.parsed.reader = reader;
-  r.work = clone(r.parsed);
+  r.work = workFromParsed(r.parsed);
   r.status = 'draf';
   r.readBy = who;
   r.ack = false;
@@ -719,6 +752,18 @@ const ID = {
   "err.err_server": "Server mengalami galat. Coba lagi nanti.",
   "toast.settings_saved": "Tersambung ke server.",
   "detail.trail_read_ocr": "Dibaca server (OCR)",
+  "detail.trail_read_claude": "Dibaca Claude (AI)",
+  "detail.claude_note": "Dibaca otomatis oleh Claude (AI). AI bisa keliru: cocokkan nomor, periode, dan setiap titik dengan PDF asli.",
+  "detail.reread_installed": "PMN ini dibaca ulang oleh Claude. Sebelumnya terpasang di ECDIS: {list}. Periksa apakah objek lama harus diganti atau dihapus.",
+  "detail.body": "Isi PMN (dari PDF)",
+  "warn.map_area_count": "Peta di PDF menampilkan {map} area, teks menyebut {text} area. Periksa peta.",
+  "warn.map_mismatch": "Claude menilai peta tidak cocok dengan teks: {notes}",
+  "warn.supersedes_unreadable": "Tulisan nomor PMN yang digantikan tidak terbaca: {text}. Isi manual bila perlu.",
+  "warn.text_truncated": "Sebagian teks dari Claude terlalu panjang dan dipotong. Cocokkan dengan PDF asli.",
+  "err.err_read": "Claude gagal membaca PDF.",
+  "err.err_claude_key": "Kunci Claude belum diisi atau ditolak. Periksa ANTHROPIC_API_KEY di server.",
+  "log.reread": "PMN {no} dibaca ulang oleh Claude (sebelumnya: {was}). Periksa lagi.",
+  "log.reread_layout": "PMN {no} dibaca ulang oleh Claude (sebelumnya: {was}); susunan area berubah menjadi {keys}. Periksa lagi.",
   "detail.ocr_note": "Dibaca otomatis oleh server dengan OCR. OCR bisa salah, terutama pada tabel koordinat: cocokkan setiap titik dengan PDF asli.",
   "err.cross_running": "Pemeriksaan silang di HP ini masih berjalan. Tunggu sebentar lalu tekan lagi.",
   "err.err_mpa_bad_response": "MPA menjawab tidak seperti biasanya (bukan 200).",
@@ -998,6 +1043,18 @@ const EN = {
   "err.err_server": "The server hit an error. Try again later.",
   "toast.settings_saved": "Connected to the server.",
   "detail.trail_read_ocr": "Read by the server (OCR)",
+  "detail.trail_read_claude": "Read by Claude (AI)",
+  "detail.claude_note": "Read automatically by Claude (AI). AI can be wrong: check the number, the period and every point against the original PDF.",
+  "detail.reread_installed": "This PMN was re-read by Claude. Previously installed on ECDIS: {list}. Check whether the old objects must be replaced or removed.",
+  "detail.body": "PMN text (from the PDF)",
+  "warn.map_area_count": "The map in the PDF shows {map} areas, the text mentions {text}. Check the map.",
+  "warn.map_mismatch": "Claude judged that the map does not match the text: {notes}",
+  "warn.supersedes_unreadable": "The superseded PMN number could not be read: {text}. Enter it manually if needed.",
+  "warn.text_truncated": "Part of the text from Claude was too long and was cut. Check against the original PDF.",
+  "err.err_read": "Claude could not read the PDF.",
+  "err.err_claude_key": "The Claude key is missing or was rejected. Check ANTHROPIC_API_KEY on the server.",
+  "log.reread": "PMN {no} was re-read by Claude (previously: {was}). Check it again.",
+  "log.reread_layout": "PMN {no} was re-read by Claude (previously: {was}); the area layout changed to {keys}. Check it again.",
   "detail.ocr_note": "Read automatically by the server with OCR. OCR can be wrong, especially in coordinate tables: check every point against the original PDF.",
   "err.cross_running": "The cross-check on this phone is still running. Wait a moment, then press again.",
   "err.err_mpa_bad_response": "MPA answered unexpectedly (not 200).",
@@ -1075,7 +1132,7 @@ function createStorage(win) {
 /* ---- app/model.js ---- */
 /* ===== Model klien: keadaan S dan semua transisinya ===== */
 /* Fungsi mengubah S di tempat dan mengembalikan {ok} atau {ok:false, code}. Bergantung pada fungsi global dari shared/*
-   (timeStatus, issues, sortDesc, numOf, supersedeMap, parseCoords, fmtDM, exportNames, clone, blankRecord, toParsed, applyReading), seperti di browser. */
+   (timeStatus, issues, sortDesc, numOf, supersedeMap, parseCoords, fmtDM, exportNames, clone, blankRecord, toParsed, workFromParsed, applyReading), seperti di browser. */
 
 const MAX_LOG = 100;
 const LOCKED = ['diekspor', 'terpasang'];
@@ -1142,7 +1199,7 @@ function supersededBy(S, no) {
     const w = S.pm[k].work;
     if (w && w.supersedes) list.push({ no: k, supersedes: w.supersedes });
   }
-  return supersedeMap(list)[no] || null;
+  return supersedeMap(list)[baseNo(no)] || null;
 }
 
 function timeStatusOf(S, no, today) {
@@ -1288,7 +1345,7 @@ function setNoCoords(S, no, who, now) {
 function rereadRestore(S, no, who, now) {
   const e = editable(S, no); if (e.err) return e.err;
   const r = e.r;
-  r.work = clone(r.parsed);
+  r.work = workFromParsed(r.parsed);
   r.changes = [];
   r.ack = false;
   r.status = 'draf';
@@ -1328,6 +1385,21 @@ function crossCheck(a, b) {
     if (fa.some((q, i) => Math.abs(q.lat - fb[i].lat) > 1e-6 || Math.abs(q.lon - fb[i].lon) > 1e-6)) out.push('coords');
   }
   return out;
+}
+
+/** Pemeriksa silang untuk satu kunci. phone = bacaan HP (Parsed) atas seluruh PDF. Untuk bagian -a/-b: dibandingkan dengan grup HP
+    ke-(huruf akhiran) hanya bila HP menemukan grup sebanyak bagian keluarga itu; selain itu hanya jenis yang dibandingkan
+    (titik, koordinat, dan tanggal satu bagian tidak bisa dicocokkan dengan bacaan seluruh PDF). */
+function crossCheckPart(S, no, phone) {
+  const r = S.pm[no];
+  const sfx = suffixOf(no);
+  if (!sfx) return crossCheck(r.parsed, phone);
+  const base = baseNo(no);
+  const parts = Object.keys(S.pm).filter(k => baseNo(k) === base && suffixOf(k)).length;
+  const groups = phone.groups || [];
+  const g = groups[sfx.charCodeAt(0) - 97];
+  if (groups.length === parts && g) return crossCheck(r.parsed, Object.assign({}, phone, { groups: [g] }));
+  return r.parsed.kind !== phone.kind ? ['kind'] : [];
 }
 
 function setCross(S, no, diffs, now) {
@@ -1384,7 +1456,7 @@ function addFromPdf(S, result, fileName, who, now, opts) {
   r.status = 'draf';
   r.file = fileName;
   r.parsed = parsed;
-  r.work = clone(parsed);
+  r.work = workFromParsed(parsed);
   r.readBy = who;
   r.ver = old ? old.ver : 0;
   S.pm[no] = r;
@@ -1406,15 +1478,27 @@ function pasteCoords(S, no, text, who, now) {
 }
 
 /* ----- Ekspor dan serah terima ----- */
+/** Objek lama yang harus dihapus dari ECDIS karena digantikan PMN di `nos`: setiap kunci keluarga nomor yang digantikan
+    (137/2026, 137/2026-a, -b, ...) yang sudah diekspor atau terpasang, masing-masing sekali. [{old, new}] */
+function ecdisRemovals(S, nos) {
+  const out = [], seen = new Set();
+  for (const n of nos) {
+    const old = S.pm[n] && S.pm[n].work && S.pm[n].work.supersedes;
+    if (!old) continue;
+    for (const k of sortDesc(Object.keys(S.pm).filter(k => baseNo(k) === old))) {
+      if (seen.has(k) || !LOCKED.includes(S.pm[k].status)) continue;
+      seen.add(k);
+      out.push({ old: k, new: n });
+    }
+  }
+  return out;
+}
+
 function makeExport(S, who, now, today) {
   const list = nosByStatus(S, 'disetujui');
   if (!list.length) return { ok: false, code: 'nothing' };
   const top = list[0];
-  const removeFromEcdis = [];
-  for (const n of list) {
-    const old = S.pm[n].work && S.pm[n].work.supersedes;
-    if (old && S.pm[old] && ['terpasang', 'diekspor'].includes(S.pm[old].status)) removeFromEcdis.push({ old, new: n });
-  }
+  const removeFromEcdis = ecdisRemovals(S, list);
   const exp = { no: top, by: who, at: now, list, files: exportNames(today, numOf(top)), removeFromEcdis, step: 0 };
   for (const n of list) S.pm[n].status = 'diekspor';
   S.lastExport = exp;
@@ -1682,8 +1766,9 @@ function createStubApi(storage, opts) {
     async getPdf(no) {
       guard();
       const d = load();
-      if (texts[no] != null) return { ok: true, text: texts[no] };
-      return d.pdfs[no] ? { ok: true, base64: d.pdfs[no] } : { ok: false, code: 'no_pdf' };
+      const base = baseNo(no); // bagian (-a, -b) memakai PDF nomor dasarnya
+      if (texts[base] != null) return { ok: true, text: texts[base] };
+      return d.pdfs[base] ? { ok: true, base64: d.pdfs[base] } : { ok: false, code: 'no_pdf' };
     },
   };
 }
@@ -1855,12 +1940,19 @@ const safeHttpUrl = u => (/^https?:\/\/[^\s]+$/i.test(String(u == null ? '' : u)
 const countPts = w => (w && w.groups ? w.groups : []).reduce((n, g) => n + g.pts.length, 0);
 const wantsGeo = w => !!w && (w.kind === 'plot' || w.kind === 'check');
 
+/** Nomor saja, tanpa tahun, masing-masing sekali: ['137/2026-a', '137/2026-b', '12/2026'] -> "137, 12". */
+const numList = nos => [...new Set((nos || []).map(n => String(n).split('/')[0]))].join(', ');
+
 /** Satu baris riwayat/log -> teks pada bahasa aktif. */
 function logText(ctx, e) {
   const p = Object.assign({}, e.params);
   let key = 'log.' + e.code;
   if (e.code === 'approve' && p.corrected) key = 'log.approve_corrected';
-  if (e.code === 'check_found') p.list = (p.nos || []).map(n => n.split('/')[0]).join(', ');
+  if (e.code === 'check_found') p.list = numList(p.nos);
+  if (e.code === 'reread') {
+    p.was = (p.was || []).join(', '); p.keys = (p.keys || []).join(', ');
+    if (e.params && e.params.layout_changed) key = 'log.reread_layout';
+  }
   if (e.code === 'check_failed') p.reason = ctx.t('err.' + p.reason);
   if (e.code === 'set_shape') p.type = ctx.t('shape.' + p.type);
   return ctx.t(key, p);
@@ -1904,7 +1996,7 @@ function renderHome(ctx) {
   if (ctx.reading) h += `<div class="card act"><div class="big">${esc(t('home.reading', { no: ctx.reading }))}</div></div>`;
   if (pend.length && !ctx.reading) {
     h += `<div class="card act"><div class="big">${esc(tn('home.pending', pend.length))}</div>` +
-      `<div class="small muted">${esc(t('home.pending_list', { list: pend.map(n => n.split('/')[0]).join(', ') }))}</div>` +
+      `<div class="small muted">${esc(t('home.pending_list', { list: numList(pend) }))}</div>` +
       `<div style="margin-top:8px"><button class="btn" data-act="readAll">${esc(t('home.read_all'))}</button></div></div>`;
   }
   if (draf.length) {
@@ -1943,7 +2035,7 @@ function trailHtml(ctx, r) {
   const s = x => `<span class="s">${esc(x)}</span>`, m = x => `<span class="m">${esc(x)}</span>`, a = '<span class="a">→</span>';
   if (r.src === 'manual') return `<div class="trail">${m(t('detail.trail_manual'))}${a}${s(t('detail.trail_pdf_read', { file: r.file || '' }))}${a}${s(t('detail.trail_draft'))}</div>`;
   return `<div class="trail">${s(t('detail.trail_rss'))}${a}${s(t('detail.trail_page'))}${a}${s(t('detail.trail_pdf'))}${a}` +
-    (r.work ? s(r.parsed && r.parsed.reader === 'ocr' ? t('detail.trail_read_ocr') : t('detail.trail_read_by', { who: r.readBy || '—' })) : m(t('detail.trail_unread'))) + '</div>';
+    (r.work ? s(r.parsed && r.parsed.reader === 'claude' ? t('detail.trail_read_claude') : r.parsed && r.parsed.reader === 'ocr' ? t('detail.trail_read_ocr') : t('detail.trail_read_by', { who: r.readBy || '—' })) : m(t('detail.trail_unread'))) + '</div>';
 }
 
 function pointRow(ctx, no, r, gi, pi, q, flagged, ui, locked) {
@@ -1999,10 +2091,14 @@ function renderDetail(ctx, no, ui) {
   } else {
     const is = issuesOf(S, no);
     if (r.status === 'draf' && r.parsed && r.parsed.reader === 'ocr') b += `<div class="card warn small">${esc(t('detail.ocr_note'))}</div>`;
+    if (r.status === 'draf' && r.parsed && r.parsed.reader === 'claude') b += `<div class="card warn small">${esc(t('detail.claude_note'))}</div>`;
+    const wasInstalled = r.reread && Array.isArray(r.reread.was) ? r.reread.was.filter(x => x && LOCKED_STATUS.includes(x.status)) : [];
+    if (wasInstalled.length) b += `<div class="card warn small">${esc(t('detail.reread_installed', { list: wasInstalled.map(x => `${x.no} (${t('work.' + x.status)})`).join(', ') }))}</div>`;
     const blocked = is.some(i => i.block);
     if (is.length) b += `<div class="card bad small"><b>⚠ ${esc(t('detail.issues_title'))}</b><ul class="notes">${is.map(i => `<li>${esc(t('issue.' + i.code, i))}</li>`).join('')}</ul></div>`;
     const warns = ((r.parsed && r.parsed.warn) || []).filter(x => !is.some(i => i.code === x.code));
     if (warns.length) b += `<div class="card warn small"><b>${esc(t('detail.warn_title'))}</b><ul class="notes">${warns.map(x => `<li>${esc(t('warn.' + x.code, x))}</li>`).join('')}</ul></div>`;
+    if (r.parsed && typeof r.parsed.body === 'string' && r.parsed.body) b += `<details class="d"><summary>${esc(t('detail.body'))}</summary><pre class="pdftext">${esc(r.parsed.body)}</pre></details>`;
 
     if (ui.editData && !locked) {
       b += `<div class="card"><h2>${esc(t('detail.edit_data_title'))}</h2><label class="small muted">${esc(t('field.title'))}</label><input class="in" id="f-title" value="${esc(w.title)}">` +
@@ -2074,9 +2170,9 @@ function renderExport(ctx) {
     h += ready.map(n => { const w = S.pm[n].work; return `<div class="row sp" style="padding:4px 0"><span><b>PMN ${esc(n)}</b> <span class="small muted">${esc(w.title.slice(0, 34))}</span></span>` +
       `<span class="row">${S.pm[n].changes.length ? chip('warn', t('common.corrected')) : ''}${chip(w.kind === 'plot' ? 'ok2' : 'info', t(w.kind === 'plot' ? 'export.kind_plot' : 'export.kind_info'))}</span></div>`; }).join('');
   } else h += `<div class="empty">${esc(t('export.empty'))}</div>`;
-  const remReady = ready.filter(n => { const o = S.pm[n].work.supersedes; return o && S.pm[o] && ['terpasang', 'diekspor'].includes(S.pm[o].status); });
+  const remReady = ecdisRemovals(S, ready);
   if (remReady.length) {
-    h += `<div class="card bad" style="margin-top:8px"><b>${esc(t('export.remove_title'))}</b><ul class="notes">${remReady.map(n => `<li>${esc(t('export.remove_item', { old: S.pm[n].work.supersedes, new: n }))}</li>`).join('')}</ul></div>`;
+    h += `<div class="card bad" style="margin-top:8px"><b>${esc(t('export.remove_title'))}</b><ul class="notes">${remReady.map(x => `<li>${esc(t('export.remove_item', { old: x.old, new: x.new }))}</li>`).join('')}</ul></div>`;
   }
   h += `<div style="margin-top:10px"><button class="btn" data-act="makeExport" ${ready.length ? '' : 'disabled'}>${esc(t('export.make'))}</button></div></div>`;
   if (waiting.length && e) {
@@ -2314,7 +2410,7 @@ function createController(deps) {
     if (!quiet) await persist();
   }
 
-  /** Pemeriksa silang: HP membaca PDF sendiri dengan pdf.js dan membandingkannya dengan bacaan server. Gagal = diam. */
+  /** Pemeriksa silang: HP membaca PDF sendiri dengan pdf.js dan membandingkannya dengan bacaan server (bagian -a/-b: grup yang sesuai). Gagal = diam. */
   const crossBusy = {};
   async function crossRead(no) {
     const r = S.pm[no];
@@ -2324,7 +2420,7 @@ function createController(deps) {
       const res = await api.getPdf(no);
       if (!res.ok) return;
       const text = res.text != null ? res.text : await deps.pdfTextFromBase64(res.base64);
-      const diffs = crossCheck(r.parsed, toParsed(parsePmnText(text, { no })));
+      const diffs = crossCheckPart(S, no, toParsed(parsePmnText(text, { no: baseNo(no) })));
       if (r.cross && r.cross.diffs.join() === diffs.join()) return;
       setCross(S, no, diffs, deps.now());
       await persist();
@@ -2526,7 +2622,7 @@ function startApp(win, doc) {
   if (!live) api.getPdf = async no => {
     if (/^https?:/.test(win.location.protocol)) {
       try {
-        const r = await win.fetch('contoh-pdf/PMN-' + String(no).replace('/', '-') + '.pdf');
+        const r = await win.fetch('contoh-pdf/PMN-' + baseNo(String(no)).replace('/', '-') + '.pdf');
         if (r.ok) {
           const bytes = new Uint8Array(await r.arrayBuffer());
           let bin = ''; for (let i = 0; i < bytes.length; i += 8192) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
