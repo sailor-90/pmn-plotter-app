@@ -78,6 +78,8 @@ table.pts tr.edited td{background:var(--warnbg)}
 .editbar .row{margin-top:6px}
 .editbar button{font:inherit;font-size:12.5px;border:0;background:#fff;color:#14212e;padding:5px 10px;border-radius:99px;cursor:pointer;font-weight:600}
 .editbar button.on{background:#14212e;color:#fff}
+.editbar button.okb{background:#1fa971;color:#fff}.editbar button:disabled{opacity:.5}
+.editbar .ck{display:block;margin-top:8px;font-size:12.5px}
 .legend{position:absolute;left:10px;bottom:10px;z-index:500;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:12px}
 .legend i{display:inline-block;width:14px;height:10px;margin-right:6px;border:2px solid var(--blue);background:rgba(29,111,184,.2);vertical-align:-1px}
 .legend i.d{border-color:#e07b00;background:rgba(224,123,0,.2);border-style:dashed}
@@ -811,6 +813,7 @@ const ID = {
   "map.add": "＋ Tambah titik",
   "map.add_active": "Ketuk peta untuk menambah titik…",
   "map.done": "Selesai",
+  "map.approve": "✓ Setujui plot",
   "map.filter_active": "Aktif + draf",
   "map.filter_all": "Semua",
   "map.legend_approved": "Disetujui / terpasang",
@@ -1104,6 +1107,7 @@ const EN = {
   "map.add": "＋ Add a point",
   "map.add_active": "Tap the map to add a point…",
   "map.done": "Done",
+  "map.approve": "✓ Approve plot",
   "map.filter_active": "Active + drafts",
   "map.filter_all": "All",
   "map.legend_approved": "Approved / installed",
@@ -1970,6 +1974,21 @@ function logText(ctx, e) {
   return ctx.t(key, p);
 }
 
+/** Batang edit peta (oranye di atas peta): Tambah titik, Setujui plot (hanya PMN draf), Selesai. Aturan setuju sama dengan layar detail:
+    nonaktif bila tak ada koordinat; kotak centang periksa tampil bila ada hal bertanda. st = {mapEdit, mapAdd}. */
+function renderMapEditBar(ctx, st) {
+  const { t, S } = ctx, no = st.mapEdit, r = S.pm[no];
+  const draft = !!(r && r.status === 'draf' && r.work);
+  const blocked = draft && issuesOf(S, no).some(i => i.block);
+  const ack = draft && !blocked && needsAck(S, no)
+    ? `<label class="ck"><input type="checkbox" data-act="ack" data-no="${esc(no)}" ${r.ack ? 'checked' : ''}> ${esc(t('detail.ack'))}</label>` : '';
+  const approve = draft
+    ? `<button class="okb" data-act="approve" data-no="${esc(no)}" ${blocked ? 'disabled' : ''}>${esc(t('map.approve'))}</button>` : '';
+  return `<div class="editbar"><b>${esc(t('map.edit_title', { no }))}</b><div class="row">` +
+    `<button class="${st.mapAdd ? 'on' : ''}" data-act="mapadd">${esc(st.mapAdd ? t('map.add_active') : t('map.add'))}</button>` +
+    `${approve}<button data-act="mapdone">${esc(t('map.done'))}</button></div>${ack}</div>`;
+}
+
 /** Kartu PMN untuk daftar. */
 function itemHtml(ctx, no) {
   const r = ctx.S.pm[no], w = r.work;
@@ -2516,7 +2535,11 @@ function createController(deps) {
     async approve(no) {
       if (crossBusy[no] && Date.now() - crossBusy[no] < 20000) { toast(t('err.cross_running')); return; }
       const r = approve(S, no, who(), deps.now());
-      if (r.ok) { st.detailNo = null; st.pdf = null; }
+      if (r.ok) {
+        st.detailNo = null; st.pdf = null;
+        // disetujui dari peta: tutup mode edit dan langsung kembali ke Beranda
+        if (st.mapEdit === no) { st.mapEdit = null; st.mapAdd = false; st.tab = 'home'; }
+      }
       return commit(r, no, r.ok ? t('toast.approved', { no }) : null);
     },
     unapprove(no) { return commit(unapprove(S, no, who(), deps.now()), no); },
@@ -2707,9 +2730,7 @@ function startApp(win, doc) {
 
   function mapTools() {
     const st = ctrl.st, t = i18n.t;
-    if (st.mapEdit) {
-      return `<div class="editbar"><b>${esc(t('map.edit_title', { no: st.mapEdit }))}</b><div class="row"><button class="${st.mapAdd ? 'on' : ''}" data-act="mapadd">${esc(st.mapAdd ? t('map.add_active') : t('map.add'))}</button><button data-act="mapdone">${esc(t('map.done'))}</button></div></div>`;
-    }
+    if (st.mapEdit) return renderMapEditBar(ctrl.ctx(), st);
     return `<div class="mapbar"><button class="${st.mapFilter === 'aktif' ? 'on' : ''}" data-act="mapfilter" data-no="aktif">${esc(t('map.filter_active'))}</button><button class="${st.mapFilter === 'semua' ? 'on' : ''}" data-act="mapfilter" data-no="semua">${esc(t('map.filter_all'))}</button></div>` +
       `<div class="legend"><div><i></i>${esc(t('map.legend_approved'))}</div><div><i class="d"></i>${esc(t('map.legend_draft'))}</div><div class="muted" style="margin-top:2px">${esc(t('disclaimer.map'))}</div></div>`;
   }
