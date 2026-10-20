@@ -57,10 +57,10 @@ nav.tabs button.on{color:var(--brand);font-weight:600}
 .item .no{font-weight:700;color:var(--brand)}
 .notes{margin:6px 0 0;padding-left:18px}.notes li{margin:3px 0}
 .log{font-size:12.5px;color:var(--muted);margin:0;padding:0;list-style:none}.log li{padding:4px 0;border-top:1px solid var(--line)}.log li:first-child{border-top:0}
-.sheet{position:absolute;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column}
-.sheet .bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--card);border-bottom:1px solid var(--line)}
+.sheet{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;overflow:hidden}
+.sheet .bar{flex:none;display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:var(--card);border-bottom:1px solid var(--line)}
 .sheet .bar b{flex:1}
-.sheet .body{flex:1;overflow:auto;padding:12px 14px 24px}
+.sheet .body{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 14px 24px}
 .sheet .foot{padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap}
 dl.f{display:grid;grid-template-columns:92px 1fr;gap:4px 10px;margin:8px 0;font-size:14px}dl.f dt{color:var(--muted)}dl.f dd{margin:0}
 table.pts{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
