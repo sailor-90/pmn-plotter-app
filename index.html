@@ -510,6 +510,8 @@ function createI18n(catalogs, lang) {
     return t(key + (n === 1 ? '.one' : '.other'), Object.assign({ n }, params));
   }
   function fmtDate(iso) {
+    // PMN tanpa tanggal akhir (atau tanggal rusak) tidak boleh menjatuhkan seluruh layar
+    if (typeof iso !== 'string' || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return '–';
     const [y, m, d] = iso.slice(0, 10).split('-');
     return `${+d} ${MONTHS[cur][+m - 1]} ${y}`;
   }
