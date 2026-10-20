@@ -278,7 +278,11 @@ function parsePmnText(text,hint={}){
   const di=main.search(/with\s+effect\s+from|take\s+effect\s+on|effect\s+on|commence\s+on|commence\b/i);
   if(di>=0){const dt=parseDates(main.slice(di,di+170),r.year);
     if(dt){r.from=isoOf(dt.from||dt.to);r.to=isoOf(dt.to);dt.warn.filter(w=>!/satu tanggal/.test(w)).forEach(w=>{if(/lebih awal/.test(w))r.warn.push({code:'dates_reversed'});else{const q=w.match(/"([^"]+)"/);r.warn.push({code:'date_not_exist',text:q?q[1]:w})}})}}
-  const sup=main.match(/(?:supersedes|revision\s+of)\s+Port\s+Marine\s+(?:Notice\s+)?No\.?\s*0*(\d+)\s+of\s+(\d{4})/i);
+  /* PMN lama yang diganti atau dibatalkan: "supersedes/revision of/cancels/revokes/withdraws/rescinds PMN No. N of YYYY", atau
+     "PMN No. N of YYYY is (hereby) cancelled/revoked/withdrawn/rescinded" atau "... is no longer in force". Hanya menyebut PMN lain tidak cukup. */
+  const PMNREF='Port\\s+Marine\\s+(?:Notice\\s+)?No\\.?\\s*0*(\\d+)\\s+of\\s+(\\d{4})';
+  const sup=main.match(new RegExp('(?:supersedes|revision\\s+of|cancels?|revokes?|withdraws?|rescinds?)\\s+'+PMNREF,'i'))
+    ||main.match(new RegExp(PMNREF+'[^.]{0,60}?(?:(?:is|are|has\\s+been|have\\s+been|shall\\s+be|will\\s+be)\\s+(?:hereby\\s+)?(?:cancel+ed|revoked|withdrawn|rescinded)|(?:is|are)\\s+no\\s+longer\\s+(?:in\\s+force|valid|applicable|effective))','i'));
   if(sup)r.supersedes=`${+sup[1]}/${sup[2]}`;
   const vhf=main.match(/VHF\s+Channel\s*(\d+)\s*\(([^)]+)\)/i);if(vhf)r.vhf=`VHF ${vhf[1]} ${vhf[2].replace(/\s+/g,' ')}`;
   const wh=main.match(/Working\s*Hours?\s*:?\s*([^\n]{3,80})/i);if(wh)r.hours=wh[1].replace(/^:\s*/,'').replace(/\.$/,'').trim();
@@ -628,6 +632,7 @@ const ID = {
   "list.published": "Terbit {date}",
   "list.manual": "Ditambah manual",
   "list.valid": "berlaku {from} – {to}",
+  "list.valid_open": "berlaku sejak {from}",
   "list.history_note.one": "{n} PMN lama hanya ada sebagai riwayat dari Excel ({list}).",
   "list.history_note.other": "{n} PMN lama hanya ada sebagai riwayat dari Excel ({list}).",
   "home.check_note": "Server mengecek MPA tiap hari sekitar jam 12:00",
@@ -670,6 +675,7 @@ const ID = {
   "detail.published": "Terbit",
   "detail.period": "Periode",
   "detail.period_value": "{from} sampai {to}",
+  "detail.period_open": "Berlaku sejak {from}, sampai dibatalkan atau diganti PMN lain",
   "detail.period_none": "tidak terbaca / tidak ada",
   "detail.read_by": "Dibaca oleh",
   "detail.approved_by": "Disetujui oleh",
@@ -919,6 +925,7 @@ const EN = {
   "list.published": "Published {date}",
   "list.manual": "Added manually",
   "list.valid": "valid {from} – {to}",
+  "list.valid_open": "in force from {from}",
   "list.history_note.one": "{n} older PMN exists only as history from Excel ({list}).",
   "list.history_note.other": "{n} older PMNs exist only as history from Excel ({list}).",
   "home.check_note": "The server checks MPA daily around 12:00",
@@ -961,6 +968,7 @@ const EN = {
   "detail.published": "Published",
   "detail.period": "Period",
   "detail.period_value": "{from} to {to}",
+  "detail.period_open": "In force from {from}, until cancelled or superseded by another PMN",
   "detail.period_none": "not read / none",
   "detail.read_by": "Read by",
   "detail.approved_by": "Approved by",
@@ -1378,7 +1386,9 @@ function markSeen(S, no, who, now) {
 function crossCheck(a, b) {
   const out = [];
   if (a.kind !== b.kind) out.push('kind');
-  if ((a.from || null) !== (b.from || null) || (a.to || null) !== (b.to || null)) out.push('dates');
+  // Pengumuman (advisory) boleh tanpa tanggal akhir: beda tanggal akhir saja bukan alarm, hanya tanggal mulai yang dibandingkan
+  const open = a.kind === 'advisory' && b.kind === 'advisory';
+  if ((a.from || null) !== (b.from || null) || (!open && (a.to || null) !== (b.to || null))) out.push('dates');
   const counts = p => (p.groups || []).map(g => g.pts.length).join(',');
   if (counts(a) !== counts(b)) out.push('points');
   else {
@@ -1964,7 +1974,7 @@ function logText(ctx, e) {
 function itemHtml(ctx, no) {
   const r = ctx.S.pm[no], w = r.work;
   const when = r.rss && r.rss.published ? ctx.t('list.published', { date: ctx.fmtDate(r.rss.published) }) : ctx.t('list.manual');
-  const valid = w && w.from ? ' · ' + ctx.t('list.valid', { from: ctx.fmtDate(w.from), to: ctx.fmtDate(w.to) }) : '';
+  const valid = w && w.from ? ' · ' + (w.to ? ctx.t('list.valid', { from: ctx.fmtDate(w.from), to: ctx.fmtDate(w.to) }) : ctx.t('list.valid_open', { from: ctx.fmtDate(w.from) })) : '';
   const unseen = ctx.officer && !r.stub && !['diekspor', 'terpasang'].includes(r.status) && !(r.seen && r.seen[ctx.officer]) ? `<div style="margin-top:4px">${chip('bad', ctx.t('list.unseen'))}</div>` : '';
   const title = w ? w.title : (r.rss && r.rss.title) || '';
   return `<button class="item" data-act="open" data-no="${esc(no)}"><div class="row sp"><span class="no">PMN ${esc(no)}</span>` +
@@ -2112,7 +2122,7 @@ function renderDetail(ctx, no, ui) {
         `<div class="row" style="margin-top:10px"><button class="btn okb sm" data-act="savedata" data-no="${esc(no)}">${esc(t('common.save'))}</button><button class="btn ghost sm" data-act="canceldata">${esc(t('common.cancel'))}</button></div></div>`;
     } else {
       b += `<dl class="f"><dt>${esc(t('detail.published'))}</dt><dd>${r.rss && r.rss.published ? esc(ctx.fmtDate(r.rss.published)) : '—'}</dd>` +
-        `<dt>${esc(t('detail.period'))}</dt><dd>${w.from ? esc(t('detail.period_value', { from: ctx.fmtDate(w.from), to: ctx.fmtDate(w.to) })) : `<i>${esc(t('detail.period_none'))}</i>`}</dd>` +
+        `<dt>${esc(t('detail.period'))}</dt><dd>${w.from ? esc(w.to ? t('detail.period_value', { from: ctx.fmtDate(w.from), to: ctx.fmtDate(w.to) }) : t('detail.period_open', { from: ctx.fmtDate(w.from) })) : `<i>${esc(t('detail.period_none'))}</i>`}</dd>` +
         (w.hours ? `<dt>${esc(t('field.hours'))}</dt><dd>${esc(w.hours)}</dd>` : '') + (w.vhf ? `<dt>${esc(t('field.vhf'))}</dt><dd>${esc(w.vhf)}</dd>` : '') +
         (w.radius ? `<dt>${esc(t('field.radius'))}</dt><dd>${esc(w.radius)} m</dd>` : '') +
         `<dt>${esc(t('detail.read_by'))}</dt><dd>${esc(r.readBy || '—')}</dd>` +
