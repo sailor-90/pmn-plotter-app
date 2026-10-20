@@ -1,5 +1,5 @@
 /* Service worker PMN Plotter. VERSION diganti oleh build_v2.py dengan hash isi bundel. */
-const VERSION = 'e75eea452f';
+const VERSION = '8bed9336d9';
 const STATIC = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', event => {

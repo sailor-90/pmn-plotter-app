@@ -2556,7 +2556,9 @@ function createController(deps) {
     const f = ACT[name];
     if (!f) return;
     try { await f(no, el || { dataset: {} }); } catch (e) {
-      toast(t('err.unexpected'));
+      // keterangan singkat (nama dan pesan galat, dipotong) supaya penyebab terlihat di layar HP; tidak memuat data PMN atau rahasia
+      const why = e && (e.name || e.message) ? ' [' + String((e.name || 'Error') + ': ' + (e.message || '')).slice(0, 110) + ']' : '';
+      toast(t('err.unexpected') + why);
       if (typeof console !== 'undefined') console.error(e);
     }
   }
