@@ -591,6 +591,7 @@ const ID = {
   "log.approve_corrected": "Menyetujui PMN {no} (dengan koreksi manual)",
   "log.unapprove": "Membatalkan persetujuan PMN {no}",
   "log.export": "Membuat paket ekspor ({n} PMN, sampai {top})",
+  "log.re_export": "Ekspor ulang ({n} PMN, sampai {top}); status tidak berubah",
   "log.installed": "Konfirmasi: PMN sampai {no} sudah terpasang di ECDIS",
   "change.point_set": "Titik {label} diubah",
   "change.point_add": "Titik {label} ditambah",
@@ -738,9 +739,11 @@ const ID = {
   "export.done": "Selesai ✓",
   "export.waiting_title": "Panduan memasang ke ECDIS dan komputer",
   "export.waiting_meta": "Dibuat {when} oleh {by} · sampai PMN {no}",
+  "export.re": "Ekspor ulang",
+  "export.all_done": "Semua PMN yang disetujui sudah diekspor.",
   "export.last_title": "Ekspor terakhir",
   "export.last_meta": "Dibuat {when} oleh {by} · {n} PMN",
-  "export.save_hint": "Simpan berkas lewat lembar Bagikan: pilih Simpan ke Berkas, lalu pilih flashdisk Anda. Mengekspor lagi tidak mengubah status PMN, jadi tombol di atas boleh ditekan kapan saja.",
+  "export.save_hint": "Simpan berkas lewat lembar Bagikan: pilih Simpan ke Berkas, lalu pilih flashdisk Anda. Ekspor ulang tidak mengubah status PMN maupun Beranda; tombolnya boleh ditekan kapan saja.",
   "home.last_update_meta": "tanggal {date} · oleh {by}",
   "toast.check_added": "{n} PMN baru diunduh server",
   "toast.check_none": "Tidak ada PMN baru di MPA",
@@ -791,6 +794,7 @@ const ID = {
   "detail.auto_failed": "Pembacaan otomatis di server gagal: {reason} Tekan tombol di bawah supaya HP ini membaca PDF-nya.",
   "toast.installed": "Tercatat. Kotak Last update di Beranda sudah diperbarui.",
   "toast.exported": "Paket ekspor dibuat: {n} PMN",
+  "toast.reexported": "Ekspor ulang: {n} PMN. Status PMN tidak berubah.",
   "toast.reread": "Dikembalikan ke bacaan asli dari PDF",
   "toast.pdf_plot": "PMN {no} terbaca: {n} titik",
   "toast.pdf_kind": "PMN {no} terbaca sebagai {kind}",
@@ -889,6 +893,7 @@ const EN = {
   "log.approve_corrected": "Approved PMN {no} (with manual corrections)",
   "log.unapprove": "Withdrew approval of PMN {no}",
   "log.export": "Created an export package ({n} PMN, up to {top})",
+  "log.re_export": "Re-export ({n} PMNs, up to {top}); status unchanged",
   "log.installed": "Confirmed: PMN up to {no} installed on ECDIS",
   "change.point_set": "Point {label} edited",
   "change.point_add": "Point {label} added",
@@ -1036,9 +1041,11 @@ const EN = {
   "export.done": "Done ✓",
   "export.waiting_title": "Guide: install on ECDIS and computer",
   "export.waiting_meta": "Made {when} by {by} · up to PMN {no}",
+  "export.re": "Re-export",
+  "export.all_done": "All approved PMNs have been exported.",
   "export.last_title": "Last export",
   "export.last_meta": "Created {when} by {by} · {n} PMNs",
-  "export.save_hint": "Save the files from the Share sheet: choose Save to Files, then pick your flash drive. Exporting again does not change any PMN status, so the button above can be pressed at any time.",
+  "export.save_hint": "Save the files from the Share sheet: choose Save to Files, then pick your flash drive. Re-export does not change any PMN status or the Home screen; the button can be pressed at any time.",
   "home.last_update_meta": "date {date} · by {by}",
   "toast.check_added": "{n} new PMN downloaded by the server",
   "toast.check_none": "No new PMN on MPA",
@@ -1089,6 +1096,7 @@ const EN = {
   "detail.auto_failed": "Automatic reading on the server failed: {reason} Press the button below so this phone reads the PDF.",
   "toast.installed": "Recorded. The Last update box on Home has been updated.",
   "toast.exported": "Export package created: {n} PMN",
+  "toast.reexported": "Re-export: {n} PMNs. PMN statuses are unchanged.",
   "toast.reread": "Restored to the original reading from the PDF",
   "toast.pdf_plot": "PMN {no} read: {n} points",
   "toast.pdf_kind": "PMN {no} read as {kind}",
@@ -1158,6 +1166,7 @@ function createStorage(win) {
 
 const MAX_LOG = 100;
 const LOCKED = ['diekspor', 'terpasang'];
+const EXPORT_STEPS = 4;
 
 function newState() {
   return { lastCheck: null, lastCheckOk: null, pm: {}, lastExport: null, lastInstalled: null, log: [] };
@@ -1517,17 +1526,51 @@ function ecdisRemovals(S, nos) {
   return out;
 }
 
-/** Paket ekspor dari semua PMN disetujui. Ekspor TIDAK mengubah status PMN dan boleh diulang kapan saja (mis. untuk melihat berkasnya lagi).
-    Yang disimpan hanya catatan ekspor terakhir (S.lastExport) dan satu baris log. */
 function makeExport(S, who, now, today) {
   const list = nosByStatus(S, 'disetujui');
   if (!list.length) return { ok: false, code: 'nothing' };
   const top = list[0];
   const removeFromEcdis = ecdisRemovals(S, list);
-  const exp = { no: top, by: who, at: now, list, files: exportNames(today, numOf(top)), removeFromEcdis };
+  const exp = { no: top, by: who, at: now, list, files: exportNames(today, numOf(top)), removeFromEcdis, step: 0 };
+  for (const n of list) S.pm[n].status = 'diekspor';
   S.lastExport = exp;
   addLog(S, who, 'export', { n: list.length, top }, now);
   return { ok: true, export: exp };
+}
+
+function confirmInstalled(S, who, now) {
+  const waiting = nosByStatus(S, 'diekspor');
+  if (!waiting.length) return { ok: false, code: 'nothing' };
+  for (const n of waiting) S.pm[n].status = 'terpasang';
+  const no = S.lastExport ? S.lastExport.no : waiting[0];
+  S.lastInstalled = { no, by: who, at: now, list: waiting };
+  addLog(S, who, 'installed', { no }, now);
+  return { ok: true };
+}
+
+/** Satu langkah panduan ekspor selesai (1 simpan ke flashdisk, 2 salin ke ECDIS, 3 cek di ECDIS, 4 salin ke komputer). Langkah ke-4 memasang. */
+function exportStepDone(S, who, now) {
+  if (!S.lastExport || !nosByStatus(S, 'diekspor').length) return { ok: false, code: 'nothing' };
+  const step = (S.lastExport.step || 0) + 1;
+  S.lastExport = Object.assign({}, S.lastExport, { step });
+  if (step < EXPORT_STEPS) return { ok: true, done: false };
+  const r = confirmInstalled(S, who, now);
+  return r.ok ? { ok: true, done: true } : r;
+}
+
+/** Tombol ekspor di layar Ekspor: 'make' bila ada PMN disetujui yang belum diekspor; 're' (Ekspor ulang) bila tidak ada PMN baru
+    tetapi pernah ada ekspor; 'none' bila belum pernah ada apa pun. */
+function exportMode(S) {
+  if (nosByStatus(S, 'disetujui').length) return 'make';
+  return S.lastExport ? 're' : 'none';
+}
+
+/** Ekspor ulang: hanya untuk melihat atau menyimpan berkas paket terakhir lagi. TIDAK mengubah status PMN, kotak Last update,
+    maupun catatan ekspor terakhir (hanya satu baris log). */
+function reExport(S, who, now) {
+  if (!S.lastExport) return { ok: false, code: 'nothing' };
+  addLog(S, who, 're_export', { n: S.lastExport.list.length, top: S.lastExport.no }, now);
+  return { ok: true, export: S.lastExport };
 }
 
 function exportCounts(S) {
@@ -2181,25 +2224,41 @@ function renderDetail(ctx, no, ui) {
 
 function renderExport(ctx) {
   const { S, t, tn } = ctx;
-  const ready = nosByStatus(S, 'disetujui'), e = S.lastExport;
+  const ready = nosByStatus(S, 'disetujui'), waiting = nosByStatus(S, 'diekspor'), e = S.lastExport, mode = exportMode(S);
   let h = '';
   if (ctx.exportSimulated !== false) h += `<div class="card warn small">${esc(t('export.sim_note'))}</div>`;
   h += `<div class="card"><h2>${esc(t('export.ready_title', { n: ready.length }))}</h2>`;
   if (ready.length) {
     h += ready.map(n => { const w = S.pm[n].work; return `<div class="row sp" style="padding:4px 0"><span><b>PMN ${esc(n)}</b> <span class="small muted">${esc(w.title.slice(0, 34))}</span></span>` +
       `<span class="row">${S.pm[n].changes.length ? chip('warn', t('common.corrected')) : ''}${chip(w.kind === 'plot' ? 'ok2' : 'info', t(w.kind === 'plot' ? 'export.kind_plot' : 'export.kind_info'))}</span></div>`; }).join('');
-  } else h += `<div class="empty">${esc(t('export.empty'))}</div>`;
+  } else h += `<div class="empty">${esc(t(mode === 're' ? 'export.all_done' : 'export.empty'))}</div>`;
   const remReady = ecdisRemovals(S, ready);
   if (remReady.length) {
     h += `<div class="card bad" style="margin-top:8px"><b>${esc(t('export.remove_title'))}</b><ul class="notes">${remReady.map(x => `<li>${esc(t('export.remove_item', { old: x.old, new: x.new }))}</li>`).join('')}</ul></div>`;
   }
-  h += `<div style="margin-top:10px"><button class="btn" data-act="makeExport" ${ready.length ? '' : 'disabled'}>${esc(t('export.make'))}</button></div></div>`;
-  if (e && e.files) {
-    const files = [e.files.xml, e.files.zip, e.files.xlsx];
+  h += `<div style="margin-top:10px">` + (mode === 're'
+    ? `<button class="btn" data-act="reExport">${esc(t('export.re'))}</button>`
+    : `<button class="btn" data-act="makeExport" ${ready.length ? '' : 'disabled'}>${esc(t('export.make'))}</button>`) + `</div></div>`;
+  if (waiting.length && e) {
+    const cur = e.step || 0;
+    const rem = e.removeFromEcdis && e.removeFromEcdis.length ? `<div class="card bad"><b>${esc(t('export.remove_title'))}</b><ul class="notes">${e.removeFromEcdis.map(x => `<li>${esc(t('export.remove_item', { old: x.old, new: x.new }))}</li>`).join('')}</ul></div>` : '';
+    const files = list => `<ul class="files">${list.map(f => `<li>${esc(f)}</li>`).join('')}</ul>`;
+    const steps = [
+      `${esc(t('export.s1'))}${files([e.files.xml, e.files.zip, e.files.xlsx])}`,
+      `${esc(t('export.s2'))}${files([e.files.xml])}${rem}`,
+      esc(t('export.s3', { no: e.no })),
+      `${esc(t('export.s4'))}${files([e.files.zip, e.files.xlsx])}`,
+    ];
+    h += `<div class="card act"><h2>${esc(t('export.waiting_title'))}</h2><div class="small muted">${esc(t('export.waiting_meta', { when: fmtWhen(ctx, e.at), by: e.by, no: e.no }))}</div><ol class="steps">` +
+      steps.slice(0, cur + 1).map((x, i) => i < cur
+        ? `<li class="step done"><span class="tick">✓</span> ${x}</li>`
+        : `<li class="step">${x}<div style="margin-top:8px"><button class="btn okb" data-act="exportstep">${esc(t('export.done'))}</button></div></li>`).join('') + `</ol></div>`;
+  }
+  if (e && e.files && !waiting.length) {
+    const fl = [e.files.xml, e.files.zip, e.files.xlsx];
     const rem = e.removeFromEcdis && e.removeFromEcdis.length ? `<div class="card bad"><b>${esc(t('export.remove_title'))}</b><ul class="notes">${e.removeFromEcdis.map(x => `<li>${esc(t('export.remove_item', { old: x.old, new: x.new }))}</li>`).join('')}</ul></div>` : '';
     h += `<div class="card act"><h2>${esc(t('export.last_title'))}</h2><div class="small muted">${esc(t('export.last_meta', { when: fmtWhen(ctx, e.at), by: e.by, n: e.list.length }))}</div>` +
-      `<ul class="files">${files.map(f => `<li>${esc(f)}</li>`).join('')}</ul>${rem}` +
-      `<p class="small">${esc(t('export.save_hint'))}</p></div>`;
+      `<ul class="files">${fl.map(f => `<li>${esc(f)}</li>`).join('')}</ul>${rem}<p class="small">${esc(t('export.save_hint'))}</p></div>`;
   }
   h += `<div class="disc">${esc(t('disclaimer.map'))}</div>`;
   return h;
@@ -2531,6 +2590,14 @@ function createController(deps) {
     makeExport() {
       const r = makeExport(S, who(), deps.now(), deps.today());
       return commit(r, null, r.ok ? t('toast.exported', { n: r.export.list.length }) : null);
+    },
+    reExport() {
+      const r = reExport(S, who(), deps.now());
+      return commit(r, null, r.ok ? t('toast.reexported', { n: r.export.list.length }) : null);
+    },
+    exportstep() {
+      const r = exportStepDone(S, who(), deps.now());
+      return commit(r, null, r.ok && r.done ? t('toast.installed') : null);
     },
     /* tombol demo (hanya bila deps.demo ada) */
     async demo1() { const d = deps.demo; if (!d) return; d.api.queueItems(d.items); await doCheck(); },
