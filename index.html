@@ -37,6 +37,7 @@ nav.tabs button b{display:block;font-size:17px;line-height:1.1}
 nav.tabs button.on{color:var(--brand);font-weight:600}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
 .card h2{font-size:12.5px;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.grp-h{font-size:12.5px;margin:14px 2px 6px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 .card.ok{border-left:4px solid var(--ok)}.card.bad{border-left:4px solid var(--bad);background:var(--badbg)}
 .card.warn{border-left:4px solid var(--warn)}.card.act{border-left:4px solid var(--brand)}
 .big{font-size:17px;font-weight:650}
@@ -599,6 +600,7 @@ const ID = {
   "log.approve_corrected": "Menyetujui PMN {no} (dengan koreksi manual)",
   "log.unapprove": "Membatalkan persetujuan PMN {no}",
   "log.export": "Membuat paket ekspor ({n} PMN, sampai {top})",
+  "log.export_full": "Ekspor keseluruhan: {n} PMN sampai {top}",
   "log.re_export": "Ekspor ulang ({n} PMN, sampai {top}); status tidak berubah",
   "log.installed": "Konfirmasi: PMN sampai {no} sudah terpasang di ECDIS",
   "change.point_set": "Titik {label} diubah",
@@ -646,6 +648,8 @@ const ID = {
   "list.manual": "Ditambah manual",
   "list.valid": "berlaku {from} – {to}",
   "list.valid_open": "berlaku sejak {from}",
+  "list.group_active": "Aktif ({n})",
+  "list.group_cancelled": "Dibatalkan ({n})",
   "list.history_note.one": "{n} PMN lama hanya ada sebagai riwayat dari Excel ({list}).",
   "list.history_note.other": "{n} PMN lama hanya ada sebagai riwayat dari Excel ({list}).",
   "home.check_note": "Server mengecek MPA tiap hari sekitar jam 12:00",
@@ -750,6 +754,13 @@ const ID = {
   "export.waiting_title": "Panduan memasang ke ECDIS dan komputer",
   "export.waiting_meta": "Dibuat {when} oleh {by} · sampai PMN {no}",
   "export.re": "Ekspor ulang",
+  "export.make_full": "Ekspor keseluruhan dari awal",
+  "export.confirm_full": "Ini membuat paket dari semua PMN yang disetujui. Status PMN tidak berubah. Lanjutkan?",
+  "export.remove_pdf_title": "Hapus dari komputer:",
+  "export.remove_pdf_item": "PDF PMN {no}",
+  "export.scope_routine": "Paket rutin: ECDIS memuat semua PMN yang berlaku; ZIP hanya PMN baru.",
+  "export.scope_full": "Paket keseluruhan: ECDIS memuat semua PMN yang berlaku; ZIP dan Excel memuat semua PMN.",
+  "export.scope_objects": "({n} objek ECDIS)",
   "export.all_done": "Semua PMN yang disetujui sudah diekspor.",
   "export.last_title": "Ekspor terakhir",
   "export.last_meta": "Dibuat {when} oleh {by} · {n} PMN",
@@ -822,6 +833,7 @@ const ID = {
   "detail.auto_failed": "Pembacaan otomatis di server gagal: {reason} Tekan tombol di bawah supaya HP ini membaca PDF-nya.",
   "toast.installed": "Tercatat. Kotak Last update di Beranda sudah diperbarui.",
   "toast.exported": "Paket ekspor dibuat: {n} PMN",
+  "toast.exported_full": "Paket keseluruhan dibuat: {n} PMN.",
   "toast.reexported": "Ekspor ulang: {n} PMN. Status PMN tidak berubah.",
   "toast.shared": "Berkas dibagikan: {files}.",
   "toast.save_downloaded": "Berkas diunduh ke folder Unduhan: {files}.",
@@ -842,6 +854,7 @@ const ID = {
   "toast.save_excel_cancelled": "Berkas PMN RECORD belum dipilih, jadi Excel tidak dibuat.",
   "toast.save_excel_failed": "Excel gagal dibuat: berkas PMN RECORD tidak terbaca.",
   "toast.save_excel_nothing_new": "Semua PMN paket ini sudah ada di PMN RECORD; tidak ada baris baru.",
+  "toast.save_excel_remarks": "{u} baris Remark diperbarui, {s} dilewati.",
   "toast.excel_pick_cancelled": "Tidak ada berkas PMN RECORD yang dipilih.",
   "toast.excel_picked": "Berkas PMN RECORD dipilih: {name}",
   "toast.reread": "Dikembalikan ke bacaan asli dari PDF",
@@ -942,6 +955,7 @@ const EN = {
   "log.approve_corrected": "Approved PMN {no} (with manual corrections)",
   "log.unapprove": "Withdrew approval of PMN {no}",
   "log.export": "Created an export package ({n} PMN, up to {top})",
+  "log.export_full": "Full export: {n} PMN up to {top}",
   "log.re_export": "Re-export ({n} PMNs, up to {top}); status unchanged",
   "log.installed": "Confirmed: PMN up to {no} installed on ECDIS",
   "change.point_set": "Point {label} edited",
@@ -989,6 +1003,8 @@ const EN = {
   "list.manual": "Added manually",
   "list.valid": "valid {from} – {to}",
   "list.valid_open": "in force from {from}",
+  "list.group_active": "Active ({n})",
+  "list.group_cancelled": "Cancelled ({n})",
   "list.history_note.one": "{n} older PMN exists only as history from Excel ({list}).",
   "list.history_note.other": "{n} older PMNs exist only as history from Excel ({list}).",
   "home.check_note": "The server checks MPA daily around 12:00",
@@ -1093,6 +1109,13 @@ const EN = {
   "export.waiting_title": "Guide: install on ECDIS and computer",
   "export.waiting_meta": "Made {when} by {by} · up to PMN {no}",
   "export.re": "Re-export",
+  "export.make_full": "Full export from scratch",
+  "export.confirm_full": "This builds a package from all approved PMN. PMN statuses do not change. Continue?",
+  "export.remove_pdf_title": "Delete from the computer:",
+  "export.remove_pdf_item": "PDF of PMN {no}",
+  "export.scope_routine": "Routine package: ECDIS gets all PMN in force; the ZIP has new PMN only.",
+  "export.scope_full": "Full package: ECDIS gets all PMN in force; the ZIP and Excel have every PMN.",
+  "export.scope_objects": "({n} ECDIS objects)",
   "export.all_done": "All approved PMNs have been exported.",
   "export.last_title": "Last export",
   "export.last_meta": "Created {when} by {by} · {n} PMNs",
@@ -1165,6 +1188,7 @@ const EN = {
   "detail.auto_failed": "Automatic reading on the server failed: {reason} Press the button below so this phone reads the PDF.",
   "toast.installed": "Recorded. The Last update box on Home has been updated.",
   "toast.exported": "Export package created: {n} PMN",
+  "toast.exported_full": "Full package created: {n} PMN.",
   "toast.reexported": "Re-export: {n} PMNs. PMN statuses are unchanged.",
   "toast.shared": "Files shared: {files}.",
   "toast.save_downloaded": "Files downloaded to the Downloads folder: {files}.",
@@ -1185,6 +1209,7 @@ const EN = {
   "toast.save_excel_cancelled": "No PMN RECORD file was chosen, so the Excel file was not created.",
   "toast.save_excel_failed": "Excel could not be created: the PMN RECORD file could not be read.",
   "toast.save_excel_nothing_new": "All PMNs in this package are already in PMN RECORD; no new rows.",
+  "toast.save_excel_remarks": "{u} Remark rows updated, {s} skipped.",
   "toast.excel_pick_cancelled": "No PMN RECORD file was chosen.",
   "toast.excel_picked": "PMN RECORD file chosen: {name}",
   "toast.reread": "Restored to the original reading from the PDF",
@@ -1334,6 +1359,42 @@ function issuesOf(S, no) {
 
 function nosByStatus(S, status) {
   return sortDesc(Object.keys(S.pm).filter(n => !S.pm[n].stub && S.pm[n].status === status));
+}
+
+/** Status PMN yang sudah disetujui perwira (termasuk yang sudah diekspor atau terpasang). */
+const APPROVED = ['disetujui', 'diekspor', 'terpasang'];
+
+/** Kunci PMN disetujui (bukan riwayat/stub, punya nilai kerja), urut menurun. */
+function approvedNos(S) {
+  return sortDesc(Object.keys(S.pm).filter(n => !S.pm[n].stub && APPROVED.includes(S.pm[n].status) && S.pm[n].work));
+}
+
+/** Ada objek yang bisa digambar di ECDIS (aturan sama dengan exObjects: plot dengan minimal satu titik). */
+const hasObjects = w => !!w && w.kind === 'plot' && (w.groups || []).some(g => g.pts && g.pts.length);
+
+/** 'dibatalkan' bila sudah kedaluwarsa atau digantikan PMN lain; selain itu 'aktif'. */
+function pmnGroup(S, no, today) {
+  const c = timeStatusOf(S, no, today).code;
+  return c === 'superseded' || c === 'expired' ? 'dibatalkan' : 'aktif';
+}
+
+/** Penggantian untuk keputusan ekspor: hanya PMN penggantinya yang SUDAH disetujui yang membatalkan (bacaan draf bisa keliru). */
+function supersededByApproved(S, no) {
+  const list = approvedNos(S).map(k => ({ no: k, supersedes: S.pm[k].work.supersedes })).filter(x => x.supersedes);
+  return supersedeMap(list)[baseNo(no)] || null;
+}
+
+/** Seperti pmnGroup, tetapi untuk ekspor: penggantian hanya dihitung dari PMN yang sudah disetujui. */
+function exportGroup(S, no, today) {
+  if (supersededByApproved(S, no)) return 'dibatalkan';
+  const r = S.pm[no];
+  return timeStatus((r && r.work) || null, null, today).code === 'expired' ? 'dibatalkan' : 'aktif';
+}
+
+/** PMN yang masuk user chart ECDIS: disetujui, aktif (menurut exportGroup), dan punya objek. */
+function inForce(S, no, today) {
+  const r = S.pm[no];
+  return !!r && !r.stub && APPROVED.includes(r.status) && !!r.work && hasObjects(r.work) && exportGroup(S, no, today) === 'aktif';
 }
 
 /* ----- Koreksi ----- */
@@ -1628,15 +1689,65 @@ function ecdisRemovals(S, nos) {
   return out;
 }
 
+/** Nomor induk PMN yang PDF-nya sudah ada di komputer (diekspor sebelumnya) tetapi semua bagiannya kini dibatalkan, dan belum masuk daftar hapus.
+    Riwayat (stub) tidak dihitung; bila satu bagian masih berlaku nomor induk tidak masuk. Tidak mengubah state. [{no}] urut menurun. */
+function removePdfList(S, today) {
+  const byBase = {};
+  for (const n of Object.keys(S.pm)) if (!S.pm[n].stub) (byBase[baseNo(n)] = byBase[baseNo(n)] || []).push(n);
+  const out = [];
+  for (const [base, keys] of Object.entries(byBase)) {
+    if (!keys.some(k => LOCKED.includes(S.pm[k].status) || S.pm[k].pdfExported)) continue;
+    if (keys.some(k => S.pm[k].pdfRemoveListed)) continue;
+    if (keys.every(k => exportGroup(S, k, today) === 'dibatalkan')) out.push(base);
+  }
+  return sortDesc(out).map(no => ({ no }));
+}
+
+/** Daftar hapus paket sebelumnya yang belum tertangani (panduan masih berjalan: ada PMN diekspor yang belum terpasang) dibawa ke paket baru. */
+function carryRemovePdfs(S, fresh) {
+  const prev = S.lastExport;
+  if (!prev || !prev.removePdfs || !prev.removePdfs.length || !nosByStatus(S, 'diekspor').length) return fresh;
+  const have = new Set(fresh.map(x => x.no));
+  return sortDesc([...have, ...prev.removePdfs.map(x => x.no).filter(n => !have.has(n))]).map(no => ({ no }));
+}
+
+/** Paket rutin: PMN disetujui yang belum diekspor menjadi diekspor. User chart ECDIS (xmlList) berisi semua PMN yang berlaku,
+    ZIP (pdfList) hanya PMN baru yang masih berlaku, Excel (excelList) semua PMN disetujui. */
 function makeExport(S, who, now, today) {
   const list = nosByStatus(S, 'disetujui');
   if (!list.length) return { ok: false, code: 'nothing' };
   const top = list[0];
   const removeFromEcdis = ecdisRemovals(S, list);
-  const exp = { no: top, by: who, at: now, list, files: exportNames(today, numOf(top)), removeFromEcdis, step: 0 };
-  for (const n of list) S.pm[n].status = 'diekspor';
+  const excelList = approvedNos(S);
+  const xmlList = excelList.filter(n => inForce(S, n, today));
+  const pdfList = list.filter(n => exportGroup(S, n, today) === 'aktif');
+  const fresh = removePdfList(S, today);
+  const removePdfs = carryRemovePdfs(S, fresh);
+  const exp = { no: top, by: who, at: now, scope: 'routine', list, xmlList, pdfList, excelList, removePdfs, files: exportNames(today, numOf(top)), removeFromEcdis, step: 0 };
+  const listed = new Set(fresh.map(x => x.no));
+  for (const n of list) {
+    const r = S.pm[n];
+    if (pdfList.includes(n)) r.pdfExported = now;
+    else if (!r.pdfExported) r.pdfRemoveListed = now; // PDF PMN yang sudah dibatalkan saat diekspor tidak masuk ZIP, jadi tidak pernah ada di komputer
+    r.status = 'diekspor';
+  }
+  for (const k of Object.keys(S.pm)) if (listed.has(baseNo(k)) && !S.pm[k].stub) S.pm[k].pdfRemoveListed = now;
   S.lastExport = exp;
   addLog(S, who, 'export', { n: list.length, top }, now);
+  return { ok: true, export: exp };
+}
+
+/** Paket keseluruhan dari awal: semua PMN disetujui, status tidak berubah. ECDIS hanya PMN yang berlaku; ZIP dan Excel semua PMN.
+    PDF semua PMN disalin ke komputer, jadi PMN dibatalkan di dalamnya kembali masuk daftar hapus pada ekspor rutin berikutnya. */
+function makeFullExport(S, who, now, today) {
+  const list = approvedNos(S);
+  if (!list.length) return { ok: false, code: 'nothing' };
+  const top = list[0];
+  const exp = { no: top, by: who, at: now, scope: 'full', list, xmlList: list.filter(n => inForce(S, n, today)), pdfList: list, excelList: list,
+    removePdfs: carryRemovePdfs(S, []), files: exportNames(today, numOf(top)), removeFromEcdis: [], step: 0 };
+  for (const n of list) { S.pm[n].pdfExported = now; delete S.pm[n].pdfRemoveListed; }
+  S.lastExport = exp;
+  addLog(S, who, 'export_full', { n: list.length, top }, now);
   return { ok: true, export: exp };
 }
 
@@ -2161,8 +2272,10 @@ function setStr(d,c,v){clearCell(c);c.setAttribute('t','inlineStr');const is=d.c
 function setNum(d,c,v){clearCell(c);const e=d.createElementNS(NS_M,'v');e.textContent=String(v);c.appendChild(e)}
 function setF(d,c,f,str){clearCell(c);if(str)c.setAttribute('t','str');const e=d.createElementNS(NS_M,'f');e.textContent=f;c.appendChild(e)}
 
-/** Append PMN entries to the PMN RECORD workbook. entries: [{no,published,title,from,to}] (ISO dates). Returns {blob,added:[{no,sheet,row}]} */
-async function updateRecord(buf,entries,{dropSheets=['Sheet1']}={}){
+/** Append PMN entries to the PMN RECORD workbook. entries: [{no,published,title,from,to,replaces?}] (ISO dates; replaces = nomor yang digantikan, masuk rumus Remark baris baru).
+    remarks: [{no,text}] menulis teks di kolom Remark (I) baris yang SUDAH ada (lihat applyRemarks).
+    Returns {blob,added:[{no,sheet,row}],updated:[{no,sheet,row}],skipped:[{no,reason}]} */
+async function updateRecord(buf,entries,{dropSheets=['Sheet1'],remarks=[]}={}){
   const x=await xlsxOpen(buf);const files=x.files;
   let wbX=x.txt('xl/workbook.xml'),relX=x.txt('xl/_rels/workbook.xml.rels'),ctX=x.txt('[Content_Types].xml');
   const wb=xmlDoc(wbX),rel=xmlDoc(relX),ct=xmlDoc(ctX);
@@ -2225,7 +2338,10 @@ async function updateRecord(buf,entries,{dropSheets=['Sheet1']}={}){
       const g=get('G'),h=get('H');
       if(e.from)setNum(d,g,isoToSerial(e.from));else clearCell(g);
       if(e.to)setNum(d,h,isoToSerial(e.to));else clearCell(h);
-      const i=get('I');if(!hasF(i))setF(d,i,`IF(H${r}="","",IF(H${r}<TODAY(),"CANCEL",""))`,true);
+      const i=get('I');const rep=/^[0-9]{1,3}\/[0-9]{4}$/.test(e.replaces||'')?'REPLACES PMN '+e.replaces:'';
+      const fi=i.getElementsByTagNameNS(NS_M,'f')[0];
+      // baris kosong di berkas kapal sering sudah berisi anak rumus bersama; yang menggantikan PMN lain memakai rumus sendiri (induk rumus bersama tidak disentuh)
+      if(!hasF(i)||(rep&&!fi.getAttribute('ref')))setF(d,i,`IF(H${r}="","${rep}",IF(H${r}<TODAY(),"CANCEL","${rep}"))`,true);
       const lines=Math.max(1,Math.ceil(e.title.length/72));if(lines>1)row.setAttribute('ht',String(12.75*lines));
       added.push({no:e.no,sheet:year,row:r});
     }
@@ -2233,9 +2349,45 @@ async function updateRecord(buf,entries,{dropSheets=['Sheet1']}={}){
     if(dim){const m=dim.getAttribute('ref').match(/^([A-Z]+\d+):([A-Z]+)(\d+)$/);if(m&&+m[3]<r)dim.setAttribute('ref',`${m[1]}:${m[2]}${r}`)}
     files.set(sh.path,TE.encode(xmlStr(d)));
   }
+  const {updated,skipped}=applyRemarks(x,files,remarks);
   files.set('xl/workbook.xml',TE.encode(xmlStr(wb)));files.set('xl/_rels/workbook.xml.rels',TE.encode(xmlStr(rel)));files.set('[Content_Types].xml',TE.encode(xmlStr(ct)));
   const blob=await zip(files);
-  return {blob:new Blob([blob],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),added};
+  return {blob:new Blob([blob],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),added,updated,skipped};
+}
+/** Rumus bawaan kolom Remark PMN RECORD kapal: CANCEL otomatis bila tanggal akhir lewat. */
+const bakuF=r=>`IF(H${r}="","",IF(H${r}<TODAY(),"CANCEL",""))`;
+/** Rumus baku baris r, boleh dengan teks REPLACES PMN (rumus yang ditulis updateRecord untuk baris baru). */
+const bakuRe=r=>new RegExp(`^IF\\(H${r}="","(?:REPLACES PMN [0-9/]+)?",IF\\(H${r}<TODAY\\(\\),"CANCEL","(?:REPLACES PMN [0-9/]+)?"\\)\\)$`);
+/** Tulis teks Remark (kolom I) di baris PMN yang sudah ada. Hanya sel kosong atau berisi rumus baku yang diganti; isian manual tidak ditimpa.
+    Rumus bersama (t="shared") dibuka dulu: tiap sel grup ditulis ulang sebagai rumus baku per barisnya.
+    Sel yang sudah berisi teks yang sama bukan perubahan. skipped.reason: 'no_row' | 'manual' | 'formula'. */
+function applyRemarks(x,files,remarks){
+  const updated=[],skipped=[],docs=new Map();
+  for(const rm of remarks){
+    const year=rm.no.split('/')[1],sh=x.sheets.find(s=>s.name===year);
+    if(!sh||!files.has(sh.path)){skipped.push({no:rm.no,reason:'no_row'});continue}
+    if(!docs.has(sh.name))docs.set(sh.name,{sh,d:xmlDoc(TD.decode(files.get(sh.path))),dirty:false});
+    const D=docs.get(sh.name),d=D.d;
+    const row=[...d.getElementsByTagNameNS(NS_M,'row')].find(r=>+r.getAttribute('r')>=10&&normNo(cellVal(rowCells(r).B,x.ss))===rm.no);
+    if(!row){skipped.push({no:rm.no,reason:'no_row'});continue}
+    const rn=+row.getAttribute('r'),c=putCell(d,row,'I',null),f=c.getElementsByTagNameNS(NS_M,'f')[0];
+    if(f){
+      if(f.getAttribute('t')==='shared'){
+        const si=f.getAttribute('si'),cells=[...d.getElementsByTagNameNS(NS_M,'c')].filter(k=>{const g=k.getElementsByTagNameNS(NS_M,'f')[0];return g&&g.getAttribute('t')==='shared'&&g.getAttribute('si')===si});
+        const master=cells.find(k=>k.getElementsByTagNameNS(NS_M,'f')[0].getAttribute('ref'));
+        const mrow=master?+master.getAttribute('r').replace(/\D/g,''):0;
+        if(!master||master.getElementsByTagNameNS(NS_M,'f')[0].textContent!==bakuF(mrow)){skipped.push({no:rm.no,reason:'formula'});continue}
+        for(const k of cells)setF(d,k,bakuF(+k.getAttribute('r').replace(/\D/g,'')),true);
+      }else if(!bakuRe(rn).test(f.textContent)){skipped.push({no:rm.no,reason:'formula'});continue}
+    }else{
+      const v=cellVal(c,x.ss);
+      if(v===rm.text)continue;
+      if(v!=null&&v!==''){skipped.push({no:rm.no,reason:'manual'});continue}
+    }
+    setStr(d,c,rm.text);D.dirty=true;updated.push({no:rm.no,sheet:sh.name,row:rn});
+  }
+  for(const D of docs.values())if(D.dirty)files.set(D.sh.path,TE.encode(xmlStr(D.d)));
+  return {updated,skipped};
 }
 /** New year: copy the latest year sheet's header (rows 1-9) and column layout into a fresh sheet. */
 function cloneYearSheet(x,wb,rel,ct,files,year){
@@ -2392,8 +2544,19 @@ function exExcelEntries(S, nos) {
     const froms = ws.map(x => x.from).filter(Boolean).sort(), tos = ws.map(x => x.to).filter(Boolean).sort();
     const from = froms[0] || null, to = tos.length ? tos[tos.length - 1] : null;
     const none = w.kind === 'advisory' && !to;
-    return { no, published: w.published || (r.rss && r.rss.published) || null, title: exTitle(r), from: none ? null : from, to: none ? null : to };
+    const entry = { no, published: w.published || (r.rss && r.rss.published) || null, title: exTitle(r), from: none ? null : from, to: none ? null : to };
+    if (w.supersedes) entry.replaces = w.supersedes; // kunci hanya ada bila PMN ini menggantikan PMN lain
+    return entry;
   });
+}
+
+/** Remark untuk baris Excel PMN induk yang digantikan salah satu PMN di `nos` (daftar PMN disetujui paket): [{no, text}].
+    Termasuk PMN riwayat (stub) yang hanya ada di Excel; draf yang tidak ada di `nos` tidak dihitung. Kedaluwarsa tidak termasuk
+    (kolom Remark kapal sudah berisi rumus yang menghasilkan CANCEL). Penggantian tidak bergantung tanggal. */
+function exExcelRemarks(S, nos) {
+  const keys = Object.keys(S.pm);
+  const sup = supersedeMap(nos.filter(k => S.pm[k] && S.pm[k].work).map(k => ({ no: k, supersedes: S.pm[k].work.supersedes })));
+  return sortDesc(Object.keys(sup).filter(old => keys.some(k => baseNo(k) === old))).map(old => ({ no: old, text: 'CANCEL - REPLACED BY PMN ' + sup[old] }));
 }
 
 /** Nama chart untuk ditampilkan dan dipakai di XML: tanpa karakter kendali, paling panjang 60, kosong -> bawaan. */
@@ -2534,7 +2697,9 @@ function renderList(ctx) {
   const { S, t, tn } = ctx;
   const all = sortDesc(Object.keys(S.pm).filter(n => !S.pm[n].stub));
   const stubs = Object.keys(S.pm).filter(n => S.pm[n].stub).sort((a, b) => numOf(a) - numOf(b));
-  return all.map(n => itemHtml(ctx, n)).join('') +
+  const cancelled = all.filter(n => pmnGroup(S, n, ctx.today) === 'dibatalkan'), active = all.filter(n => !cancelled.includes(n));
+  const section = (key, nos) => nos.length ? `<div class="grp-h">${esc(t(key, { n: nos.length }))}</div>` + nos.map(n => itemHtml(ctx, n)).join('') : '';
+  return section('list.group_active', active) + section('list.group_cancelled', cancelled) +
     (stubs.length ? `<div class="small muted" style="margin:10px 2px">${esc(tn('list.history_note', stubs.length, { list: stubs.map(n => n.split('/')[0]).join(', ') }))}</div>` : '');
 }
 
@@ -2720,10 +2885,14 @@ function renderExport(ctx) {
   }
   h += `<div style="margin-top:10px">` + (mode === 're'
     ? `<button class="btn" data-act="reExport">${esc(t('export.re'))}</button>`
-    : `<button class="btn" data-act="makeExport" ${ready.length ? '' : 'disabled'}>${esc(t('export.make'))}</button>`) + `</div></div>`;
+    : `<button class="btn" data-act="makeExport" ${ready.length ? '' : 'disabled'}>${esc(t('export.make'))}</button>`) +
+    (approvedNos(S).length ? ` <button class="btn ghost" data-act="makeFullExport">${esc(t('export.make_full'))}</button>` : '') + `</div></div>`;
+  if (e && e.removePdfs && e.removePdfs.length) {
+    h += `<div class="card bad"><b>${esc(t('export.remove_pdf_title'))}</b><ul class="notes">${e.removePdfs.map(x => `<li>${esc(t('export.remove_pdf_item', { no: x.no }))}</li>`).join('')}</ul></div>`;
+  }
   if (waiting.length && e) {
     const cur = e.step || 0;
-    const rem = e.removeFromEcdis && e.removeFromEcdis.length ? `<div class="card bad"><b>${esc(t('export.remove_title'))}</b><ul class="notes">${e.removeFromEcdis.map(x => `<li>${esc(t('export.remove_item', { old: x.old, new: x.new }))}</li>`).join('')}</ul></div>` : '';
+    const rem = !e.xmlList && e.removeFromEcdis && e.removeFromEcdis.length ? `<div class="card bad"><b>${esc(t('export.remove_title'))}</b><ul class="notes">${e.removeFromEcdis.map(x => `<li>${esc(t('export.remove_item', { old: x.old, new: x.new }))}</li>`).join('')}</ul></div>` : '';
     const xn = xlsxName(ctx, e);
     const files = list => `<ul class="files">${list.map(f => `<li>${esc(f)}</li>`).join('')}</ul>`;
     const steps = [
@@ -2739,8 +2908,9 @@ function renderExport(ctx) {
   }
   if (e && e.files && !waiting.length) {
     const fl = [e.files.xml, e.files.zip, xlsxName(ctx, e)];
-    const rem = e.removeFromEcdis && e.removeFromEcdis.length ? `<div class="card bad"><b>${esc(t('export.remove_title'))}</b><ul class="notes">${e.removeFromEcdis.map(x => `<li>${esc(t('export.remove_item', { old: x.old, new: x.new }))}</li>`).join('')}</ul></div>` : '';
+    const rem = !e.xmlList && e.removeFromEcdis && e.removeFromEcdis.length ? `<div class="card bad"><b>${esc(t('export.remove_title'))}</b><ul class="notes">${e.removeFromEcdis.map(x => `<li>${esc(t('export.remove_item', { old: x.old, new: x.new }))}</li>`).join('')}</ul></div>` : '';
     h += `<div class="card act"><h2>${esc(t('export.last_title'))}</h2><div class="small muted">${esc(t('export.last_meta', { when: fmtWhen(ctx, e.at), by: e.by, n: e.list.length }))}</div>` +
+      `<div class="small muted">${esc(t('export.scope_' + (e.scope === 'full' ? 'full' : 'routine')))}${typeof ctx.xmlObjects === 'number' ? ' ' + esc(t('export.scope_objects', { n: ctx.xmlObjects })) : ''}</div>` +
       `<ul class="files">${fl.map(f => `<li>${esc(f)}</li>`).join('')}</ul>${rem}<p class="small">${esc(t('export.save_hint'))}</p>${saveBox(ctx)}</div>`;
   }
   h += `<div class="disc">${esc(t('disclaimer.map'))}</div>`;
@@ -2920,7 +3090,8 @@ function createController(deps) {
   function ctx() {
     return { S, t: i18n.t, tn: i18n.tn, fmtDate: i18n.fmtDate, now: deps.now(), today: deps.today(), officer: who(), officers: deps.officers || DEFAULT_OFFICERS, live: !!deps.live, serverHost: deps.live ? hostOf(storage.getItem('pmn-server-url')) : '', pdf: st.pdf, busy: st.busy, reading: st.reading, i18n,
       filesReady: !!deps.files, chartName: chartNameOf(), chartVer: st.chartVer, master: st.master, saving: st.saving,
-      ready: st.ready ? { kind: st.ready.kind, names: st.ready.names, notes: st.ready.notes } : null };
+      ready: st.ready ? { kind: st.ready.kind, names: st.ready.names, notes: st.ready.notes } : null,
+      xmlObjects: S.lastExport && S.lastExport.list ? exObjectCount(S, xmlNos(S.lastExport)) : null };
   }
   const saveCache = () => { try { storage.setItem(CACHE_KEY, JSON.stringify(S)); } catch (e) { /* abaikan */ } };
   const pending = () => sync.pending();
@@ -3011,8 +3182,10 @@ function createController(deps) {
     try { const m = await files.getMaster(); st.master = m ? { name: m.name, savedAt: m.savedAt || null } : null; } catch (e) { st.master = null; }
     ui.render();
   }
+  /** Daftar PMN tiap berkas paket; paket lama tanpa bidang khusus memakai list. */
+  const xmlNos = e => e.xmlList || e.list, pdfNos = e => e.pdfList || e.list, excelNos = e => e.excelList || e.list;
   function xmlFile(e) {
-    const xml = exUserChartXml(S, e.list, { name: chartNameOf(), ver: st.chartVer });
+    const xml = exUserChartXml(S, xmlNos(e), { name: chartNameOf(), ver: st.chartVer });
     return { name: e.files.xml, blob: new Blob([xml], { type: 'application/xml' }) };
   }
 
@@ -3027,7 +3200,7 @@ function createController(deps) {
   }
   /** ZIP: paling banyak 3 unduhan sekaligus; yang gagal dihitung per sebab (offline, akses, PDF tidak ada). */
   async function zipBuild(e) {
-    const list = exPdfEntries(S, e.list), got = new Array(list.length);
+    const list = exPdfEntries(S, pdfNos(e)), got = new Array(list.length);
     let next = 0;
     const worker = async () => { while (next < list.length) { const i = next++; got[i] = await fetchPdf(list[i].no); } };
     await Promise.all([worker(), worker(), worker()]);
@@ -3082,11 +3255,14 @@ function createController(deps) {
     if (c.cancel) return { files: [], notes: [t('toast.save_excel_cancelled')] };
     if (c.bad) return { files: [], notes: [t('err.' + c.bad)] };
     const have = new Set(c.rows.map(r => r.no));
-    const entries = exExcelEntries(S, e.list).filter(x => !have.has(x.no));
-    let buf = c.m.buf, blob;
-    if (entries.length) { blob = (await xl().updateRecord(c.m.buf, entries, { dropSheets: [] })).blob; buf = await blob.arrayBuffer(); }
+    const entries = exExcelEntries(S, excelNos(e)).filter(x => !have.has(x.no));
+    const remarks = exExcelRemarks(S, excelNos(e));
+    let buf = c.m.buf, blob, res = null;
+    if (entries.length || remarks.length) { res = await xl().updateRecord(c.m.buf, entries, { dropSheets: [], remarks }); blob = res.blob; buf = await blob.arrayBuffer(); }
     else blob = new Blob([c.m.buf], { type: XLSX_TYPE });
-    const notes = entries.length ? [] : [t(c.picked ? 'toast.save_excel_nothing_new' : 'toast.save_excel_in_copy')];
+    const upd = res && res.updated ? res.updated.length : 0, skp = res && res.skipped ? res.skipped.length : 0;
+    const notes = entries.length || upd ? [] : [t(c.picked ? 'toast.save_excel_nothing_new' : 'toast.save_excel_in_copy')];
+    if (upd || skp) notes.push(t('toast.save_excel_remarks', { u: upd, s: skp }));
     if (!(await storeMaster(buf, c.m.name, deps.now()))) notes.push(t('err.master_store'));
     return { files: [{ name: c.m.name, blob }], notes };
   }
@@ -3122,7 +3298,7 @@ function createController(deps) {
   });
   const SAVE = {
     saveXml: () => withExport(e => {
-      if (!exObjectCount(S, e.list)) { toast(t('err.no_objects')); return; }
+      if (!exObjectCount(S, xmlNos(e))) { toast(t('err.no_objects')); return; }
       return shareNow([xmlFile(e)]);
     }),
     saveZip: () => prepare('zip', zipBuild),
@@ -3130,7 +3306,7 @@ function createController(deps) {
     saveAll: () => prepare('all', async e => {
       const x = await xlsxBuild(e); // Excel dulu: pertanyaan dan pemilih berkas masih dekat dengan sentuhan
       const z = await zipBuild(e);
-      const hasXml = exObjectCount(S, e.list) > 0;
+      const hasXml = exObjectCount(S, xmlNos(e)) > 0;
       return { files: (hasXml ? [xmlFile(e)] : []).concat(z.files, x.files), notes: (hasXml ? [] : [t('err.no_objects')]).concat(z.notes, x.notes) };
     }),
     shareReady() {
@@ -3251,8 +3427,15 @@ function createController(deps) {
     mapadd() { st.mapAdd = !st.mapAdd; ui.render(); },
     mapfilter(no) { st.mapFilter = no; ui.render(); },
     makeExport() {
+      st.ready = null;
       const r = makeExport(S, who(), deps.now(), deps.today());
       return commit(r, null, r.ok ? t('toast.exported', { n: r.export.list.length }) : null);
+    },
+    makeFullExport() {
+      if (!ask.confirm(t('export.confirm_full'))) return;
+      st.ready = null;
+      const r = makeFullExport(S, who(), deps.now(), deps.today());
+      return commit(r, null, r.ok ? t('toast.exported_full', { n: r.export.list.length }) : null);
     },
     reExport() {
       const r = reExport(S, who(), deps.now());
