@@ -18,11 +18,6 @@
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--ink);font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
 #app{max-width:480px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;background:var(--bg);position:relative;box-shadow:0 0 0 1px var(--line)}
-.demobar{background:#2b2140;color:#e9e0ff;padding:6px 10px;font-size:12px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.demobar b{letter-spacing:.04em}
-.demobar button{font:inherit;font-size:11.5px;border:1px solid #6f5aa8;background:#3d2f5c;color:#fff;border-radius:6px;padding:4px 7px;cursor:pointer}
-.demobar button:hover{background:#51407a}
-.demobar button.on{background:#b42318;border-color:#ff8f84}
 /* iPhone (mode layar utama): isi meluas sampai bawah status bar, jadi sisakan area aman di atas dengan warna header */
 #app::before{content:"";display:block;flex:none;height:env(safe-area-inset-top);background:var(--brand)}
 header.top{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--brand);color:var(--brand-ink)}
@@ -37,7 +32,9 @@ nav.tabs button b{display:block;font-size:17px;line-height:1.1}
 nav.tabs button.on{color:var(--brand);font-weight:600}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
 .card h2{font-size:12.5px;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-.grp-h{font-size:12.5px;margin:14px 2px 6px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.seg{display:flex;gap:8px;margin:2px 0 10px}
+.seg-b{flex:1;font:inherit;font-size:14px;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:9px;padding:9px 8px;cursor:pointer}
+.seg-b.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
 .card.ok{border-left:4px solid var(--ok)}.card.bad{border-left:4px solid var(--bad);background:var(--badbg)}
 .card.warn{border-left:4px solid var(--warn)}.card.act{border-left:4px solid var(--brand)}
 .big{font-size:17px;font-weight:650}
@@ -104,7 +101,6 @@ details.d{margin:8px 0}details.d summary{cursor:pointer;font-weight:600;color:va
 .banner{padding:6px 14px;font-size:12.5px}
 .banner.bad{background:var(--badbg);color:var(--bad)}
 .banner.warn{background:var(--warnbg);color:var(--warn)}
-.demobar .hint{opacity:.8;flex-basis:100%;font-size:11px}
 #maptools .legend,#maptools .mapbar,#maptools .editbar{position:absolute}
 
 
@@ -121,7 +117,6 @@ details.d{margin:8px 0}details.d summary{cursor:pointer;font-weight:600;color:va
 </head>
 <body>
 <div id="app">
-  <div class="demobar" id="demobar"></div>
   <header class="top">
     <h1>PMN Plotter</h1>
     <div id="langs" class="langs"></div>
@@ -600,7 +595,7 @@ const ID = {
   "log.approve_corrected": "Menyetujui PMN {no} (dengan koreksi manual)",
   "log.unapprove": "Membatalkan persetujuan PMN {no}",
   "log.export": "Membuat paket ekspor ({n} PMN, sampai {top})",
-  "log.export_full": "Ekspor keseluruhan: {n} PMN sampai {top}",
+  "log.export_full": "Ekspor penuh: {n} PMN sampai {top}",
   "log.re_export": "Ekspor ulang ({n} PMN, sampai {top}); status tidak berubah",
   "log.installed": "Konfirmasi: PMN sampai {no} sudah terpasang di ECDIS",
   "change.point_set": "Titik {label} diubah",
@@ -650,6 +645,8 @@ const ID = {
   "list.valid_open": "berlaku sejak {from}",
   "list.group_active": "Aktif ({n})",
   "list.group_cancelled": "Dibatalkan ({n})",
+  "list.empty_active": "Tidak ada PMN aktif.",
+  "list.empty_cancelled": "Tidak ada PMN dibatalkan.",
   "list.history_note.one": "{n} PMN lama hanya ada sebagai riwayat dari Excel ({list}).",
   "list.history_note.other": "{n} PMN lama hanya ada sebagai riwayat dari Excel ({list}).",
   "home.check_note": "Server mengecek MPA tiap hari sekitar jam 12:00",
@@ -749,17 +746,17 @@ const ID = {
   "export.s1": "Colok flashdisk OTG ke HP, lalu simpan ketiga file ekspor ke flashdisk lewat aplikasi Files.",
   "export.s2": "Salin file user chart ke ECDIS lalu impor sebagai user chart BARU (nama bertanggal). Jangan menimpa user chart yang sudah ada. Hapus objek lama yang diminta secara manual.",
   "export.s3": "Cek di ECDIS: PMN terakhir ({no}) tergambar dengan benar.",
-  "export.s4": "Salin file PDF dan Excel ke komputer kapal. Timpa PMN RECORD lama hanya bila berkas di komputer tidak diubah setelah salinan HP dibuat.",
+  "export.s4": "Salin file PDF dan Excel ke komputer kapal. Timpa PMN RECORD lama dengan yang baru: berkas ini adalah catatan semua PMN dan selalu yang terbaru, jadi tidak perlu diedit di komputer.",
   "export.done": "Selesai ✓",
   "export.waiting_title": "Panduan memasang ke ECDIS dan komputer",
   "export.waiting_meta": "Dibuat {when} oleh {by} · sampai PMN {no}",
   "export.re": "Ekspor ulang",
-  "export.make_full": "Ekspor keseluruhan dari awal",
+  "export.make_full": "Ekspor penuh",
   "export.confirm_full": "Ini membuat paket dari semua PMN yang disetujui. Status PMN tidak berubah. Lanjutkan?",
   "export.remove_pdf_title": "Hapus dari komputer:",
   "export.remove_pdf_item": "PDF PMN {no}",
   "export.scope_routine": "Paket rutin: ECDIS memuat semua PMN yang berlaku; ZIP hanya PMN baru.",
-  "export.scope_full": "Paket keseluruhan: ECDIS memuat semua PMN yang berlaku; ZIP dan Excel memuat semua PMN.",
+  "export.scope_full": "Paket penuh: ECDIS memuat semua PMN yang berlaku; ZIP dan Excel memuat semua PMN.",
   "export.scope_objects": "({n} objek ECDIS)",
   "export.all_done": "Semua PMN yang disetujui sudah diekspor.",
   "export.last_title": "Ekspor terakhir",
@@ -768,16 +765,14 @@ const ID = {
   "export.ready_files": "Berkas siap: {files}",
   "export.share": "Bagikan",
   "export.cancel_ready": "Batal",
-  "export.save_xml": "Simpan XML",
-  "export.save_zip": "Siapkan ZIP PDF",
-  "export.save_xlsx": "Siapkan Excel",
-  "export.save_all": "Siapkan semua",
-  "export.pick_excel": "Pilih berkas baru",
+  "export.save_xml": "User chart",
+  "export.save_zip": "PMN PDF",
+  "export.save_xlsx": "Excel",
+  "export.save_all": "Buat",
+  "export.pick_excel": "Ganti berkas master",
   "export.chart_name": "Nama user chart",
   "export.chart_ver": "Versi XML",
-  "export.master": "Salinan di HP: {name}, diperbarui {date}",
-  "export.master_none": "Berkas PMN RECORD: belum dipilih",
-  "export.master_hint": "Pilih sekali berkas PMN RECORD.xlsx kapal dari Files atau flashdisk. Salinannya disimpan di HP ini dan diperbarui setiap kali Excel disimpan.",
+  "export.master_hint": "Hanya untuk awal atau bila master rusak: pilih PMN RECORD.xlsx kapal dari Files, lalu diunggah ke server.",
   "export.saving": "Membuat berkas…",
   "home.last_update_meta": "tanggal {date} · oleh {by}",
   "toast.check_added": "{n} PMN baru diunduh server",
@@ -833,7 +828,7 @@ const ID = {
   "detail.auto_failed": "Pembacaan otomatis di server gagal: {reason} Tekan tombol di bawah supaya HP ini membaca PDF-nya.",
   "toast.installed": "Tercatat. Kotak Last update di Beranda sudah diperbarui.",
   "toast.exported": "Paket ekspor dibuat: {n} PMN",
-  "toast.exported_full": "Paket keseluruhan dibuat: {n} PMN.",
+  "toast.exported_full": "Paket penuh dibuat: {n} PMN.",
   "toast.reexported": "Ekspor ulang: {n} PMN. Status PMN tidak berubah.",
   "toast.shared": "Berkas dibagikan: {files}.",
   "toast.save_downloaded": "Berkas diunduh ke folder Unduhan: {files}.",
@@ -842,21 +837,21 @@ const ID = {
   "toast.pdf_offline": "{n} PDF gagal diunduh (tidak tersambung atau terlalu lama).",
   "toast.pdf_auth": "{n} PDF ditolak server (kode akses).",
   "toast.pdf_missing": "{n} PDF belum ada di server.",
-  "toast.save_excel_in_copy": "Baris PMN paket ini sudah ada di salinan PMN RECORD di HP; berkas dibagikan apa adanya.",
   "err.no_objects": "Tidak ada yang bisa digambar di ECDIS (mis. hanya pengumuman), jadi XML tidak dibuat.",
   "err.excel_bad": "Berkas ini bukan PMN RECORD yang bisa dibaca (tidak ada sheet atau baris PMN). Pilih berkas PMN RECORD.xlsx kapal.",
-  "err.master_store": "Salinan PMN RECORD tidak bisa disimpan di HP ini.",
   "err.browser_old": "Browser terlalu lama untuk membuat berkas Excel/ZIP. Perbarui iOS/Chrome lalu coba lagi.",
-  "export.confirm_master": "Apakah berkas PMN RECORD di komputer kapal sudah diubah sejak {date}? OK = pilih berkas dari flashdisk, Batal = pakai salinan di HP.",
   "toast.save_failed": "Berkas gagal dibuat atau disimpan. Coba lagi.",
   "toast.save_no_export": "Belum ada paket ekspor. Tekan Buat paket ekspor dulu.",
   "toast.save_no_pdfs": "Tidak ada PDF yang tersedia untuk ZIP.",
-  "toast.save_excel_cancelled": "Berkas PMN RECORD belum dipilih, jadi Excel tidak dibuat.",
-  "toast.save_excel_failed": "Excel gagal dibuat: berkas PMN RECORD tidak terbaca.",
   "toast.save_excel_nothing_new": "Semua PMN paket ini sudah ada di PMN RECORD; tidak ada baris baru.",
   "toast.save_excel_remarks": "{u} baris Remark diperbarui, {s} dilewati.",
+  "export.master_server": "PMN RECORD disimpan di server (Drive). Tombol Excel dan Buat selalu mengunduh keadaan terbaru; tinggal ganti berkas lama di komputer kapal.",
+  "toast.excel_offline": "Excel tidak bisa diambil dari server (tidak tersambung).",
+  "err.no_excel": "Berkas master PMN RECORD belum ada di server. Unggah dulu lewat Ganti berkas master di layar Ekspor (mode server saja).",
+  "toast.excel_not_saved": "Baris baru belum tersimpan di server; berkas ini tetap sah, coba lagi nanti.",
+  "toast.excel_uploaded": "Master PMN RECORD diunggah ke server: {name}",
+  "toast.excel_upload_failed": "Master PMN RECORD gagal diunggah ke server.",
   "toast.excel_pick_cancelled": "Tidak ada berkas PMN RECORD yang dipilih.",
-  "toast.excel_picked": "Berkas PMN RECORD dipilih: {name}",
   "toast.reread": "Dikembalikan ke bacaan asli dari PDF",
   "toast.pdf_plot": "PMN {no} terbaca: {n} titik",
   "toast.pdf_kind": "PMN {no} terbaca sebagai {kind}",
@@ -1005,6 +1000,8 @@ const EN = {
   "list.valid_open": "in force from {from}",
   "list.group_active": "Active ({n})",
   "list.group_cancelled": "Cancelled ({n})",
+  "list.empty_active": "No active PMN.",
+  "list.empty_cancelled": "No cancelled PMN.",
   "list.history_note.one": "{n} older PMN exists only as history from Excel ({list}).",
   "list.history_note.other": "{n} older PMNs exist only as history from Excel ({list}).",
   "home.check_note": "The server checks MPA daily around 12:00",
@@ -1104,12 +1101,12 @@ const EN = {
   "export.s1": "Plug the OTG flash drive into the phone, then save the three export files to the flash drive with the Files app.",
   "export.s2": "Copy the user chart file to the ECDIS and import it as a NEW user chart (dated name). Never overwrite the existing user chart. Delete the listed old objects manually.",
   "export.s3": "Check on the ECDIS: the last PMN ({no}) is plotted correctly.",
-  "export.s4": "Copy the PDF and Excel files to the ship's computer. Overwrite the old PMN RECORD only if the file on the computer was not changed after the phone's copy was made.",
+  "export.s4": "Copy the PDF and Excel files to the ship's computer. Replace the old PMN RECORD with the new one: it is the log of all PMNs and always the latest, so it needs no editing on the computer.",
   "export.done": "Done ✓",
   "export.waiting_title": "Guide: install on ECDIS and computer",
   "export.waiting_meta": "Made {when} by {by} · up to PMN {no}",
   "export.re": "Re-export",
-  "export.make_full": "Full export from scratch",
+  "export.make_full": "Full export",
   "export.confirm_full": "This builds a package from all approved PMN. PMN statuses do not change. Continue?",
   "export.remove_pdf_title": "Delete from the computer:",
   "export.remove_pdf_item": "PDF of PMN {no}",
@@ -1123,16 +1120,14 @@ const EN = {
   "export.ready_files": "Files ready: {files}",
   "export.share": "Share",
   "export.cancel_ready": "Cancel",
-  "export.save_xml": "Save XML",
-  "export.save_zip": "Prepare PDF ZIP",
-  "export.save_xlsx": "Prepare Excel",
-  "export.save_all": "Prepare all",
-  "export.pick_excel": "Choose another file",
+  "export.save_xml": "User chart",
+  "export.save_zip": "PMN PDF",
+  "export.save_xlsx": "Excel",
+  "export.save_all": "Generate",
+  "export.pick_excel": "Replace master file",
   "export.chart_name": "User chart name",
   "export.chart_ver": "XML version",
-  "export.master": "Copy on this phone: {name}, updated {date}",
-  "export.master_none": "PMN RECORD file: not chosen yet",
-  "export.master_hint": "Choose the ship's PMN RECORD.xlsx once from Files or the flash drive. A copy is kept on this phone and updated every time Excel is saved.",
+  "export.master_hint": "Only for the first setup or if the master is damaged: choose the ship's PMN RECORD.xlsx from Files and it is uploaded to the server.",
   "export.saving": "Creating files…",
   "home.last_update_meta": "date {date} · by {by}",
   "toast.check_added": "{n} new PMN downloaded by the server",
@@ -1197,21 +1192,21 @@ const EN = {
   "toast.pdf_offline": "{n} PDF(s) could not be downloaded (no connection or too slow).",
   "toast.pdf_auth": "{n} PDF(s) refused by the server (access code).",
   "toast.pdf_missing": "{n} PDF(s) not on the server yet.",
-  "toast.save_excel_in_copy": "This package's PMN rows are already in the PMN RECORD copy on this phone; the file is shared as it is.",
   "err.no_objects": "Nothing to draw on the ECDIS (e.g. only announcements), so no XML was created.",
   "err.excel_bad": "This file is not a readable PMN RECORD (no PMN sheet or rows). Choose the ship's PMN RECORD.xlsx.",
-  "err.master_store": "The PMN RECORD copy could not be stored on this phone.",
   "err.browser_old": "This browser is too old to create the Excel/ZIP files. Update iOS/Chrome and try again.",
-  "export.confirm_master": "Has the PMN RECORD file on the ship's computer changed since {date}? OK = choose the file from the flash drive, Cancel = use the copy on this phone.",
   "toast.save_failed": "The file could not be created or saved. Please try again.",
   "toast.save_no_export": "There is no export package yet. Press Create export package first.",
   "toast.save_no_pdfs": "No PDFs are available for the ZIP.",
-  "toast.save_excel_cancelled": "No PMN RECORD file was chosen, so the Excel file was not created.",
-  "toast.save_excel_failed": "Excel could not be created: the PMN RECORD file could not be read.",
   "toast.save_excel_nothing_new": "All PMNs in this package are already in PMN RECORD; no new rows.",
   "toast.save_excel_remarks": "{u} Remark rows updated, {s} skipped.",
+  "export.master_server": "PMN RECORD is kept on the server (Drive). The Excel and Make buttons always download the latest state; just replace the old file on the ship computer.",
+  "toast.excel_offline": "The Excel file could not be fetched from the server (not connected).",
+  "err.no_excel": "The PMN RECORD master is not on the server yet. Upload it first with Replace master file on the Export screen (server mode only).",
+  "toast.excel_not_saved": "The new rows are not saved on the server yet; this file is still valid, try again later.",
+  "toast.excel_uploaded": "PMN RECORD master uploaded to the server: {name}",
+  "toast.excel_upload_failed": "The PMN RECORD master could not be uploaded to the server.",
   "toast.excel_pick_cancelled": "No PMN RECORD file was chosen.",
-  "toast.excel_picked": "PMN RECORD file chosen: {name}",
   "toast.reread": "Restored to the original reading from the PDF",
   "toast.pdf_plot": "PMN {no} read: {n} points",
   "toast.pdf_kind": "PMN {no} read as {kind}",
@@ -2030,6 +2025,10 @@ function createStubApi(storage, opts) {
       if (texts[base] != null) return { ok: true, text: texts[base] };
       return d.pdfs[base] ? { ok: true, base64: d.pdfs[base] } : { ok: false, code: 'no_pdf' };
     },
+
+    /* Master Excel hanya ada di server sungguhan (Drive); mode demo tidak menyimpannya. */
+    async getExcel() { guard(); return { ok: false, code: 'no_excel' }; },
+    async putExcel() { guard(); return { ok: false, code: 'no_excel' }; },
   };
 }
 
@@ -2060,6 +2059,8 @@ function createHttpApi({ url, code, officer, fetch }) {
     addLog: event => call('addLog', { event }),
     runCheck: () => call('runCheck', {}),
     getPdf: no => call('getPdf', { no }),
+    getExcel: () => call('getExcel', {}),
+    putExcel: base64 => call('putExcel', { base64 }),
   };
 }
 
@@ -2538,6 +2539,9 @@ function exPdfEntries(S, nos) {
 }
 
 /** Baris baru PMN RECORD (untuk updateRecord): satu per nomor induk; tanggal kosong null; pengumuman tanpa tanggal akhir tanpa tanggal (seperti v1). */
+/** Nama berkas Excel yang dibagikan: sama dengan berkas di komputer kapal, supaya tinggal diganti. */
+const EX_XLSX_NAME = 'PMN RECORD.xlsx';
+
 function exExcelEntries(S, nos) {
   return exByBase(S, nos).map(({ no, r, parts }) => {
     const ws = parts.map(k => S.pm[k].work), w = r.work;
@@ -2698,8 +2702,11 @@ function renderList(ctx) {
   const all = sortDesc(Object.keys(S.pm).filter(n => !S.pm[n].stub));
   const stubs = Object.keys(S.pm).filter(n => S.pm[n].stub).sort((a, b) => numOf(a) - numOf(b));
   const cancelled = all.filter(n => pmnGroup(S, n, ctx.today) === 'dibatalkan'), active = all.filter(n => !cancelled.includes(n));
-  const section = (key, nos) => nos.length ? `<div class="grp-h">${esc(t(key, { n: nos.length }))}</div>` + nos.map(n => itemHtml(ctx, n)).join('') : '';
-  return section('list.group_active', active) + section('list.group_cancelled', cancelled) +
+  const tab = ctx.listTab === 'dibatalkan' ? 'dibatalkan' : 'aktif';
+  const btn = (key, label) => `<button class="seg-b${tab === key ? ' on' : ''}" data-act="listtab" data-no="${key}">${esc(label)}</button>`;
+  const shown = tab === 'aktif' ? active : cancelled;
+  return `<div class="seg">${btn('aktif', t('list.group_active', { n: active.length }))}${btn('dibatalkan', t('list.group_cancelled', { n: cancelled.length }))}</div>` +
+    (shown.length ? shown.map(n => itemHtml(ctx, n)).join('') : `<div class="empty">${esc(t(tab === 'aktif' ? 'list.empty_active' : 'list.empty_cancelled'))}</div>`) +
     (stubs.length ? `<div class="small muted" style="margin:10px 2px">${esc(tn('list.history_note', stubs.length, { list: stubs.map(n => n.split('/')[0]).join(', ') }))}</div>` : '');
 }
 
@@ -2843,13 +2850,12 @@ function renderDetail(ctx, no, ui) {
 
 const EXPORT_VERS = ['1.0', '1.1', '1.2'];
 
-/** Tombol simpan berkas sungguhan (hanya bila ctx.filesReady): nama dan versi user chart, empat tombol Simpan, status master PMN RECORD. */
+/** Tombol simpan berkas sungguhan (hanya bila ctx.filesReady): nama dan versi user chart, empat tombol Simpan, catatan master PMN RECORD (di server). */
 function saveBox(ctx) {
   if (!ctx.filesReady) return '';
   const { t } = ctx, busy = ctx.saving ? ' disabled' : '';
   const ver = EXPORT_VERS.includes(ctx.chartVer) ? ctx.chartVer : '1.2';
   const btn = (act, key, cls) => `<button class="btn sm${cls || ''}" data-act="${act}"${busy}>${esc(t(key))}</button>`;
-  const m = ctx.master && ctx.master.name;
   const r = ctx.ready;
   const ready = r ? `<div class="card ok" style="margin:8px 0"><b>${esc(t('export.ready_files', { files: r.names.join(', ') }))}</b>` +
     (r.notes && r.notes.length ? `<ul class="notes">${r.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : '') +
@@ -2861,13 +2867,12 @@ function saveBox(ctx) {
     `<label class="small">${esc(t('export.chart_ver'))}<br><select class="sel" data-act="setChartVer">${EXPORT_VERS.map(v => `<option value="${v}"${v === ver ? ' selected' : ''}>${v}</option>`).join('')}</select></label></div>` +
     `<div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px">${btn('saveXml', 'export.save_xml')}${btn('saveZip', 'export.save_zip')}${btn('saveXlsx', 'export.save_xlsx')}${btn('saveAll', 'export.save_all', ' okb')}</div>` +
     (ctx.saving ? `<div class="small muted" style="margin-top:4px">${esc(t('export.saving'))}</div>` : '') +
-    `<div class="row small" style="gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center"><span>${esc(m ? t('export.master', { name: m, date: ctx.master.savedAt ? fmtWhen(ctx, ctx.master.savedAt) : '–' }) : t('export.master_none'))}</span>` +
-    `<button class="btn sm ghost" data-act="pickExcel"${busy}>${esc(t('export.pick_excel'))}</button></div>` +
-    `<div class="small muted">${esc(t('export.master_hint'))}</div></div>`;
+    `<div class="small muted" style="margin-top:8px">${esc(t('export.master_server'))}</div>` +
+    (ctx.live ? `<div style="margin-top:6px"><button class="btn sm ghost" data-act="pickExcel"${busy}>${esc(t('export.pick_excel'))}</button> <span class="small muted">${esc(t('export.master_hint'))}</span></div>` : '') + `</div>`;
 }
 
-/** Nama Excel yang sungguh dibagikan: nama berkas PMN RECORD kapal bila sudah dipilih, selain itu nama paket. */
-const xlsxName = (ctx, e) => (ctx.filesReady && ctx.master && ctx.master.name) || e.files.xlsx;
+/** Nama Excel yang sungguh dibagikan: PMN RECORD.xlsx bila aplikasi bisa menyimpan berkas, selain itu nama paket. */
+const xlsxName = (ctx, e) => (ctx.filesReady ? EX_XLSX_NAME : e.files.xlsx);
 
 function renderExport(ctx) {
   const { S, t, tn } = ctx;
@@ -3074,23 +3079,23 @@ const DEFAULT_OFFICERS = ['Master', 'Chief Officer', '2nd Master', 'Ship phone']
 /**
  * deps = {S, api, sync, storage, i18n, now(), today(), officer(), officers?, live?, makeApi(url, code)?, reload()?, readPdf(file), pdfTextFromBase64(b64),
  *         ask:{confirm, prompt}, clipboard:{write}, dom:{val(id), set(id,v)}, ui:{render, toast, pickFile}, demo?,
- *         files?: {share([{name, blob}]) -> {ok, downloaded?, cancelled?}, getMaster() -> {buf, name, savedAt}|null, setMaster(buf, name, savedAt) -> {ok},
- *                  pickExcel() -> {buf, name}|null}, pdfTimeoutMs? (bawaan 20000),
+ *         files?: {share([{name, blob}]) -> {ok, downloaded?, cancelled?}, pickExcel() -> {buf, name}|null}, pdfTimeoutMs? (bawaan 20000),
  *         xlsx?: {updateRecord, readRecord} (bawaan: fungsi global app/zipxlsx.js)}
  * Tanpa deps.files tombol Simpan tidak tampil (ctx.filesReady false).
  */
 function createController(deps) {
   const { S, api, sync, storage, i18n, ask, dom, ui } = deps;
-  const st = { tab: 'home', detailNo: null, editRow: null, editData: false, mapEdit: null, mapAdd: false, mapFilter: 'aktif', busy: null, reading: null, demoDown: false, pdf: null,
-    chartName: '', chartVer: '1.2', master: undefined, saving: null, ready: null };
+  const st = { tab: 'home', detailNo: null, editRow: null, editData: false, mapEdit: null, mapAdd: false, mapFilter: 'aktif', listTab: 'aktif', busy: null, reading: null, demoDown: false, pdf: null,
+    chartName: '', chartVer: '1.2', saving: null, ready: null };
   const t = (k, p) => i18n.t(k, p);
   const who = () => deps.officer();
   const toast = m => ui.toast(m);
 
   function ctx() {
     return { S, t: i18n.t, tn: i18n.tn, fmtDate: i18n.fmtDate, now: deps.now(), today: deps.today(), officer: who(), officers: deps.officers || DEFAULT_OFFICERS, live: !!deps.live, serverHost: deps.live ? hostOf(storage.getItem('pmn-server-url')) : '', pdf: st.pdf, busy: st.busy, reading: st.reading, i18n,
-      filesReady: !!deps.files, chartName: chartNameOf(), chartVer: st.chartVer, master: st.master, saving: st.saving,
+      filesReady: !!deps.files, chartName: chartNameOf(), chartVer: st.chartVer, saving: st.saving,
       ready: st.ready ? { kind: st.ready.kind, names: st.ready.names, notes: st.ready.notes } : null,
+      listTab: st.listTab,
       xmlObjects: S.lastExport && S.lastExport.list ? exObjectCount(S, xmlNos(S.lastExport)) : null };
   }
   const saveCache = () => { try { storage.setItem(CACHE_KEY, JSON.stringify(S)); } catch (e) { /* abaikan */ } };
@@ -3177,11 +3182,6 @@ function createController(deps) {
   st.chartName = storage.getItem('pmn-chart-name') || '';
   st.chartVer = VERS.includes(storage.getItem('pmn-chart-ver')) ? storage.getItem('pmn-chart-ver') : '1.2';
 
-  async function loadMaster() {
-    if (!files) return;
-    try { const m = await files.getMaster(); st.master = m ? { name: m.name, savedAt: m.savedAt || null } : null; } catch (e) { st.master = null; }
-    ui.render();
-  }
   /** Daftar PMN tiap berkas paket; paket lama tanpa bidang khusus memakai list. */
   const xmlNos = e => e.xmlList || e.list, pdfNos = e => e.pdfList || e.list, excelNos = e => e.excelList || e.list;
   function xmlFile(e) {
@@ -3226,45 +3226,31 @@ function createController(deps) {
     try { rec = await xl().readRecord(buf); } catch (err) { return { ok: false, code: 'excel_bad' }; }
     return rec && rec.rows && rec.rows.length ? { ok: true, rows: rec.rows } : { ok: false, code: 'excel_bad' };
   }
-  async function storeMaster(buf, name, savedAt) {
-    let r;
-    try { r = await files.setMaster(buf, name, savedAt); } catch (err) { r = null; }
-    if (!r || !r.ok) return false;
-    st.master = { name, savedAt };
-    return true;
-  }
-  /** Master yang dipakai: salinan di HP (setelah officer menyatakan berkas kapal tidak berubah) atau berkas baru dari flashdisk.
-      Pertanyaan dan pemilih berkas dipanggil sebelum menunggu apa pun bila keadaan master sudah diketahui. */
-  async function chooseMaster() {
-    let m = st.master === null ? null : st.master || (await files.getMaster());
-    if (m && ask.confirm(t('export.confirm_master', { date: dateOf(m.savedAt) }))) m = null;
-    if (m && !m.buf) m = await files.getMaster();
-    if (!m) {
-      const p = await pickRaw();
-      if (!p) return { cancel: true };
-      const v = await validate(p.buf);
-      return v.ok ? { m: p, rows: v.rows, picked: true } : { bad: v.code };
-    }
-    const v = await validate(m.buf);
-    return v.ok ? { m, rows: v.rows, picked: false } : { bad: v.code };
-  }
-  /** Excel: baris PMN paket yang belum ada di master ditambahkan (tanpa membuang sheet), hasilnya menjadi salinan baru di HP. */
+  const bytesB64 = buf => { const u = new Uint8Array(buf); let bin = ''; for (let i = 0; i < u.length; i += 0x8000) bin += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(bin); };
+  /** Excel: master PMN RECORD ada di Drive (server). Diambil, baris PMN paket yang belum ada ditambahkan (tanpa membuang sheet),
+      Remark diperbarui, lalu bila ada perubahan disimpan balik ke server. Berkas yang dibagikan selalu keadaan terbaru. */
   async function xlsxBuild(e) {
     if (!hasStreams()) return { files: [], notes: [t('err.browser_old')] };
-    const c = await chooseMaster();
-    if (c.cancel) return { files: [], notes: [t('toast.save_excel_cancelled')] };
-    if (c.bad) return { files: [], notes: [t('err.' + c.bad)] };
-    const have = new Set(c.rows.map(r => r.no));
+    let got;
+    try { got = await api.getExcel(); } catch (err) { return { files: [], notes: [t(err && err.message === 'err_auth' ? 'err.err_auth' : 'toast.excel_offline')] }; }
+    if (!got || !got.ok || !got.base64) return { files: [], notes: [t(got && got.code === 'err_auth' ? 'err.err_auth' : got && got.code === 'no_excel' ? 'err.no_excel' : 'toast.excel_offline')] };
+    const buf0 = b64bytes(got.base64).buffer, v = await validate(buf0);
+    if (!v.ok) return { files: [], notes: [t('err.' + v.code)] };
+    const have = new Set(v.rows.map(r => r.no));
     const entries = exExcelEntries(S, excelNos(e)).filter(x => !have.has(x.no));
     const remarks = exExcelRemarks(S, excelNos(e));
-    let buf = c.m.buf, blob, res = null;
-    if (entries.length || remarks.length) { res = await xl().updateRecord(c.m.buf, entries, { dropSheets: [], remarks }); blob = res.blob; buf = await blob.arrayBuffer(); }
-    else blob = new Blob([c.m.buf], { type: XLSX_TYPE });
+    let buf = buf0, blob, res = null;
+    if (entries.length || remarks.length) { res = await xl().updateRecord(buf0, entries, { dropSheets: [], remarks }); blob = res.blob; buf = await blob.arrayBuffer(); }
+    else blob = new Blob([buf0], { type: XLSX_TYPE });
     const upd = res && res.updated ? res.updated.length : 0, skp = res && res.skipped ? res.skipped.length : 0;
-    const notes = entries.length || upd ? [] : [t(c.picked ? 'toast.save_excel_nothing_new' : 'toast.save_excel_in_copy')];
+    const notes = entries.length || upd ? [] : [t('toast.save_excel_nothing_new')];
     if (upd || skp) notes.push(t('toast.save_excel_remarks', { u: upd, s: skp }));
-    if (!(await storeMaster(buf, c.m.name, deps.now()))) notes.push(t('err.master_store'));
-    return { files: [{ name: c.m.name, blob }], notes };
+    if (entries.length || upd) {
+      let saved = null;
+      try { saved = await api.putExcel(bytesB64(buf)); } catch (err) { saved = null; }
+      if (!saved || !saved.ok) notes.push(t('toast.excel_not_saved'));
+    }
+    return { files: [{ name: EX_XLSX_NAME, blob }], notes };
   }
 
   /** Membagikan sekarang: share dipanggil sinkron (tanpa await sebelumnya). Hasil: dibagikan, diunduh, dibatalkan, atau gagal. */
@@ -3315,15 +3301,16 @@ function createController(deps) {
       return shareNow(r.files, r.notes).then(ok => { if (ok && st.ready === r) st.ready = null; ui.render(); });
     },
     cancelReady() { st.ready = null; ui.render(); },
+    /** Mengunggah PMN RECORD.xlsx kapal sebagai master di server (sekali, atau untuk menggantinya). */
     async pickExcel() {
       if (!files) { toast(t('toast.save_failed')); return; }
       const p = await pickRaw();
       if (!p) { toast(t('toast.excel_pick_cancelled')); return; }
       const v = await validate(p.buf);
       if (!v.ok) { toast(t('err.' + v.code)); return; }
-      if (!(await storeMaster(p.buf, p.name, deps.now()))) { toast(t('err.master_store')); return; }
-      toast(t('toast.excel_picked', { name: p.name }));
-      ui.render();
+      let r = null;
+      try { r = await api.putExcel(bytesB64(p.buf)); } catch (err) { r = null; }
+      toast(r && r.ok ? t('toast.excel_uploaded', { name: p.name }) : t(r && r.code === 'err_auth' ? 'err.err_auth' : 'toast.excel_upload_failed'));
     },
     setChartName(no, el) {
       const raw = String((el && el.value) || '').trim();
@@ -3341,7 +3328,7 @@ function createController(deps) {
   const resetLocal = () => { storage.removeItem(CACHE_KEY); storage.removeItem('pmn-outbox'); storage.removeItem('pmn-synced'); };
 
   const ACT = {
-    tab(no) { st.tab = no; st.detailNo = null; st.mapEdit = null; st.mapAdd = false; ui.render(); if (no === 'export') loadMaster(); },
+    tab(no) { st.tab = no; st.detailNo = null; st.mapEdit = null; st.mapAdd = false; ui.render(); },
     open(no) {
       st.detailNo = no; st.editRow = null; st.editData = false; st.pdf = null;
       const m = markSeen(S, no, who(), deps.now());
@@ -3426,6 +3413,7 @@ function createController(deps) {
     mapdone() { st.mapEdit = null; st.mapAdd = false; ui.render(); },
     mapadd() { st.mapAdd = !st.mapAdd; ui.render(); },
     mapfilter(no) { st.mapFilter = no; ui.render(); },
+    listtab(no) { st.listTab = no === 'dibatalkan' ? 'dibatalkan' : 'aktif'; ui.render(); },
     makeExport() {
       st.ready = null;
       const r = makeExport(S, who(), deps.now(), deps.today());
@@ -3530,21 +3518,9 @@ const TABS = [['home', '⌂', 'nav.home'], ['map', '◎', 'nav.map'], ['list', '
 
 /**
  * Berkas di perangkat untuk ekspor (deps.files pengendali). Tidak pernah melempar ke tampilan.
- * share: lembar Bagikan bila peramban bisa membagikan berkas, selain itu unduh biasa. Master Excel di IndexedDB (pmn-files/files, kunci excel-master).
+ * share: lembar Bagikan bila peramban bisa membagikan berkas, selain itu unduh biasa.
  */
 function createDeviceFiles(win, doc) {
-  const KEY = 'excel-master';
-  const db = () => new Promise((ok, no) => {
-    const rq = win.indexedDB.open('pmn-files', 1);
-    rq.onupgradeneeded = () => rq.result.createObjectStore('files');
-    rq.onsuccess = () => ok(rq.result); rq.onerror = () => no(rq.error);
-  });
-  const tx = async (mode, fn) => {
-    const d = await db();
-    try {
-      return await new Promise((ok, no) => { const t = d.transaction('files', mode), rq = fn(t.objectStore('files')); t.oncomplete = () => ok(rq.result); t.onerror = () => no(t.error); t.onabort = () => no(t.error); });
-    } finally { d.close(); }
-  };
   function download(list) {
     for (const f of list) {
       const url = win.URL.createObjectURL(f.blob), a = doc.createElement('a');
@@ -3564,13 +3540,6 @@ function createDeviceFiles(win, doc) {
         }
         return download(list);
       } catch (e) { return { ok: false }; }
-    },
-    async getMaster() {
-      try { const v = await tx('readonly', st => st.get(KEY)); return v && v.buf ? v : null; } catch (e) { return null; }
-    },
-    /** Menyimpan salinan PMN RECORD; {ok:false} bila IndexedDB tidak ada atau penuh. */
-    async setMaster(buf, name, savedAt) {
-      try { await tx('readwrite', st => st.put({ buf, name, savedAt: savedAt || null }, KEY)); return { ok: true }; } catch (e) { return { ok: false }; }
     },
     /** Pemilih berkas .xlsx: {buf, name} atau null. Dibatalkan bila jendela kembali fokus tanpa berkas (tidak semua peramban
         mengirim 'cancel') atau setelah 60 detik, supaya tombol tidak terkunci selamanya. */
@@ -3678,9 +3647,6 @@ function startApp(win, doc) {
 
   function chrome() {
     const c = ctrl.ctx(), t = i18n.t;
-    $('demobar').style.display = live ? 'none' : '';
-    if (!live) $('demobar').innerHTML = `<b>DEMO</b><button data-act="demo1">${esc(t('demo.step1'))}</button><button data-act="demo2">${esc(t('demo.step2'))}</button>` +
-      `<button data-act="demo3" class="${ctrl.st.demoDown ? 'on' : ''}">${esc(t('demo.step3'))}</button><button data-act="demoreset">${esc(t('demo.reset'))}</button><span class="hint">${esc(t('banner.demo'))}</span>`;
     $('gear').title = t('settings.title');
     $('langs').innerHTML = ['id', 'en'].map(l => `<button data-act="lang" data-no="${l}" class="${i18n.getLang() === l ? 'on' : ''}">${l.toUpperCase()}</button>`).join('');
     $('who').innerHTML = DEFAULT_OFFICERS.map(o => `<option${o === officer() ? ' selected' : ''}>${esc(o)}</option>`).join('');
