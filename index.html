@@ -2269,6 +2269,8 @@ function cloneYearSheet(x,wb,rel,ct,files,year){
 const EX_MON = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 const EX_VERSIONS = ['1.0', '1.1', '1.2'];
 const EX_CHART_NAME = 'Singapore PMN';
+/** Radius lingkaran terkecil yang diterima impor ECDIS (NM). Pada uji 24 Okt 2026 range 0.053996 (100 m) ditolak, 0.121490 diterima; semua lingkaran di user chart asli kapal >= 0.1. */
+const EX_MIN_RANGE_NM = 0.1;
 const EX_GROUP_COMMENT = { areas: 'userchart area', labels: 'userchart label', circles: 'userchart circle' };
 const EX_CTRL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\uFFFE\uFFFF]/g;
 const EX_FOLD = [[/[\u2018\u2019\u201A\u201B\u2032\u00B4\u0060]/g, "'"], [/[\u201C\u201D\u201E\u201F\u2033]/g, '"'], [/[\u2010-\u2015\u2212]/g, '-'], [/[\u00B0\u00BA\u02DA]/g, ' '], [/[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g, ' ']];
@@ -2310,7 +2312,7 @@ function exObjects(no, w) {
     const tail = String(g.name || '').replace(/^Area\s*/i, '').trim();
     const gs = multi ? ' ' + (tail || String.fromCharCode(65 + gi)) : '';
     if (g.type === 'circles') g.pts.forEach(x => out.push({ kind: 'circle', group: 'circles', attrs: [['name', `${name}-${x.label}`], ['description', desc]], verts: [[x.lat, x.lon]],
-      extras: [{ tag: 'attribute', attrs: [['range', ((exRadius(x.r) || exRadius(w.radius) || 100) / 1852).toFixed(6)]] }, { tag: 'type', attrs: type }, { tag: 'display', attrs: disp }] }));
+      extras: [{ tag: 'attribute', attrs: [['range', Math.max((exRadius(x.r) || exRadius(w.radius) || 100) / 1852, EX_MIN_RANGE_NM).toFixed(6)]] }, { tag: 'type', attrs: type }, { tag: 'display', attrs: disp }] }));
     else if (g.type === 'points' || g.pts.length < 3) g.pts.forEach(x => out.push({ kind: 'label', group: 'labels', attrs: [['name', `${name} ${x.label}`], ['description', desc]], verts: [[x.lat, x.lon]],
       extras: [{ tag: 'attribute', attrs: [['labelStyle', '3'], ['labelText', x.label]] }, { tag: 'type', attrs: [['checkDanger', '1'], ['displayRadar', '1']] }, { tag: 'display', attrs: [['S52colorcode', 'CHRED']] }] }));
     else out.push({ kind: 'area', group: 'areas', attrs: [['name', name + gs], ['description', desc]], verts: g.pts.map(x => [x.lat, x.lon]), extras: [{ tag: 'type', attrs: type }, { tag: 'display', attrs: disp }] });
