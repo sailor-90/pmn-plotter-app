@@ -475,8 +475,10 @@ function workFromParsed(parsed) {
   return w;
 }
 
-/** Menerapkan bacaan ke record: draf, bacaan asli (parsed) dan nilai kerja (work) terpisah. reader: 'ocr' bila dibaca server. */
-function applyReading(r, result, who, reader) {
+/** Menerapkan bacaan ke record: draf, bacaan asli (parsed) dan nilai kerja (work) terpisah. reader: 'ocr' bila dibaca server.
+    Koreksi AI yang diterima (result.corrections) ditulis ke work dan dicatat di changes (kind 'point_ai'); parsed tetap bacaan asli.
+    at: waktu pembacaan (string) atau kosong. */
+function applyReading(r, result, who, reader, at) {
   r.parsed = toParsed(result, r.rss && r.rss.title);
   if (reader) r.parsed.reader = reader;
   r.work = workFromParsed(r.parsed);
@@ -484,6 +486,12 @@ function applyReading(r, result, who, reader) {
   r.readBy = who;
   r.ack = false;
   r.changes = [];
+  for (const c of result.corrections || []) {
+    const q = r.work.groups[c.gi] && r.work.groups[c.gi].pts[c.pi];
+    if (!q || q.label !== c.label) continue;
+    q.lat = c.pt.lat; q.lon = c.pt.lon; q.latDM = c.pt.latDM; q.lonDM = c.pt.lonDM;
+    r.changes.push({ at: at || null, who: 'Claude', kind: 'point_ai', gi: c.gi, label: c.label, old: c.old, nw: c.nw, source: c.source, reason: c.reason });
+  }
   return r;
 }
 
@@ -597,6 +605,7 @@ const ID = {
   "change.point_add": "Titik {label} ditambah",
   "change.point_del": "Titik {label} dihapus",
   "change.point_restore": "Titik {label} dikembalikan ke nilai asli",
+  "change.point_ai": "Titik {label} dikoreksi AI",
   "change.shape": "Bentuk",
   "change.coords_paste": "Koordinat ditempel",
   "change.no_coords": "Ditandai tanpa koordinat",
@@ -632,6 +641,7 @@ const ID = {
   "err.nothing": "Tidak ada yang bisa diproses.",
   "common.today": "hari ini",
   "common.corrected": "koreksi manual",
+  "common.corrected_ai": "dikoreksi AI",
   "list.published": "Terbit {date}",
   "list.manual": "Ditambah manual",
   "list.valid": "berlaku {from} – {to}",
@@ -784,10 +794,14 @@ const ID = {
   "detail.trail_read_ocr": "Dibaca server (OCR)",
   "detail.trail_read_claude": "Dibaca Claude (AI)",
   "detail.claude_note": "Dibaca otomatis oleh Claude (AI). AI bisa keliru: cocokkan nomor, periode, dan setiap titik dengan PDF asli.",
+  "detail.ai_title": "Dikoreksi AI",
+  "detail.ai_note": "AI membetulkan titik berikut dari baris tercetak lain di PDF. Cocokkan dengan PDF asli sebelum menyetujui; tekan ↺ pada titik untuk mengembalikan ke nilai asli.",
+  "detail.ai_row": "Titik {label}: {old} menjadi {nw} (sumber: {source}). {reason}",
   "detail.reread_installed": "PMN ini dibaca ulang oleh Claude. Sebelumnya terpasang di ECDIS: {list}. Periksa apakah objek lama harus diganti atau dihapus.",
   "detail.body": "Isi PMN (dari PDF)",
   "warn.map_area_count": "Peta di PDF menampilkan {map} area, teks menyebut {text} area. Periksa peta.",
   "warn.map_mismatch": "Claude menilai peta tidak cocok dengan teks: {notes}",
+  "warn.correction_rejected": "Usulan koreksi AI untuk titik {label} ditolak karena tidak terbukti dari baris tercetak.",
   "warn.supersedes_unreadable": "Tulisan nomor PMN yang digantikan tidak terbaca: {text}. Isi manual bila perlu.",
   "warn.text_truncated": "Sebagian teks dari Claude terlalu panjang dan dipotong. Cocokkan dengan PDF asli.",
   "err.err_read": "Claude gagal membaca PDF.",
@@ -934,6 +948,7 @@ const EN = {
   "change.point_add": "Point {label} added",
   "change.point_del": "Point {label} deleted",
   "change.point_restore": "Point {label} restored to the original value",
+  "change.point_ai": "Point {label} corrected by AI",
   "change.shape": "Shape",
   "change.coords_paste": "Coordinates pasted",
   "change.no_coords": "Marked as no coordinates",
@@ -969,6 +984,7 @@ const EN = {
   "err.nothing": "Nothing to process.",
   "common.today": "today",
   "common.corrected": "manual correction",
+  "common.corrected_ai": "AI-corrected",
   "list.published": "Published {date}",
   "list.manual": "Added manually",
   "list.valid": "valid {from} – {to}",
@@ -1121,10 +1137,14 @@ const EN = {
   "detail.trail_read_ocr": "Read by the server (OCR)",
   "detail.trail_read_claude": "Read by Claude (AI)",
   "detail.claude_note": "Read automatically by Claude (AI). AI can be wrong: check the number, the period and every point against the original PDF.",
+  "detail.ai_title": "Corrected by AI",
+  "detail.ai_note": "The AI corrected the points below using another printed line in the PDF. Check against the original PDF before approving; press ↺ on a point to restore the original value.",
+  "detail.ai_row": "Point {label}: {old} became {nw} (source: {source}). {reason}",
   "detail.reread_installed": "This PMN was re-read by Claude. Previously installed on ECDIS: {list}. Check whether the old objects must be replaced or removed.",
   "detail.body": "PMN text (from the PDF)",
   "warn.map_area_count": "The map in the PDF shows {map} areas, the text mentions {text}. Check the map.",
   "warn.map_mismatch": "Claude judged that the map does not match the text: {notes}",
+  "warn.correction_rejected": "The AI correction proposed for point {label} was rejected: it is not backed by a printed line.",
   "warn.supersedes_unreadable": "The superseded PMN number could not be read: {text}. Enter it manually if needed.",
   "warn.text_truncated": "Part of the text from Claude was too long and was cut. Check against the original PDF.",
   "err.err_read": "Claude could not read the PDF.",
@@ -1278,7 +1298,7 @@ function readResult(S, no, result, who, now) {
   const r = S.pm[no];
   if (!r) return { ok: false, code: 'unknown' };
   if (LOCKED.includes(r.status)) return { ok: false, code: 'locked' };
-  applyReading(r, result, who);
+  applyReading(r, result, who, undefined, now);
   addLog(S, who, 'read', { no }, now);
   return { ok: true };
 }
@@ -1511,10 +1531,22 @@ function setCross(S, no, diffs, now) {
   return { ok: true };
 }
 
-/** Butuh centang "sudah saya periksa": ada isu terdeteksi atau pembaca HP menemukan beda dari bacaan server. */
+/** Ada koreksi AI (kind 'point_ai') yang belum ditinjau: titiknya (grup gi, label) di work masih bernilai hasil koreksi.
+    Disunting, dikembalikan, atau dihapus berarti sudah ditinjau; suntingan titik lain, atau titik baru berlabel sama, tidak. */
+function aiPending(r) {
+  const groups = (r.work && r.work.groups) || [];
+  return (r.changes || []).some(c => {
+    if (c.kind !== 'point_ai') return false;
+    const g = groups[c.gi || 0];
+    const q = g && g.pts.find(p => p.label === c.label);
+    return !!q && `${q.latDM} ${q.lonDM}` === c.nw;
+  });
+}
+
+/** Butuh centang "sudah saya periksa": ada isu terdeteksi, pembaca HP menemukan beda dari bacaan server, atau ada koreksi AI belum ditinjau. */
 function needsAck(S, no) {
   const r = S.pm[no];
-  return !!r && (issuesOf(S, no).length > 0 || !!(r.cross && r.cross.diffs.length));
+  return !!r && (issuesOf(S, no).length > 0 || !!(r.cross && r.cross.diffs.length) || aiPending(r));
 }
 
 /* ----- Setujui ----- */
@@ -2393,6 +2425,13 @@ function timeChip(ctx, no) {
 }
 const workChip = (ctx, status) => chip(WORK_CHIP[status], ctx.t('work.' + status));
 
+/** Chip koreksi: hanya koreksi AI = "dikoreksi AI"; selain itu "koreksi manual"; tanpa perubahan = kosong. */
+function correctedChip(ctx, r) {
+  const ch = (r && r.changes) || [];
+  if (!ch.length) return '';
+  return chip('warn', ctx.t(ch.every(c => c.kind === 'point_ai') ? 'common.corrected_ai' : 'common.corrected'));
+}
+
 /** Hanya tautan http(s) absolut yang boleh menjadi href (menolak javascript:, data:, dan //host). Selain itu string kosong. */
 const safeHttpUrl = u => (/^https?:\/\/[^\s]+$/i.test(String(u == null ? '' : u)) ? String(u) : '');
 const countPts = w => (w && w.groups ? w.groups : []).reduce((n, g) => n + g.pts.length, 0);
@@ -2439,7 +2478,7 @@ function itemHtml(ctx, no) {
   const unseen = ctx.officer && !r.stub && !['diekspor', 'terpasang'].includes(r.status) && !(r.seen && r.seen[ctx.officer]) ? `<div style="margin-top:4px">${chip('bad', ctx.t('list.unseen'))}</div>` : '';
   const title = w ? w.title : (r.rss && r.rss.title) || '';
   return `<button class="item" data-act="open" data-no="${esc(no)}"><div class="row sp"><span class="no">PMN ${esc(no)}</span>` +
-    `<span class="row wrap">${r.changes && r.changes.length ? chip('warn', ctx.t('common.corrected')) : ''}${timeChip(ctx, no)}${workChip(ctx, r.status)}</span></div>` +
+    `<span class="row wrap">${correctedChip(ctx, r)}${timeChip(ctx, no)}${workChip(ctx, r.status)}</span></div>` +
     `<div class="t">${esc(title)}</div><div class="small muted">${esc(when)}${esc(valid)}</div>${unseen}</button>`;
 }
 
@@ -2535,7 +2574,7 @@ function renderDetail(ctx, no, ui) {
   const r = S.pm[no];
   if (!r) return '';
   const w = r.work, locked = LOCKED_STATUS.includes(r.status);
-  let b = `<div class="row wrap" style="margin-bottom:6px">${timeChip(ctx, no)}${workChip(ctx, r.status)}${r.changes && r.changes.length ? chip('warn', t('common.corrected')) : ''}</div>`;
+  let b = `<div class="row wrap" style="margin-bottom:6px">${timeChip(ctx, no)}${workChip(ctx, r.status)}${correctedChip(ctx, r)}</div>`;
   b += `<div class="big">${esc(w ? w.title : (r.rss && r.rss.title) || '')}</div>` + trailHtml(ctx, r);
   let foot = '';
   let pdfHtml = '';
@@ -2567,6 +2606,8 @@ function renderDetail(ctx, no, ui) {
     if (r.status === 'draf' && r.parsed && r.parsed.reader === 'claude') b += `<div class="card warn small">${esc(t('detail.claude_note'))}</div>`;
     const wasInstalled = r.reread && Array.isArray(r.reread.was) ? r.reread.was.filter(x => x && LOCKED_STATUS.includes(x.status)) : [];
     if (wasInstalled.length) b += `<div class="card warn small">${esc(t('detail.reread_installed', { list: wasInstalled.map(x => `${x.no} (${t('work.' + x.status)})`).join(', ') }))}</div>`;
+    const ai = (r.changes || []).filter(c => c.kind === 'point_ai');
+    if (ai.length) b += `<div class="card warn small"><b>${esc(t('detail.ai_title'))}</b><div class="muted" style="margin:4px 0">${esc(t('detail.ai_note'))}</div><ul class="notes">${ai.map(c => `<li>${esc(t('detail.ai_row', c))}</li>`).join('')}</ul></div>`;
     const blocked = is.some(i => i.block);
     if (is.length) b += `<div class="card bad small"><b>⚠ ${esc(t('detail.issues_title'))}</b><ul class="notes">${is.map(i => `<li>${esc(t('issue.' + i.code, i))}</li>`).join('')}</ul></div>`;
     const warns = ((r.parsed && r.parsed.warn) || []).filter(x => !is.some(i => i.code === x.code));
@@ -2669,7 +2710,7 @@ function renderExport(ctx) {
   h += `<div class="card"><h2>${esc(t('export.ready_title', { n: ready.length }))}</h2>`;
   if (ready.length) {
     h += ready.map(n => { const w = S.pm[n].work; return `<div class="row sp" style="padding:4px 0"><span><b>PMN ${esc(n)}</b> <span class="small muted">${esc(w.title.slice(0, 34))}</span></span>` +
-      `<span class="row">${S.pm[n].changes.length ? chip('warn', t('common.corrected')) : ''}${chip(w.kind === 'plot' ? 'ok2' : 'info', t(w.kind === 'plot' ? 'export.kind_plot' : 'export.kind_info'))}</span></div>`; }).join('');
+      `<span class="row">${correctedChip(ctx, S.pm[n])}${chip(w.kind === 'plot' ? 'ok2' : 'info', t(w.kind === 'plot' ? 'export.kind_plot' : 'export.kind_info'))}</span></div>`; }).join('');
   } else h += `<div class="empty">${esc(t(mode === 're' ? 'export.all_done' : 'export.empty'))}</div>`;
   const remReady = ecdisRemovals(S, ready);
   if (remReady.length) {
