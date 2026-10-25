@@ -320,7 +320,7 @@ function sgtToday(now) {
 function timeStatus(work, supersededBy, today) {
   if (supersededBy) return { code: 'superseded' };
   if (!work) return { code: 'unread' };
-  if (work.kind === 'advisory') return { code: 'info' };
+  if (work.kind === 'advisory') return work.to && today > work.to ? { code: 'expired' } : { code: 'info' }; // pengumuman bertanggal akhir ikut kedaluwarsa, seperti Remark CANCEL di PMN RECORD
   if (!work.from || !work.to) return { code: 'dates_unknown' };
   if (today < work.from) return { code: 'upcoming' };
   if (today > work.to) return { code: 'expired' };
