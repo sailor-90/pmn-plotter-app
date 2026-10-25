@@ -1764,11 +1764,19 @@ function makeFullExport(S, who, now, today) {
   return { ok: true, export: exp };
 }
 
+/** PMN terakhir yang tercakup paket ekspor terakhir: nomor tersimpan di paket, atau PMN tertinggi yang sudah diekspor/terpasang bila itu lebih tinggi
+    (paket lama menyimpan nomor tertinggi di dalam paketnya saja). */
+function exportTopNo(S) {
+  if (!S.lastExport) return null;
+  const done = Object.keys(S.pm).filter(n => !S.pm[n].stub && (S.pm[n].status === 'diekspor' || S.pm[n].status === 'terpasang'));
+  return sortDesc([S.lastExport.no].concat(done))[0];
+}
+
 function confirmInstalled(S, who, now) {
   const waiting = nosByStatus(S, 'diekspor');
   if (!waiting.length) return { ok: false, code: 'nothing' };
   for (const n of waiting) S.pm[n].status = 'terpasang';
-  const no = S.lastExport ? S.lastExport.no : waiting[0];
+  const no = exportTopNo(S) || waiting[0];
   S.lastInstalled = { no, by: who, at: now, list: waiting };
   addLog(S, who, 'installed', { no }, now);
   return { ok: true };
@@ -2689,7 +2697,7 @@ function renderHome(ctx) {
   if (S.lastInstalled) {
     h += `<div class="big">${esc(t('home.installed_up_to', { no: S.lastInstalled.no }))}</div><div class="small muted">${esc(t('home.last_update_meta', { date: ctx.fmtDate(sgtParts(S.lastInstalled.at).date), by: S.lastInstalled.by }))}</div>`;
   } else h += `<div class="muted">${esc(t('home.no_handover'))}</div>`;
-  if (waiting.length && S.lastExport) h += `<div class="small" style="margin-top:6px;color:var(--warn)">⏳ ${esc(t('home.export_waiting', { no: S.lastExport.no, by: S.lastExport.by }))}</div>`;
+  if (waiting.length && S.lastExport) h += `<div class="small" style="margin-top:6px;color:var(--warn)">⏳ ${esc(t('home.export_waiting', { no: exportTopNo(S), by: S.lastExport.by }))}</div>`;
   h += `</div>`;
 
   if (ctx.reading) h += `<div class="card act"><div class="big">${esc(t('home.reading', { no: ctx.reading }))}</div></div>`;
