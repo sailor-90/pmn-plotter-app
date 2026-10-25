@@ -375,6 +375,24 @@ function supersedeMap(list) {
   return map;
 }
 
+/** Ringkasan per tahun dari {nomor: record}: total, belum dibaca, nomor yang masih berlaku (tidak kedaluwarsa, tidak digantikan, bukan pengumuman tanpa tanggal akhir),
+    dan jumlah pengumuman aktif (info). today = YYYY-MM-DD. */
+function yearSummary(pmns, today) {
+  const keys = Object.keys(pmns);
+  const sup = supersedeMap(keys.filter(k => pmns[k].work).map(k => ({ no: k, supersedes: pmns[k].work.supersedes })));
+  const out = {};
+  for (const no of keys) {
+    const e = out[yearOf(baseNo(no))] || (out[yearOf(baseNo(no))] = { total: 0, unread: 0, inForce: [], info: 0 });
+    e.total++;
+    const r = pmns[no];
+    if (!r.work) { e.unread++; continue; }
+    const c = timeStatus(r.work, sup[baseNo(no)] || null, today).code;
+    if (c === 'info') e.info++;
+    else if (c !== 'expired' && c !== 'superseded') e.inForce.push(no);
+  }
+  return out;
+}
+
 /** Nomor yang hilang di antara nomor terkecil dan terbesar per tahun, terurut naik tahun lalu nomor. */
 function findGaps(nos) {
   const byYear = {};
@@ -1711,7 +1729,7 @@ function carryRemovePdfs(S, fresh) {
 function makeExport(S, who, now, today) {
   const list = nosByStatus(S, 'disetujui');
   if (!list.length) return { ok: false, code: 'nothing' };
-  const top = list[0];
+  const top = approvedNos(S)[0]; // PMN terakhir yang tercakup (tertinggi di antara semua yang disetujui), bukan hanya yang ada di paket ini
   const removeFromEcdis = ecdisRemovals(S, list);
   const excelList = approvedNos(S);
   const xmlList = excelList.filter(n => inForce(S, n, today));
